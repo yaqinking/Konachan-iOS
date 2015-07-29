@@ -18,6 +18,7 @@
 		F4BDF6871B63AD8200AA9C0F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4BDF6851B63AD8200AA9C0F /* Main.storyboard */; };
 		F4BDF6891B63AD8200AA9C0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BDF6881B63AD8200AA9C0F /* Assets.xcassets */; };
 		F4BDF68C1B63AD8200AA9C0F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4BDF68A1B63AD8200AA9C0F /* LaunchScreen.storyboard */; };
+		F4D7074B1B68F01000692FE0 /* TagStore.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D7074A1B68F01000692FE0 /* TagStore.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 		F4BDF6881B63AD8200AA9C0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4BDF68B1B63AD8200AA9C0F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F4BDF68D1B63AD8200AA9C0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F4D707491B68F01000692FE0 /* TagStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagStore.h; sourceTree = "<group>"; };
+		F4D7074A1B68F01000692FE0 /* TagStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TagStore.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 				F49543E41B64ACAF00D170DA /* Tag.m */,
 				F49543E61B64ADB000D170DA /* Picture.h */,
 				F49543E71B64ADB000D170DA /* Picture.m */,
+				F4D707491B68F01000692FE0 /* TagStore.h */,
+				F4D7074A1B68F01000692FE0 /* TagStore.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -244,6 +249,7 @@
 				F423AF4F1B67B03E00B3C175 /* TagPhotoBrowserViewController.m in Sources */,
 				F4BDF6811B63AD8200AA9C0F /* AppDelegate.m in Sources */,
 				F4BDF67E1B63AD8200AA9C0F /* main.m in Sources */,
+				F4D7074B1B68F01000692FE0 /* TagStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

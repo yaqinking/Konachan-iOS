@@ -19,7 +19,7 @@
 @property (nonatomic) int pageOffset;
 
 
-
 @property AFHTTPRequestOperationManager *manager;
+
 
 @end

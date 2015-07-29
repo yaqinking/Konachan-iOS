@@ -8,16 +8,14 @@
 
 #import "ViewController.h"
 #import "SDImageCache.h"
-#import "MWCommon.h"
 #import "KonachanAPI.h"
 #import "Tag.h"
 #import <SDWebImage/UIImageView+WebCache.h>
-
 #import "TagPhotoBrowserViewController.h"
+#import "TagStore.h"
 
 @interface ViewController ()
 
-@property (strong, nonatomic) Tag *currentTag;
 
 @end
 
@@ -27,7 +25,7 @@
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
-        self.title = @"KonachanBrowser";
+        self.title = @"Konachan";
         [[SDImageCache sharedImageCache] cleanDisk];
         [[SDImageCache sharedImageCache] clearMemory];
         
@@ -35,18 +33,15 @@
     return self;
 }
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.tags = [[NSMutableArray alloc] init];
+//    self.tags = [[NSMutableArray alloc] init];
     self.manager = [AFHTTPRequestOperationManager manager];
     
-    Tag *tag1 = [[Tag alloc] init];
-    tag1.name = @"loli";
+    self.previewImageURLs = [[NSMutableArray alloc] init];
     
-    [self.tags addObject:@"loli"];
-    [self.tags addObject:@"pants"];
-    //tag thumb image
     
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor = [UIColor whiteColor];
@@ -58,7 +53,16 @@
 //    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
     
+    
+    
+    self.tags = [[TagStore sharedStore] allTags];
+    
+    [self setupTagsWithDefaultTag];
+    
+    
+    
 }
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -73,9 +77,15 @@
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *TagCellIdentifier = @"TagCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
-    cell.textLabel.text = self.tags[indexPath.row];
+    Tag *tag = [self.tags objectAtIndex:indexPath.row];
+    cell.textLabel.text = tag.name;
+//    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
     
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"http://konachan.com/data/preview/bd/e3/bde340076d768f2f1ecf0491a4dfccdc.jpg"] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
+
+//    [cell.imageView.image imageWithRenderingMode:UIImageRenderingModeAutomatic];
+    if (self.previewImageURLs.count > 0 ) {
+        [cell.imageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
+    }
     return cell;
 }
 
@@ -87,12 +97,39 @@
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"TagPics"]) {
         TagPhotoBrowserViewController *tgvc = [segue destinationViewController];
-
-        NSLog(@"%@",sender);
+        Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        tgvc.tag = passTag;
+//        NSLog(@"%@",sender);
 
     }
 }
 
+- (void)setupTagsWithDefaultTag {
+    NSUInteger tagsCount = self.tags.count;
+    NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,strTagsCount,1,@""]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSLog(@"url %@",url);
+    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    op.responseSerializer = [AFJSONResponseSerializer serializer];
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        
+        for (NSDictionary *picDict in responseObject) {
+            //                        NSLog(@" Dict -> %@",picDict);
+            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
+            //            NSString *jpegURLString = picDict[KONACHAN_DOWNLOAD_TYPE_JPEG];
+           
+            [self.previewImageURLs addObject:previewURLString];
+        }
+        [self.tableView reloadData];
+        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"failure %@",error);
+    }];
+    [[NSOperationQueue mainQueue] addOperation:op];
+}
 
 
 @end

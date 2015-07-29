@@ -8,10 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface Tag : NSObject
+@interface Tag : NSObject<NSCoding>
 
 @property (strong, nonatomic) NSString *name;//tag name such as loli
-@property (unsafe_unretained ,nonatomic) NSURL *previewImageURL;//table view cell image url only return one image.
-
+//@property (unsafe_unretained ,nonatomic) NSURL *previewImageURL;//table view cell image url only return one image.
+//@property (nonatomic) int cachedPicsCount;
 
 @end

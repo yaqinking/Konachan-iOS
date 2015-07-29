@@ -7,20 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MWPhotoBrowser.h"
 #import "AFNetworking.h"
 
-@interface ViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, MWPhotoBrowserDelegate>
+@interface ViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
-@property (strong, nonatomic) NSMutableArray *tags;
+@property (strong, nonatomic) NSArray *tags;
+@property (strong, nonatomic) NSMutableArray *previewImageURLs;
 
-
-@property (strong, nonatomic) NSMutableArray *photos;
-@property (strong, nonatomic) NSMutableArray *thumbs;
-@property (strong, nonatomic) NSMutableArray *photosURL;
-@property (strong, nonatomic) NSMutableArray *thumbsURL;
-@property (strong, nonatomic) NSString *pageOffset;
 @property AFHTTPRequestOperationManager *manager;
+
+
 @end
 

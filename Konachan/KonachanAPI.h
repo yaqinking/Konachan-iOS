@@ -26,3 +26,5 @@
 #define KONACHAN_DOWNLOAD_TYPE_PREVIEW @"preview_url"
 #define KONACHAN_DOWNLOAD_TYPE_FILE    @"file_url"
 #define KONACHAN_DOWNLOAD_TYPE_JPEG    @"jpeg_url"
+
+#define KONACHAN_KEY_TAGS @"tags"

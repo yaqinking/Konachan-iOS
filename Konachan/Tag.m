@@ -10,4 +10,18 @@
 
 @implementation Tag
 
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+    self = [super init];
+    if (self) {
+        self.name = [aDecoder decodeObjectForKey:@"name"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+    [aCoder encodeObject:self.name forKey:@"name"];
+}
+
+
+
 @end
