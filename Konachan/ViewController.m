@@ -14,6 +14,8 @@
 #import "TagPhotoBrowserViewController.h"
 #import "TagStore.h"
 
+#import "TagTableViewCell.h"
+
 @interface ViewController ()
 
 
@@ -59,10 +61,25 @@
     
     [self setupTagsWithDefaultTag];
     
+    CGFloat red = 33.0;
+    CGFloat green = 33.0;
+    CGFloat blue = 33.0;
+    CGFloat alpha = 255.0;
+    UIColor *color = [UIColor colorWithRed:(red/255.0) green:(green/255.0) blue:(blue/255.0) alpha:(alpha/255.0)];
+    self.tableView.backgroundColor = color;
+    
+    [self.tableView setSeparatorColor:color];
     
     
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -76,21 +93,22 @@
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *TagCellIdentifier = @"TagCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
+    TagTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
     Tag *tag = [self.tags objectAtIndex:indexPath.row];
-    cell.textLabel.text = tag.name;
+    cell.tagTextLabel.text = tag.name;
 //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
     
 
 //    [cell.imageView.image imageWithRenderingMode:UIImageRenderingModeAutomatic];
     if (self.previewImageURLs.count > 0 ) {
-        [cell.imageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
+        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
+//        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row]];
     }
     return cell;
 }
 
 - (CGFloat)tableView:(nonnull UITableView *)tableView heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    return 50.0f;
+    return 60.0f;
 }
 
 

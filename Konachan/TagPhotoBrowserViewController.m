@@ -14,6 +14,8 @@
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "Picture.h"
 
+#define FETCH_AMOUNT @"30"
+
 @implementation TagPhotoBrowserViewController
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
@@ -40,12 +42,15 @@
     self.startOnGrid = NO;
 //    [self setCurrentPhotoIndex:1];
 
-    
    
     self.pageOffset = 1;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
-    NSLog(@"TPVC tag.name %@",self.tag.name);
+//    NSLog(@"TPVC tag.name %@",self.tag.name);
 //    NSLog(@"1 %i",self.pageOffset);
+    
+    CGRect frame =  self.view.frame;
+    NSLog(@"%f",frame.size.height);
+    
 }
 
 
@@ -61,14 +66,18 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - MWPhotoBrowser
 
 - (NSUInteger)numberOfPhotosInPhotoBrowser:(MWPhotoBrowser *)photoBrowser {
     return self.photos.count;
 }
 
 - (id <MWPhoto>)photoBrowser:(MWPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index {
-    if (index < self.photos.count)
+    if (index < self.photos.count){
+        
+        self.startOnGrid = YES;
         return [self.photos objectAtIndex:index];
+    }
     return nil;
 }
 
@@ -92,15 +101,12 @@
     }
 }
 
-- (void)photoBrowserDidFinishModalPresentation:(MWPhotoBrowser *)photoBrowser {
-    // If we subscribe to this method we must dismiss the view controller ourselves
-    NSLog(@"Did finish modal presentation");
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
+
+#pragma mark - Utils
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,@"10",pageOffset,self.tag.name]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,FETCH_AMOUNT,pageOffset,self.tag.name]];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     NSLog(@"url %@",url);
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
@@ -121,7 +127,11 @@
             [self.photos addObject:photoPic];
             [self.thumbs addObject:thumbPic];
         }
+        
         [self reloadData];
+        self.startOnGrid = YES;
+        CGRect frame =  self.view.frame;
+        NSLog(@"%f",frame.size.height);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);

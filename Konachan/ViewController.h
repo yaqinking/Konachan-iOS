@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "AFNetworking.h"
 
-@interface ViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@interface ViewController : UITableViewController
 
 @property (strong, nonatomic) NSArray *tags;
 @property (strong, nonatomic) NSMutableArray *previewImageURLs;
