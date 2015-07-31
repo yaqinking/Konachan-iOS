@@ -92,11 +92,9 @@
 //    NSLog(@"当前正在看第 %lu 张图片",(unsigned long)index);
     if ((index + 1) > (self.photos.count * 0.7)) {
         
-        NSLog(@"2 %i",self.pageOffset);
         self.pageOffset ++;
-        NSLog(@"3 %i",self.pageOffset);
         [self setupPhotosURLWithTag:@"loli" andPageoffset:self.pageOffset];
-        NSLog(@"4 %i",self.pageOffset);
+        NSLog(@"current pageOffset %i",self.pageOffset);
         
     }
 }

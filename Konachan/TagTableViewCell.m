@@ -24,9 +24,11 @@
     [super layoutSubviews];
     
     self.tagImageView.contentMode = UIViewContentModeScaleAspectFit;
-    self.tagTextLabel.frame = CGRectMake(self.imageView.frame.origin.x + 75  ,self.imageView.frame.origin.y,100,55);
-    self.tagImageView.frame = CGRectMake(self.imageView.frame.origin.x,
-                                      self.imageView.frame.origin.y, 70, 55);
+    CGRect cellBounds = self.bounds;
+    self.tagImageView.frame = CGRectMake(cellBounds.origin.x + 10,
+                                      cellBounds.origin.y + 5, 75, 50);
+    
+    self.tagTextLabel.frame = CGRectMake(cellBounds.origin.x + 90, cellBounds.origin.y + 5 , self.textLabel.frame.size.width,50);
     
     CGFloat red = 33.0;
     CGFloat green = 33.0;

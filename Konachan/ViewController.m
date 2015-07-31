@@ -39,7 +39,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-//    self.tags = [[NSMutableArray alloc] init];
     self.manager = [AFHTTPRequestOperationManager manager];
     
     self.previewImageURLs = [[NSMutableArray alloc] init];
@@ -99,16 +98,15 @@
 //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
     
 
-//    [cell.imageView.image imageWithRenderingMode:UIImageRenderingModeAutomatic];
+    [cell.tagImageView setImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
     if (self.previewImageURLs.count > 0 ) {
         [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
-//        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row]];
     }
     return cell;
 }
 
 - (CGFloat)tableView:(nonnull UITableView *)tableView heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    return 60.0f;
+    return 70.0f;
 }
 
 
