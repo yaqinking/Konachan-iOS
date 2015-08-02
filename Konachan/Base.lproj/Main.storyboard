@@ -74,7 +74,13 @@
                             <outlet property="delegate" destination="D0H-2P-Is7" id="9cG-d5-dHF"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="uXa-O1-6eT"/>
+                    <navigationItem key="navigationItem" id="uXa-O1-6eT">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="bDc-pk-aZS">
+                            <connections>
+                                <action selector="addTag:" destination="D0H-2P-Is7" id="3XL-jk-TH8"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="tableView" destination="gFL-mU-NZe" id="79c-FJ-4KI"/>
                     </connections>

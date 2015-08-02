@@ -39,12 +39,12 @@
         self.privateTags = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
         if (!self.privateTags) {
             self.privateTags = [[NSMutableArray alloc] init];
-            NSArray *tagsArrary = @[@"loli",@"2girls",@"skirt"];
-            for (int i = 0 ; i < 3; i++) {
-                Tag *tag = [self createTag];
-                tag.name = tagsArrary[i];
-                NSLog(@"TagStore -> %@",tag.name);
-            }
+//            NSArray *tagsArrary = @[@"loli",@"2girls",@"skirt"];
+//            for (int i = 0 ; i < 3; i++) {
+//                Tag *tag = [self createTag];
+//                tag.name = tagsArrary[i];
+//                NSLog(@"TagStore -> %@",tag.name);
+//            }
 
         }
         
@@ -60,6 +60,7 @@
 
 - (BOOL)saveChanges {
     NSString *path = [self tagArchivePath];
+//    NSLog(@"save %lul tags",(unsigned long)[self.privateTags count]);
     return [NSKeyedArchiver archiveRootObject:self.privateTags toFile:path];
 }
 

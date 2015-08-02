@@ -7,14 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AFNetworking.h"
 
 @interface ViewController : UITableViewController
 
-@property (strong, nonatomic) NSArray *tags;
 @property (strong, nonatomic) NSMutableArray *previewImageURLs;
 
-@property AFHTTPRequestOperationManager *manager;
+- (IBAction)addTag:(id)sender;
 
 
 @end

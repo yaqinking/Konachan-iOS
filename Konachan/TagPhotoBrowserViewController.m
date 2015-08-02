@@ -127,7 +127,6 @@
         }
         
         [self reloadData];
-        self.startOnGrid = YES;
         CGRect frame =  self.view.frame;
         NSLog(@"%f",frame.size.height);
         

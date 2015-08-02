@@ -16,8 +16,10 @@
 
 #import "TagTableViewCell.h"
 
+
 @interface ViewController ()
 
+@property (nonatomic) BOOL isValidTag;
 
 @end
 
@@ -39,10 +41,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.manager = [AFHTTPRequestOperationManager manager];
-    
-    self.previewImageURLs = [[NSMutableArray alloc] init];
-    
     
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor = [UIColor whiteColor];
@@ -51,12 +49,7 @@
     navBar.translucent = YES;
     navBar.barStyle = UIBarStyleBlackTranslucent;
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-//    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
-    
-    
-    
-    self.tags = [[TagStore sharedStore] allTags];
     
     [self setupTagsWithDefaultTag];
     
@@ -87,23 +80,23 @@
 
 #pragma mark - Table view data source
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.tags.count;
+    return [[[TagStore sharedStore] allTags] count];
 }
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *TagCellIdentifier = @"TagCell";
     TagTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
-    Tag *tag = [self.tags objectAtIndex:indexPath.row];
+    Tag *tag = [[[TagStore sharedStore] allTags] objectAtIndex:indexPath.row];
     cell.tagTextLabel.text = tag.name;
 //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
-    
 
-    [cell.tagImageView setImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
     if (self.previewImageURLs.count > 0 ) {
         [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
     }
     return cell;
 }
+
+#pragma mark - TabeleView Delegate
 
 - (CGFloat)tableView:(nonnull UITableView *)tableView heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     return 70.0f;
@@ -113,15 +106,20 @@
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"TagPics"]) {
         TagPhotoBrowserViewController *tgvc = [segue destinationViewController];
-        Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        Tag *passTag = [[[TagStore sharedStore] allTags] objectAtIndex:[self.tableView indexPathForSelectedRow].row];
         tgvc.tag = passTag;
 //        NSLog(@"%@",sender);
 
     }
 }
 
+#pragma mark - Setup
+
 - (void)setupTagsWithDefaultTag {
-    NSUInteger tagsCount = self.tags.count;
+   
+    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:[[[TagStore sharedStore] allTags] count]];
+    
+    NSUInteger tagsCount = [[[TagStore sharedStore] allTags] count];
     NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,strTagsCount,1,@""]];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -130,6 +128,14 @@
     op.responseSerializer = [AFJSONResponseSerializer serializer];
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         
+
+//        if ([responseObject count] == 0) {
+//            self.isValidTag = NO;
+//            NSLog(@"Not valid tag");
+//            return ;
+//        } else {
+//            NSLog(@"valid tag");
+//        }
         
         for (NSDictionary *picDict in responseObject) {
             //                        NSLog(@" Dict -> %@",picDict);
@@ -139,7 +145,7 @@
             [self.previewImageURLs addObject:previewURLString];
         }
         [self.tableView reloadData];
-        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
+//        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);
@@ -148,4 +154,59 @@
 }
 
 
+
+- (IBAction)addTag:(id)sender {
+    NSLog(@"addTag");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Add Tag"
+                                                                   message:@""
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * _Nonnull action) {
+                                         
+                                                          UITextField *tagTextField =  alert.textFields[0];
+                                                          if (![tagTextField.text isEqualToString:@""]) {
+                                                              NSString *addTagName = tagTextField.text;
+                                                              NSLog(@"%@",addTagName);
+                                                              
+                                                              Tag *newTag = [[TagStore sharedStore] createTag];
+                                                              newTag.name = addTagName;
+                                                              
+                                                              NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
+                                                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
+                                                              
+                                                              [self setupTagsWithDefaultTag];
+                                                              
+                                                              [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                                                              
+                                                          }
+                                                      }];
+
+    addAction.enabled = NO;
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                        style:UIAlertActionStyleCancel
+                                                      handler:^(UIAlertAction * _Nonnull action) {
+                                                          NSLog(@"Cancel");
+                                                      }];
+    
+    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Input a tag keyword";
+        
+        NSNotificationCenter *notiCen = [NSNotificationCenter defaultCenter];
+        [notiCen addObserverForName:UITextFieldTextDidChangeNotification
+                             object:textField queue:[NSOperationQueue mainQueue]
+                         usingBlock:^(NSNotification * _Nonnull note) {
+                             addAction.enabled = YES;
+        }];
+        
+        
+    }];
+    
+    [alert addAction:addAction];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
 @end
