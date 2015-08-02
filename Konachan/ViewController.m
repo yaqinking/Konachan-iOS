@@ -102,6 +102,14 @@
     return 70.0f;
 }
 
+- (void)tableView:(nonnull UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        NSArray *tags = [[TagStore sharedStore] allTags];
+        Tag *tag = tags[indexPath.row];
+        [[TagStore sharedStore] removeTag:tag];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    }
+}
 
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"TagPics"]) {
