@@ -4,5 +4,6 @@ platform :ios, '8.0'
 target 'Konachan' do
   pod "MWPhotoBrowser"
   pod "AFNetworking", "~> 2.0"
+  pod 'SVPullToRefresh'
 end
 

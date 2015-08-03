@@ -13,9 +13,8 @@
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "TagPhotoBrowserViewController.h"
 #import "TagStore.h"
-
 #import "TagTableViewCell.h"
-
+#import "SVPullToRefresh.h"
 
 @interface ViewController ()
 
@@ -43,11 +42,12 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     UINavigationBar *navBar = self.navigationController.navigationBar;
-    navBar.tintColor = [UIColor whiteColor];
-    navBar.barTintColor = nil;
-    navBar.shadowImage = nil;
-    navBar.translucent = YES;
-    navBar.barStyle = UIBarStyleBlackTranslucent;
+    navBar.tintColor        = [UIColor whiteColor];
+    navBar.barTintColor     = nil;
+    navBar.shadowImage      = nil;
+    navBar.translucent      = YES;
+    navBar.barStyle         = UIBarStyleBlackTranslucent;
+    
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
     
@@ -58,15 +58,36 @@
     CGFloat blue = 33.0;
     CGFloat alpha = 255.0;
     UIColor *color = [UIColor colorWithRed:(red/255.0) green:(green/255.0) blue:(blue/255.0) alpha:(alpha/255.0)];
-    self.tableView.backgroundColor = color;
     
-    [self.tableView setSeparatorColor:color];
+    self.tableView.backgroundColor = color;
+    self.tableView.separatorColor  = color;
+    
+    self.tableView.pullToRefreshView.arrowColor = [UIColor whiteColor];
+    self.tableView.pullToRefreshView.textColor  = [UIColor whiteColor];
+    
+    
+    //fix first row hide when pull to refresh stop
+    if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+        
+        UIEdgeInsets insets = self.tableView.contentInset;
+        insets.top          = self.navigationController.navigationBar.bounds.size.height +
+                                [UIApplication sharedApplication].statusBarFrame.size.height;
+        self.tableView.contentInset          = insets;
+        self.tableView.scrollIndicatorInsets = insets;
+    }
+    
+    __weak ViewController *weakSelf = self;
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [weakSelf setupTagsWithDefaultTag];
+    }];
     
     
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self.tableView triggerPullToRefresh];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -85,9 +106,9 @@
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *TagCellIdentifier = @"TagCell";
-    TagTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
-    Tag *tag = [[[TagStore sharedStore] allTags] objectAtIndex:indexPath.row];
-    cell.tagTextLabel.text = tag.name;
+    TagTableViewCell *cell      = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
+    Tag *tag                    = [[[TagStore sharedStore] allTags] objectAtIndex:indexPath.row];
+    cell.tagTextLabel.text      = tag.name;
 //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
 
     if (self.previewImageURLs.count > 0 ) {
@@ -105,7 +126,8 @@
 - (void)tableView:(nonnull UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         NSArray *tags = [[TagStore sharedStore] allTags];
-        Tag *tag = tags[indexPath.row];
+        Tag *tag      = tags[indexPath.row];
+        
         [[TagStore sharedStore] removeTag:tag];
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
@@ -121,16 +143,18 @@
     }
 }
 
+
 #pragma mark - Setup
 
 - (void)setupTagsWithDefaultTag {
-   
+    __weak ViewController *weakSelf = self;
+    
     self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:[[[TagStore sharedStore] allTags] count]];
     
-    NSUInteger tagsCount = [[[TagStore sharedStore] allTags] count];
+    NSUInteger tagsCount   = [[[TagStore sharedStore] allTags] count];
     NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,strTagsCount,1,@""]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,strTagsCount,1,@""]];
+    NSURLRequest *request  = [NSURLRequest requestWithURL:url];
     NSLog(@"url %@",url);
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     op.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -146,14 +170,17 @@
 //        }
         
         for (NSDictionary *picDict in responseObject) {
-            //                        NSLog(@" Dict -> %@",picDict);
             NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
-            //            NSString *jpegURLString = picDict[KONACHAN_DOWNLOAD_TYPE_JPEG];
            
             [self.previewImageURLs addObject:previewURLString];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
+            
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
+            
+            
+            NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
         });
 //        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
         
