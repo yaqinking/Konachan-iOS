@@ -152,7 +152,9 @@
            
             [self.previewImageURLs addObject:previewURLString];
         }
-        [self.tableView reloadData];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
 //        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -172,24 +174,27 @@
     UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
                                                         style:UIAlertActionStyleDefault
                                                       handler:^(UIAlertAction * _Nonnull action) {
-                                         
-                                                          UITextField *tagTextField =  alert.textFields[0];
-                                                          if (![tagTextField.text isEqualToString:@""]) {
-                                                              NSString *addTagName = tagTextField.text;
-                                                              NSLog(@"%@",addTagName);
-                                                              
-                                                              Tag *newTag = [[TagStore sharedStore] createTag];
-                                                              newTag.name = addTagName;
-                                                              
-                                                              NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
-                                                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
-                                                              
-                                                              [self setupTagsWithDefaultTag];
-                                                              
-                                                              [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
-                                                              
-                                                          }
-                                                      }];
+                                      UITextField *tagTextField =  alert.textFields[0];
+                                      if (![tagTextField.text isEqualToString:@""]) {
+                                          NSString *addTagName = tagTextField.text;
+                                          NSLog(@"%@",addTagName);
+                                          
+                                          Tag *newTag = [[TagStore sharedStore] createTag];
+                                          newTag.name = addTagName;
+                                          
+                                          NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
+                                          NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
+                                          
+                                          [self setupTagsWithDefaultTag];
+                                          
+                                          //At main thread update UI
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                                              
+                                          });
+                                          
+                                      }
+                                  }];
 
     addAction.enabled = NO;
     

@@ -51,6 +51,7 @@
     CGRect frame =  self.view.frame;
     NSLog(@"%f",frame.size.height);
     
+    
 }
 
 
@@ -74,8 +75,6 @@
 
 - (id <MWPhoto>)photoBrowser:(MWPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index {
     if (index < self.photos.count){
-        
-        self.startOnGrid = YES;
         return [self.photos objectAtIndex:index];
     }
     return nil;
@@ -88,10 +87,8 @@
 }
 
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index {
-//    NSLog(@"Did start viewing photo at index %lu", (unsigned long)index);
 //    NSLog(@"当前正在看第 %lu 张图片",(unsigned long)index);
     if ((index + 1) > (self.photos.count * 0.7)) {
-        
         self.pageOffset ++;
         [self setupPhotosURLWithTag:@"loli" andPageoffset:self.pageOffset];
         NSLog(@"current pageOffset %i",self.pageOffset);
