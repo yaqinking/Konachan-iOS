@@ -7,13 +7,14 @@
 //
 
 #import "ViewController.h"
-#import "SDImageCache.h"
+#import "TagPhotosViewController.h"
 #import "KonachanAPI.h"
 #import "Tag.h"
-#import <SDWebImage/UIImageView+WebCache.h>
-#import "TagPhotoBrowserViewController.h"
 #import "TagStore.h"
 #import "TagTableViewCell.h"
+
+#import "AFNetworking.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 #import "SVPullToRefresh.h"
 
 @interface ViewController ()
@@ -62,8 +63,6 @@
     self.tableView.backgroundColor = color;
     self.tableView.separatorColor  = color;
     
-    self.tableView.pullToRefreshView.arrowColor = [UIColor whiteColor];
-    self.tableView.pullToRefreshView.textColor  = [UIColor whiteColor];
     
     
     //fix first row hide when pull to refresh stop
@@ -72,7 +71,7 @@
         
         UIEdgeInsets insets = self.tableView.contentInset;
         insets.top          = self.navigationController.navigationBar.bounds.size.height +
-                                [UIApplication sharedApplication].statusBarFrame.size.height;
+        [UIApplication sharedApplication].statusBarFrame.size.height;
         self.tableView.contentInset          = insets;
         self.tableView.scrollIndicatorInsets = insets;
     }
@@ -81,6 +80,9 @@
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf setupTagsWithDefaultTag];
     }];
+    
+    self.tableView.pullToRefreshView.arrowColor = [UIColor whiteColor];
+    self.tableView.pullToRefreshView.textColor  = [UIColor whiteColor];
     
     
 }
@@ -109,10 +111,10 @@
     TagTableViewCell *cell      = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
     Tag *tag                    = [[[TagStore sharedStore] allTags] objectAtIndex:indexPath.row];
     cell.tagTextLabel.text      = tag.name;
-//    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
-
+    //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
+    
     if (self.previewImageURLs.count > 0 ) {
-        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"avatar-sqare.jpeg"]];
+        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"ph.jpeg"]];
     }
     return cell;
 }
@@ -134,12 +136,11 @@
 }
 
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
-    if ([segue.identifier isEqualToString:@"TagPics"]) {
-        TagPhotoBrowserViewController *tgvc = [segue destinationViewController];
+    if ([segue.identifier isEqualToString:@"Show Tag Photos"]) {
+        TagPhotosViewController *tpvc = [segue destinationViewController];
         Tag *passTag = [[[TagStore sharedStore] allTags] objectAtIndex:[self.tableView indexPathForSelectedRow].row];
-        tgvc.tag = passTag;
-//        NSLog(@"%@",sender);
-
+        tpvc.tag = passTag;
+        
     }
 }
 
@@ -160,18 +161,18 @@
     op.responseSerializer = [AFJSONResponseSerializer serializer];
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-
-//        if ([responseObject count] == 0) {
-//            self.isValidTag = NO;
-//            NSLog(@"Not valid tag");
-//            return ;
-//        } else {
-//            NSLog(@"valid tag");
-//        }
+        
+        //        if ([responseObject count] == 0) {
+        //            self.isValidTag = NO;
+        //            NSLog(@"Not valid tag");
+        //            return ;
+        //        } else {
+        //            NSLog(@"valid tag");
+        //        }
         
         for (NSDictionary *picDict in responseObject) {
             NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
-           
+            
             [self.previewImageURLs addObject:previewURLString];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -182,7 +183,7 @@
             
             NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
         });
-//        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
+        //        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);
@@ -201,35 +202,35 @@
     UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
                                                         style:UIAlertActionStyleDefault
                                                       handler:^(UIAlertAction * _Nonnull action) {
-                                      UITextField *tagTextField =  alert.textFields[0];
-                                      if (![tagTextField.text isEqualToString:@""]) {
-                                          NSString *addTagName = tagTextField.text;
-                                          NSLog(@"%@",addTagName);
-                                          
-                                          Tag *newTag = [[TagStore sharedStore] createTag];
-                                          newTag.name = addTagName;
-                                          
-                                          NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
-                                          NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
-                                          
-                                          [self setupTagsWithDefaultTag];
-                                          
-                                          //At main thread update UI
-                                          dispatch_async(dispatch_get_main_queue(), ^{
-                                              [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
-                                              
-                                          });
-                                          
-                                      }
-                                  }];
-
+                                                          UITextField *tagTextField =  alert.textFields[0];
+                                                          if (![tagTextField.text isEqualToString:@""]) {
+                                                              NSString *addTagName = tagTextField.text;
+                                                              NSLog(@"%@",addTagName);
+                                                              
+                                                              Tag *newTag = [[TagStore sharedStore] createTag];
+                                                              newTag.name = addTagName;
+                                                              
+                                                              NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
+                                                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
+                                                              
+                                                              [self setupTagsWithDefaultTag];
+                                                              
+                                                              //At main thread update UI
+                                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                                  [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                                                                  
+                                                              });
+                                                              
+                                                          }
+                                                      }];
+    
     addAction.enabled = NO;
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
-                                                        style:UIAlertActionStyleCancel
-                                                      handler:^(UIAlertAction * _Nonnull action) {
-                                                          NSLog(@"Cancel");
-                                                      }];
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * _Nonnull action) {
+                                                             NSLog(@"Cancel");
+                                                         }];
     
     [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Input a tag keyword";
@@ -239,7 +240,7 @@
                              object:textField queue:[NSOperationQueue mainQueue]
                          usingBlock:^(NSNotification * _Nonnull note) {
                              addAction.enabled = YES;
-        }];
+                         }];
         
         
     }];

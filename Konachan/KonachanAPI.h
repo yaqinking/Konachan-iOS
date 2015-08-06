@@ -28,3 +28,5 @@
 #define KONACHAN_DOWNLOAD_TYPE_JPEG    @"jpeg_url"
 
 #define KONACHAN_KEY_TAGS @"tags"
+
+#define FETCH_AMOUNT @"30"
