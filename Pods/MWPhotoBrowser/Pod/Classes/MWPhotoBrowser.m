@@ -192,6 +192,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 	// Super
     [super viewDidLoad];
 	
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapToShowNextORPrePic:)];
+    [self.view addGestureRecognizer:tapGesture];
 }
 
 - (void)performLayout {
@@ -1546,6 +1548,20 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         } else  {
             [self dismissViewControllerAnimated:YES completion:nil];
         }
+    }
+}
+
+#pragma mark - TapGesture
+- (void)tapToShowNextORPrePic:(UIGestureRecognizer *)recongnizer {
+    CGPoint tappedPoint = [recongnizer locationInView:self.view];
+//    CGFloat xCoordinate = tappedPoint.x;
+    CGFloat yCoordinate = tappedPoint.y;
+    CGFloat vHeight      = self.view.bounds.size.height;
+//    NSLog(@"Tapped x : %f y : %f height : %f",xCoordinate, yCoordinate, vHeight);
+    if (yCoordinate < vHeight/2) {
+        [self showPreviousPhotoAnimated:NO];
+    } else if (yCoordinate > vHeight/2) {
+        [self showNextPhotoAnimated:NO];
     }
 }
 
