@@ -2,11 +2,17 @@
 
 A bettter way to watch images from Konachan
 
+## Usage
+
 ![](/Images/1.jpg)
 
 ![](/Images/2.jpg)
 
 ![](/Images/3.jpg)
+
+![](/Images/4.jpg)
+
+↑ Tap to show next or previous picture.
 
 ~~It has many issues, but It works.~~
 
