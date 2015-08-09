@@ -5,5 +5,6 @@ target 'Konachan' do
   pod "MWPhotoBrowser"
   pod "AFNetworking", "~> 2.0"
   pod 'SVPullToRefresh'
+  pod 'ActionSheetPicker-3.0', '~> 1.3.4'
 end
 

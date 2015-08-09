@@ -28,6 +28,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.photos = [[NSMutableArray alloc] init];
     self.thumbs = [[NSMutableArray alloc] init];
     self.pageOffset = 1;
+    
+    [self setupSourceSite];
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     //fix first row hide when pull to refresh stop
     if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
@@ -92,7 +94,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,FETCH_AMOUNT,pageOffset,tag]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,FETCH_AMOUNT,pageOffset,tag]];
     self.pageOffset ++;
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -120,6 +122,20 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
+
+- (void)setupSourceSite {
+    NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
+//    NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
+    if (sourceSiteShort == nil) {
+        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+//        NSLog(@"default set to konachan.com");
+    } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
+        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+    } else if ([sourceSiteShort isEqualToString:kYandere]) {
+        self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+    }
+}
+
 
 #pragma mark - UICollectionViewFlowLayoutDelegate
 

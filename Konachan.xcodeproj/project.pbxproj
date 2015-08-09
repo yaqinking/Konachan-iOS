@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		63FF1BEFD0F7970964CBBBDC /* libPods-Konachan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 702F1F16B23D31011B079044 /* libPods-Konachan.a */; };
+		F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */; };
 		F4E5F0E21B71EB9100AA21D6 /* ph.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = F4E5F0E11B71EB9100AA21D6 /* ph.jpeg */; };
 		F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */; };
 		F4E5F0EB1B71F93B00AA21D6 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E81B71F93B00AA21D6 /* Tag.m */; };
@@ -27,6 +28,8 @@
 		3077424D7FC7DA90DDAED1A0 /* Pods-Konachan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.release.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.release.xcconfig"; sourceTree = "<group>"; };
 		702F1F16B23D31011B079044 /* libPods-Konachan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Konachan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.debug.xcconfig"; sourceTree = "<group>"; };
+		F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
+		F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsTableViewController.m; sourceTree = "<group>"; };
 		F4E5F0E11B71EB9100AA21D6 /* ph.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ph.jpeg; sourceTree = "<group>"; };
 		F4E5F0E31B71ED5600AA21D6 /* KonachanAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KonachanAPI.h; sourceTree = "<group>"; };
 		F4E5F0E41B71F92C00AA21D6 /* TagTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagTableViewCell.h; sourceTree = "<group>"; };
@@ -126,6 +129,8 @@
 				F4F0A3561B71E9C000289149 /* TagPhotosViewController.m */,
 				F4F0A3581B71E9E600289149 /* PhotoCell.h */,
 				F4F0A3591B71E9E600289149 /* PhotoCell.m */,
+				F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */,
+				F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -246,6 +251,7 @@
 			files = (
 				F4F0A3571B71E9C000289149 /* TagPhotosViewController.m in Sources */,
 				F4F0A35A1B71E9E600289149 /* PhotoCell.m in Sources */,
+				F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */,
 				F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */,
 				F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */,
 				F4E5F0EB1B71F93B00AA21D6 /* Tag.m in Sources */,

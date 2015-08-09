@@ -1554,14 +1554,20 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 #pragma mark - TapGesture
 - (void)tapToShowNextORPrePic:(UIGestureRecognizer *)recongnizer {
     CGPoint tappedPoint = [recongnizer locationInView:self.view];
-//    CGFloat xCoordinate = tappedPoint.x;
+    CGFloat xCoordinate = tappedPoint.x;
     CGFloat yCoordinate = tappedPoint.y;
     CGFloat vHeight      = self.view.bounds.size.height;
+    CGFloat vWidth = self.view.bounds.size.width;
 //    NSLog(@"Tapped x : %f y : %f height : %f",xCoordinate, yCoordinate, vHeight);
-    if (yCoordinate < vHeight/2) {
-        [self showPreviousPhotoAnimated:NO];
-    } else if (yCoordinate > vHeight/2) {
-        [self showNextPhotoAnimated:NO];
+    if (xCoordinate < vWidth * 0.4 || xCoordinate > vWidth * 0.6 ) {
+        if (yCoordinate < vHeight * 0.6) {
+            [self showPreviousPhotoAnimated:NO];
+        } else {
+            [self showNextPhotoAnimated:NO];
+        }
+    } else {
+        [self showControls];
+        [self hideControlsAfterDelay];
     }
 }
 

@@ -42,6 +42,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    NSLog(@"viewDidLoad");
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
     navBar.barTintColor     = nil;
@@ -51,7 +52,12 @@
     
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
+//    [[NSUserDefaults standardUserDefaults] setValue:@"Konachan.com" forKey:@"source_site"];
     
+    
+    [self setupSourceSite];
+    
+    NSLog(@"sourcesite -> %@",self.sourceSite);
     [self setupTagsWithDefaultTag];
     
     CGFloat red = 33.0;
@@ -84,12 +90,13 @@
     self.tableView.pullToRefreshView.arrowColor = [UIColor whiteColor];
     self.tableView.pullToRefreshView.textColor  = [UIColor whiteColor];
     
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self setupSourceSite];
     [self.tableView triggerPullToRefresh];
+    NSLog(@"viewDidAppear");
 }
 
 - (void)viewWillLayoutSubviews {
@@ -99,6 +106,19 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)setupSourceSite {
+    NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
+    NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
+    if (sourceSiteShort == nil) {
+        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+        NSLog(@"default set to konachan.com");
+    } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
+        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+    } else if ([sourceSiteShort isEqualToString:kYandere]) {
+        self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+    }
 }
 
 #pragma mark - Table view data source
@@ -154,7 +174,7 @@
     
     NSUInteger tagsCount   = [[[TagStore sharedStore] allTags] count];
     NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
-    NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: KONACHAN_POST_LIMIT_PAGE_TAGS,strTagsCount,1,@""]];
+    NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,strTagsCount,1,@""]];
     NSURLRequest *request  = [NSURLRequest requestWithURL:url];
     NSLog(@"url %@",url);
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
@@ -179,9 +199,7 @@
             [self.tableView reloadData];
             
             [weakSelf.tableView.pullToRefreshView stopAnimating];
-            
-            
-            NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
+//            NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
         });
         //        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
         
@@ -202,34 +220,34 @@
     UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
                                                         style:UIAlertActionStyleDefault
                                                       handler:^(UIAlertAction * _Nonnull action) {
-                                                          UITextField *tagTextField =  alert.textFields[0];
-                                                          if (![tagTextField.text isEqualToString:@""]) {
-                                                              NSString *addTagName = tagTextField.text;
-                                                              NSLog(@"%@",addTagName);
-                                                              
-                                                              Tag *newTag = [[TagStore sharedStore] createTag];
-                                                              newTag.name = addTagName;
-                                                              
-                                                              NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
-                                                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
-                                                              
-                                                              [self setupTagsWithDefaultTag];
-                                                              
-                                                              //At main thread update UI
-                                                              dispatch_async(dispatch_get_main_queue(), ^{
-                                                                  [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
-                                                                  
-                                                              });
-                                                              
-                                                          }
-                                                      }];
+              UITextField *tagTextField =  alert.textFields[0];
+              if (![tagTextField.text isEqualToString:@""]) {
+                  NSString *addTagName = tagTextField.text;
+                  NSLog(@"%@",addTagName);
+                  
+                  Tag *newTag = [[TagStore sharedStore] createTag];
+                  newTag.name = addTagName;
+                  
+                  NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
+                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
+                  
+                  [self setupTagsWithDefaultTag];
+                  
+                  //At main thread update UI
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                      [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                      
+                  });
+                  
+              }
+          }];
     
     addAction.enabled = NO;
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
                                                            style:UIAlertActionStyleCancel
                                                          handler:^(UIAlertAction * _Nonnull action) {
-                                                             NSLog(@"Cancel");
+//                                                             NSLog(@"Cancel");
                                                          }];
     
     [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {

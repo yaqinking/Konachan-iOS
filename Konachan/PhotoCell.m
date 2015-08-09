@@ -16,8 +16,8 @@
 }
 
 - (void)performLayout {
-    CGSize imageSize = self.image.image.size;
-    NSLog(@"width  %f height %f ", imageSize.width, imageSize.height);
+//    CGSize imageSize = self.image.image.size;
+//    NSLog(@"width  %f height %f ", imageSize.width, imageSize.height);
 //    self.bounds = CGRectMake(0, 0, imageSize.width * 0.1, imageSize.width * 0.1);
 }
 

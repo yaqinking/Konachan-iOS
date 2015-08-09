@@ -19,4 +19,5 @@
 @property (strong, nonatomic) Tag *tag;
 @property (nonatomic) int pageOffset;
 @property (nonatomic) BOOL isInfiniting;
+@property (strong, nonatomic) NSString *sourceSite;
 @end

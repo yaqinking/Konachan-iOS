@@ -11,6 +11,8 @@
 @interface ViewController : UITableViewController
 
 @property (strong, nonatomic) NSMutableArray *previewImageURLs;
+@property (strong, nonatomic) NSString *sourceSite;
+
 
 - (IBAction)addTag:(id)sender;
 
