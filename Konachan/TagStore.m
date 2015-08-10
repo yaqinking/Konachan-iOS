@@ -17,14 +17,26 @@
 
 @implementation TagStore
 
+/**
+ *  Create a singleton that is thread-safe by using dispatch_once to ensure that code is run exactly once.
+ *
+ *  @return
+ */
 + (instancetype)sharedStore {
     static TagStore *sharedStore;
-    if (!sharedStore) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         sharedStore = [[self alloc] initPrivate];
-    }
+    });
+    
     return sharedStore;
 }
 
+/**
+ *  這個異常拋的好，是在下輸了。
+ *
+ *  @return
+ */
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"Singleton"
                                    reason:@"Use +[TagStore sharedStore]"
