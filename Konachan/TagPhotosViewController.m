@@ -87,7 +87,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
     browser.displayNavArrows = YES;
     browser.zoomPhotosToFill = YES;
     browser.enableSwipeToDismiss = YES;
-
+    
     [self.navigationController pushViewController:browser animated:YES];
 }
 
@@ -153,5 +153,15 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }
     return nil;
 }
+
+#pragma mark - UIView
+
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+//- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
+//    return UIStatusBarAnimationFade;
+//}
 
 @end

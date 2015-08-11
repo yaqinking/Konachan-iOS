@@ -1471,11 +1471,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (BOOL)prefersStatusBarHidden {
-    if (!_leaveStatusBarAlone) {
-        return _statusBarShouldBeHidden;
-    } else {
-        return [self presentingViewControllerPrefersStatusBarHidden];
-    }
+//    if (!_leaveStatusBarAlone) {
+//        return _statusBarShouldBeHidden;
+//    } else {
+//        return [self presentingViewControllerPrefersStatusBarHidden];
+//    }
+    return YES;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
