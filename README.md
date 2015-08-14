@@ -1,6 +1,9 @@
 # Konachan-iOS
 
-A bettter way to watch images from Konachan
+A bettter way to browser images from 
+1. Konachan.com
+2. Konachan.net
+3. yande.re
 
 ## Usage
 
@@ -27,6 +30,7 @@ A bettter way to watch images from Konachan
 - [SVPullToRefresh](https://github.com/samvermette/SVPullToRefresh)
 - [DACircularProgress](https://github.com/danielamitay/DACircularProgress)
 - [CocoaPods](https://cocoapods.org/)
+- [ActionSheetPicker-3.0](https://github.com/skywinder/ActionSheetPicker-3.0)
 
 ## License
 Under MIT license, see LICENSE file.
