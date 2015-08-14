@@ -131,6 +131,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
 //        NSLog(@"default set to konachan.com");
     } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
         self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+    } else if ([sourceSiteShort isEqualToString:kKonachanSafe]) {
+        self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
     } else if ([sourceSiteShort isEqualToString:kYandere]) {
         self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
     }

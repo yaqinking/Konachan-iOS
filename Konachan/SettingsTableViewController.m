@@ -36,7 +36,7 @@
 }
 
 - (IBAction)chooseSource:(UIButton *)sender {
-    NSArray *sites = [NSArray arrayWithObjects:@"Konachan.com", @"Yande.re",nil];
+    NSArray *sites = [NSArray arrayWithObjects:@"Konachan.com", @"Konachan.net", @"Yande.re",nil];
     [ActionSheetStringPicker showPickerWithTitle:@"Source site"
                                             rows:sites
                                 initialSelection:0
