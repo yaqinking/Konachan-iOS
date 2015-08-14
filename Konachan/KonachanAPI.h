@@ -11,7 +11,7 @@
 #define KONACHAN_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%@&page=%i&tags=%@"
 
 //safe mode Konachan
-#define KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS @"http://konachan.net/post.json?limit=%@&page=%i&tags=%@"
+#define KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%@&page=%i&tags=%@+rating:s"
 
 //yande.re
 #define YANDERE_POST_LIMIT_PAGE_TAGS  @"https://yande.re/post.json?limit=%@&page=%i&tags=%@"
@@ -38,8 +38,12 @@
 
 #define FETCH_AMOUNT @"30"
 
-
 #define kSourceSite   @"source_site"
 #define kKonachanMain @"Konachan.com"
 #define kKonachanSafe @"Konachan.net"
 #define kYandere      @"Yande.re"
+
+//Ratings
+#define kRatingSafe         @"s"
+#define kRatingQuestionable @"q"
+#define kRatingExplicit     @"e"
