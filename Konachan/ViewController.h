@@ -10,7 +10,7 @@
 
 @interface ViewController : UITableViewController
 
-@property (strong, nonatomic) NSMutableArray *previewImageURLs;
+@property (strong, nonatomic) NSArray *previewImageURLs;
 @property (strong, nonatomic) NSString *sourceSite;
 
 

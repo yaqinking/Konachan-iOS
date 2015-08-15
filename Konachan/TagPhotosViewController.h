@@ -13,11 +13,13 @@
 
 @interface TagPhotosViewController : UICollectionViewController<MWPhotoBrowserDelegate, UICollectionViewDelegateFlowLayout>
 
-@property (strong, nonatomic) NSMutableArray *photos;
-@property (strong, nonatomic) NSMutableArray *thumbs;
-@property (strong, nonatomic) NSMutableArray *photosURL;
+@property (strong, nonatomic) NSArray *photos;
+@property (strong, nonatomic) NSArray *photosURL;
+
 @property (strong, nonatomic) Tag *tag;
+
 @property (nonatomic) int pageOffset;
 @property (nonatomic) BOOL isInfiniting;
+
 @property (strong, nonatomic) NSString *sourceSite;
 @end

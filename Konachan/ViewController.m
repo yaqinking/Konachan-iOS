@@ -20,6 +20,7 @@
 @interface ViewController ()
 
 @property (nonatomic) BOOL isValidTag;
+@property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
 
 @end
 
@@ -194,12 +195,13 @@
         
         for (NSDictionary *picDict in responseObject) {
             NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
-            
-            [self.previewImageURLs addObject:previewURLString];
+            [self.dataPreviewImageURLs addObject:previewURLString];
         }
+        
+        self.previewImageURLs = [self.dataPreviewImageURLs copy];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
-            
             [weakSelf.tableView.pullToRefreshView stopAnimating];
 //            NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
         });
@@ -270,4 +272,21 @@
     
     [self presentViewController:alert animated:YES completion:nil];
 }
+
+#pragma mark - Lazy Initialization
+
+- (NSMutableArray *)dataPreviewImageURLs {
+    if (!_dataPreviewImageURLs) {
+        _dataPreviewImageURLs = [[NSMutableArray alloc] init];
+    }
+    return _dataPreviewImageURLs;
+}
+
+- (NSArray *)previewImageURLs {
+    if (!_previewImageURLs) {
+        _previewImageURLs = [[NSArray alloc] init];
+    }
+    return _previewImageURLs;
+}
+
 @end

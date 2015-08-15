@@ -20,15 +20,18 @@
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
+@interface TagPhotosViewController ()
+
+@property (strong, nonatomic) NSMutableArray *dataPhotos;
+@property (strong, nonatomic) NSMutableArray *dataPhotosURL;
+
+@end
+
 @implementation TagPhotosViewController
 
 
 - (void)viewDidLoad {
-    self.photosURL = [[NSMutableArray alloc] init];
-    self.photos = [[NSMutableArray alloc] init];
-    self.thumbs = [[NSMutableArray alloc] init];
     self.pageOffset = 1;
-    
     [self setupSourceSite];
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     //fix first row hide when pull to refresh stop
@@ -106,15 +109,22 @@ static NSString * const CellIdentifier = @"PhotoCell";
 //            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
             NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
             NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
+  
             Picture *photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
             photoPic.caption = picTitle;
-            [self.photosURL addObject:[NSURL URLWithString:sampleURLString]];
-            [self.photos addObject:photoPic];
+            
+            [self.dataPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+            [self.dataPhotos addObject:photoPic];
         }
+        
+        self.photosURL = [self.dataPhotosURL copy];
+        self.photos = [self.dataPhotos copy];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
             [self.collectionView.infiniteScrollingView stopAnimating];
         });
+        
         NSLog(@"count %lu",(unsigned long)self.photosURL.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -160,6 +170,36 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+#pragma mark - Lazy Initialization
+
+- (NSMutableArray *)dataPhotos {
+    if (!_dataPhotos) {
+        _dataPhotos = [[NSMutableArray alloc] init];
+    }
+    return _dataPhotos;
+}
+
+- (NSArray *)photos {
+    if (!_photos) {
+        _photos = [[NSArray alloc] init];
+    }
+    return _photos;
+}
+
+- (NSMutableArray *)dataPhotosURL {
+    if (!_dataPhotosURL) {
+        _dataPhotosURL = [[NSMutableArray alloc] init];
+    }
+    return _dataPhotosURL;
+}
+
+- (NSArray *)photosURL {
+    if (!_photosURL) {
+        _photosURL = [[NSArray alloc] init];
+    }
+    return _photosURL;
 }
 
 //- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
