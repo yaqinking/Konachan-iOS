@@ -49,7 +49,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
     [self.collectionView addInfiniteScrollingWithActionHandler:^{
         [weakSelf setupPhotosURLWithTag:weakSelf.tag.name andPageoffset:weakSelf.pageOffset];
     }];
-   }
+
+}
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -103,7 +104,12 @@ static NSString * const CellIdentifier = @"PhotoCell";
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     NSLog(@"url %@",url);
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    op.responseSerializer = [AFJSONResponseSerializer serializer];
+    if (op) {
+        op.responseSerializer = [AFJSONResponseSerializer serializer];
+    } else {
+        op.responseSerializer = [AFImageResponseSerializer serializer];
+    }
+
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         for (NSDictionary *picDict in responseObject) {
 //            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
@@ -129,6 +135,12 @@ static NSString * const CellIdentifier = @"PhotoCell";
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);
+        //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
+        self.pageOffset --;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //失败后也要让上拉加载控件 stop
+            [self.collectionView.infiniteScrollingView stopAnimating];
+        });
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
