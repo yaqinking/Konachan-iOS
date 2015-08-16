@@ -17,6 +17,7 @@
 #import "MWPhotoBrowser.h"
 
 #import "SVPullToRefresh.h"
+#import "UIImageView+UIActivityIndicatorForSDWebImage.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
@@ -65,8 +66,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (nonnull UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PhotoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSURL *photoURL = [self.photosURL objectAtIndex:indexPath.row];
-//    cell.image.image = [UIImage imageNamed:@"ph.jpeg"];
-    [cell.image sd_setImageWithURL:photoURL placeholderImage:[UIImage imageNamed:@"ph.jpeg"]];
+    [cell.image setImageWithURL:photoURL usingActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     return cell;
 }
 
