@@ -6,5 +6,6 @@ target 'Konachan' do
   pod "AFNetworking", "~> 2.0"
   pod 'SVPullToRefresh'
   pod 'ActionSheetPicker-3.0', '~> 1.3.4'
+  pod 'UIActivityIndicator-for-SDWebImage'
 end
 
