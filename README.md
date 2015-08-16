@@ -32,6 +32,7 @@ A bettter way to browser images from
 - [DACircularProgress](https://github.com/danielamitay/DACircularProgress)
 - [CocoaPods](https://cocoapods.org/)
 - [ActionSheetPicker-3.0](https://github.com/skywinder/ActionSheetPicker-3.0)
+- [UIActivityIndicator-for-SDWebImage](https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage)
 
 ## License
 Under MIT license, see LICENSE file.
