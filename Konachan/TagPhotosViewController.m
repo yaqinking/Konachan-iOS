@@ -23,8 +23,9 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 @interface TagPhotosViewController ()
 
-@property (strong, nonatomic) NSMutableArray *dataPhotos;
-@property (strong, nonatomic) NSMutableArray *dataPhotosURL;
+@property (strong, nonatomic) NSMutableArray *photos;
+@property (strong, nonatomic) NSMutableArray *photosURL;
+@property (nonatomic) BOOL isEnterBrowser;
 
 @end
 
@@ -32,6 +33,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 
 - (void)viewDidLoad {
+    [super viewDidLoad];
     self.pageOffset = 1;
     [self setupSourceSite];
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
@@ -55,6 +57,16 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    self.isEnterBrowser = NO;
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    if (!self.isEnterBrowser) {
+        [self.photos removeAllObjects];
+        self.photos = nil;
+        self.photosURL = nil;
+    }
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -77,13 +89,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
 #pragma mark - UICollectionViewDelegate
 
 - (void)collectionView:(nonnull UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    NSMutableArray *photosArray = [[NSMutableArray alloc] init];
-    for (NSURL *photoURL in self.photosURL) {
-        MWPhoto *photo = [MWPhoto photoWithURL:photoURL];
-        [photosArray addObject:photo];
-    }
-    
-    MWPhotoBrowser *browser = [[MWPhotoBrowser alloc] initWithPhotos:photosArray];
+    self.isEnterBrowser = YES;
+    MWPhotoBrowser *browser = [[MWPhotoBrowser alloc] initWithPhotos:self.photos];
     [browser setCurrentPhotoIndex:indexPath.row];
     browser.delegate = self;
     
@@ -111,36 +118,33 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }
 
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        for (NSDictionary *picDict in responseObject) {
-//            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
-            NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
-            NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
-  
-            Picture *photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
-            photoPic.caption = picTitle;
+        dispatch_async(dispatch_queue_create("data", nil), ^{
+            for (NSDictionary *picDict in responseObject) {
+    //            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
+                NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
+                NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
+      
+                Picture *photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                photoPic.caption = picTitle;
+                
+                [self.photosURL addObject:[NSURL URLWithString:sampleURLString]];
+                [self.photos addObject:photoPic];
+            }
+        
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.collectionView.infiniteScrollingView stopAnimating];
+                [self.collectionView reloadData];
+                NSLog(@"count %lu",(unsigned long)self.photosURL.count);
+            });
             
-            [self.dataPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
-            [self.dataPhotos addObject:photoPic];
-        }
-        
-        self.photosURL = [self.dataPhotosURL copy];
-        self.photos = [self.dataPhotos copy];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.collectionView reloadData];
-            [self.collectionView.infiniteScrollingView stopAnimating];
         });
-        
-        NSLog(@"count %lu",(unsigned long)self.photosURL.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);
         //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
         self.pageOffset --;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            //失败后也要让上拉加载控件 stop
-            [self.collectionView.infiniteScrollingView stopAnimating];
-        });
+        //失败后也要让上拉加载控件 stop
+        [self.collectionView.infiniteScrollingView stopAnimating];
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
@@ -186,30 +190,17 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 #pragma mark - Lazy Initialization
 
-- (NSMutableArray *)dataPhotos {
-    if (!_dataPhotos) {
-        _dataPhotos = [[NSMutableArray alloc] init];
-    }
-    return _dataPhotos;
-}
-
-- (NSArray *)photos {
+- (NSMutableArray *)photos {
     if (!_photos) {
-        _photos = [[NSArray alloc] init];
+        _photos = [[NSMutableArray alloc] init];
     }
     return _photos;
 }
 
-- (NSMutableArray *)dataPhotosURL {
-    if (!_dataPhotosURL) {
-        _dataPhotosURL = [[NSMutableArray alloc] init];
-    }
-    return _dataPhotosURL;
-}
 
-- (NSArray *)photosURL {
+- (NSMutableArray *)photosURL {
     if (!_photosURL) {
-        _photosURL = [[NSArray alloc] init];
+        _photosURL = [[NSMutableArray alloc] init];
     }
     return _photosURL;
 }

@@ -97,7 +97,7 @@
     [super viewDidAppear:animated];
     [self setupSourceSite];
     [self.tableView triggerPullToRefresh];
-    NSLog(@"viewDidAppear");
+//    NSLog(@"viewDidAppear");
 }
 
 - (void)viewWillLayoutSubviews {
@@ -181,18 +181,13 @@
     NSURLRequest *request  = [NSURLRequest requestWithURL:url];
     NSLog(@"url %@",url);
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    op.responseSerializer = [AFJSONResponseSerializer serializer];
+    if (op) {
+        op.responseSerializer = [AFJSONResponseSerializer serializer];
+    } else {
+        op.responseSerializer = [AFImageResponseSerializer serializer];
+    }
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        
-        //        if ([responseObject count] == 0) {
-        //            self.isValidTag = NO;
-        //            NSLog(@"Not valid tag");
-        //            return ;
-        //        } else {
-        //            NSLog(@"valid tag");
-        //        }
-        
+       
         for (NSDictionary *picDict in responseObject) {
             NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
             [self.dataPreviewImageURLs addObject:previewURLString];
@@ -200,15 +195,13 @@
         
         self.previewImageURLs = [self.dataPreviewImageURLs copy];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.tableView reloadData];
-            [weakSelf.tableView.pullToRefreshView stopAnimating];
-//            NSLog(@"after pull to refresh origin y %f",self.tableView.bounds.origin.y);
-        });
-        //        NSLog(@"%lu picturesURL",(unsigned long)self.previewImageURLs.count);
+        [self.tableView reloadData];
+        [weakSelf.tableView.pullToRefreshView stopAnimating];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"failure %@",error);
+        NSLog(@"failure %@",[error localizedDescription]);
+        [self.tableView.pullToRefreshView stopAnimating];
+        
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
@@ -236,12 +229,8 @@
                   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
                   
                   [self setupTagsWithDefaultTag];
-                  
-                  //At main thread update UI
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                      [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+                  [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
                       
-                  });
                   
               }
           }];
@@ -259,11 +248,11 @@
         
         NSNotificationCenter *notiCen = [NSNotificationCenter defaultCenter];
         [notiCen addObserverForName:UITextFieldTextDidChangeNotification
-                             object:textField queue:[NSOperationQueue mainQueue]
+                             object:textField
+                              queue:[NSOperationQueue mainQueue]
                          usingBlock:^(NSNotification * _Nonnull note) {
                              addAction.enabled = YES;
                          }];
-        
         
     }];
     

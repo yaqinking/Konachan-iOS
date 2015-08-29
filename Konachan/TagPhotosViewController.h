@@ -13,8 +13,6 @@
 
 @interface TagPhotosViewController : UICollectionViewController<MWPhotoBrowserDelegate, UICollectionViewDelegateFlowLayout>
 
-@property (strong, nonatomic) NSArray *photos;
-@property (strong, nonatomic) NSArray *photosURL;
 
 @property (strong, nonatomic) Tag *tag;
 
