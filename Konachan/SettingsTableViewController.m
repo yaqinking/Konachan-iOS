@@ -9,6 +9,7 @@
 #import "SettingsTableViewController.h"
 #import "ActionSheetPicker.h"
 #import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/SDWebImageManager.h>
 #import "MBProgressHUD.h"
 
 #define kSourceSite @"source_site"
@@ -24,8 +25,8 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
     [self calculateCachedPicsSize];
+    
 }
 
 - (void)calculateCachedPicsSize {
@@ -33,6 +34,7 @@
     [[SDImageCache sharedImageCache] calculateSizeWithCompletionBlock:^(NSUInteger fileCount, NSUInteger totalSize) {
         weakSelf.cachedSizeLabel.text = [NSString stringWithFormat:@"%.2f M", totalSize/1024.0/1024.0];
     }];
+    
 }
 
 - (IBAction)chooseSource:(UIButton *)sender {
@@ -50,18 +52,17 @@
            } cancelBlock:^(ActionSheetStringPicker *picker) {
                
            } origin:sender];
+    
 }
+
 - (IBAction)clearCache:(id)sender {
-//    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-    [[SDImageCache sharedImageCache] cleanDisk];
-//           dispatch_async(dispatch_get_main_queue(), ^{
-//               [MBProgressHUD hideHUDForView:self.view animated:YES];
-               [self.clearCacheSwitcher setOn:NO];
-               [self calculateCachedPicsSize];
-//           });
-//        }];
-//    });
+    SDImageCache *imageCache = [SDImageCache sharedImageCache];
+    [imageCache clearMemory];
+    [imageCache clearDiskOnCompletion:^{
+        [self.clearCacheSwitcher setOn:NO];
+        [self calculateCachedPicsSize];
+    }];
+    
 }
 
 @end

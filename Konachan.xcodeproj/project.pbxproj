@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		63FF1BEFD0F7970964CBBBDC /* libPods-Konachan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 702F1F16B23D31011B079044 /* libPods-Konachan.a */; };
 		F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */; };
-		F4E5F0E21B71EB9100AA21D6 /* ph.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = F4E5F0E11B71EB9100AA21D6 /* ph.jpeg */; };
 		F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */; };
 		F4E5F0EB1B71F93B00AA21D6 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E81B71F93B00AA21D6 /* Tag.m */; };
 		F4E5F0EC1B71F93B00AA21D6 /* TagStore.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0EA1B71F93B00AA21D6 /* TagStore.m */; };
@@ -30,7 +29,6 @@
 		C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.debug.xcconfig"; sourceTree = "<group>"; };
 		F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsTableViewController.m; sourceTree = "<group>"; };
-		F4E5F0E11B71EB9100AA21D6 /* ph.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ph.jpeg; sourceTree = "<group>"; };
 		F4E5F0E31B71ED5600AA21D6 /* KonachanAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KonachanAPI.h; sourceTree = "<group>"; };
 		F4E5F0E41B71F92C00AA21D6 /* TagTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagTableViewCell.h; sourceTree = "<group>"; };
 		F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TagTableViewCell.m; sourceTree = "<group>"; };
@@ -120,7 +118,6 @@
 				F4F0A3411B71E94000289149 /* AppDelegate.h */,
 				F4F0A3421B71E94000289149 /* AppDelegate.m */,
 				F4F0A3471B71E94000289149 /* Main.storyboard */,
-				F4E5F0E11B71EB9100AA21D6 /* ph.jpeg */,
 				F4F0A34A1B71E94000289149 /* Assets.xcassets */,
 				F4F0A34C1B71E94000289149 /* LaunchScreen.storyboard */,
 				F4F0A34F1B71E94000289149 /* Info.plist */,
@@ -206,7 +203,6 @@
 				F4F0A34E1B71E94000289149 /* LaunchScreen.storyboard in Resources */,
 				F4F0A34B1B71E94000289149 /* Assets.xcassets in Resources */,
 				F4F0A3491B71E94000289149 /* Main.storyboard in Resources */,
-				F4E5F0E21B71EB9100AA21D6 /* ph.jpeg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,7 +317,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -359,7 +355,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

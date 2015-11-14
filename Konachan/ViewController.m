@@ -28,22 +28,20 @@
 
 @implementation ViewController
 
-- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
-    if (self = [super initWithCoder:aDecoder]) {
-        self.title = @"Konachan";
-        [[SDImageCache sharedImageCache] cleanDisk];
-        [[SDImageCache sharedImageCache] clearMemory];
-        
-    }
-    return self;
-}
+//- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+//    if (self = [super initWithCoder:aDecoder]) {
+//        self.title = @"Konachan";
+//        [[SDImageCache sharedImageCache] cleanDisk];
+//        [[SDImageCache sharedImageCache] clearMemory];
+//        
+//    }
+//    return self;
+//}
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
-    NSLog(@"viewDidLoad");
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
     navBar.barTintColor     = nil;
