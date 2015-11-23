@@ -2,16 +2,21 @@
 //  Tag.h
 //  Konachan
 //
-//  Created by 小笠原やきん on 15/7/26.
+//  Created by 小笠原やきん on 15/11/23.
 //  Copyright © 2015年 yaqinking. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 
-@interface Tag : NSObject<NSCoding>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (strong, nonatomic) NSString *name;//tag name such as loli
-//@property (unsafe_unretained ,nonatomic) NSURL *previewImageURL;//table view cell image url only return one image.
-//@property (nonatomic) int cachedPicsCount;
+@interface Tag : NSManagedObject
+
+// Insert code here to declare functionality of your managed object subclass
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#import "Tag+CoreDataProperties.h"

@@ -9,7 +9,7 @@
 #import "TagPhotosViewController.h"
 #import "PhotoCell.h"
 #import "KonachanAPI.h"
-#import "Tag.h"
+#import "Tag+CoreDataProperties.h"
 #import "Picture.h"
 
 #import "AFNetworking.h"
@@ -109,7 +109,9 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.pageOffset ++;
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    NSLog(@"url %@",url);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"url %@",url);
+    }
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     if (op) {
         op.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -134,7 +136,10 @@ static NSString * const CellIdentifier = @"PhotoCell";
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.collectionView.infiniteScrollingView stopAnimating];
                 [self.collectionView reloadData];
-                NSLog(@"count %lu",(unsigned long)self.photosURL.count);
+                if (IS_DEBUG_MODE) {
+                    NSLog(@"count %lu",(unsigned long)self.photosURL.count);
+                }
+                
             });
             
         });

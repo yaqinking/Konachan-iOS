@@ -9,18 +9,23 @@
 #import "ViewController.h"
 #import "TagPhotosViewController.h"
 #import "KonachanAPI.h"
-#import "Tag.h"
-#import "TagStore.h"
+#import "Tag+CoreDataProperties.h"
 #import "TagTableViewCell.h"
-
+#import "AppDelegate.h"
 #import "AFNetworking.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "SVPullToRefresh.h"
 
+
 @interface ViewController ()
 
-@property (nonatomic) BOOL isValidTag;
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
+
+@property (nonatomic, strong) AppDelegate *appDelegate;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSManagedObjectModel *managedObjectModel;
+
+@property (nonatomic, strong) NSMutableArray *tags;
 
 @end
 
@@ -28,20 +33,9 @@
 
 @implementation ViewController
 
-//- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
-//    if (self = [super initWithCoder:aDecoder]) {
-//        self.title = @"Konachan";
-//        [[SDImageCache sharedImageCache] cleanDisk];
-//        [[SDImageCache sharedImageCache] clearMemory];
-//        
-//    }
-//    return self;
-//}
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [self observeiCloudChanges];
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
     navBar.barTintColor     = nil;
@@ -51,12 +45,13 @@
     
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
-//    [[NSUserDefaults standardUserDefaults] setValue:@"Konachan.com" forKey:@"source_site"];
-    
     
     [self setupSourceSite];
     
-    NSLog(@"sourcesite -> %@",self.sourceSite);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"sourcesite -> %@",self.sourceSite);
+    }
+    
     [self setupTagsWithDefaultTag];
     
     CGFloat red = 33.0;
@@ -91,28 +86,55 @@
     
 }
 
+- (void)observeiCloudChanges {
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter addObserverForName:NSPersistentStoreDidImportUbiquitousContentChangesNotification
+                               object:self.managedObjectContext.persistentStoreCoordinator
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:^(NSNotification * _Nonnull note) {
+                               NSLog(@"------- \n NSPersistentStoreDidImportUbiquitousContentChangesNotification \n --- %@",[NSThread currentThread]);
+                               self.tags = nil;
+                               [self setupTagsWithDefaultTag];
+                           }];
+    
+}
+
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self setupSourceSite];
     [self.tableView triggerPullToRefresh];
-//    NSLog(@"viewDidAppear");
+
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter removeObserver:self
+                             name:NSPersistentStoreDidImportUbiquitousContentChangesNotification
+                           object:self.managedObjectContext];
+    
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+
 }
 
 - (void)setupSourceSite {
     NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
-    NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
+    }
+
     if (sourceSiteShort == nil) {
-        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
-        NSLog(@"default set to konachan.com");
+        self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
+        NSLog(@"default set to konachan.net");
     } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
         self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
     } else if ([sourceSiteShort isEqualToString:kKonachanSafe]) {
@@ -124,18 +146,18 @@
 
 #pragma mark - Table view data source
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [[[TagStore sharedStore] allTags] count];
+    return self.tags.count;
 }
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *TagCellIdentifier = @"TagCell";
     TagTableViewCell *cell      = [tableView dequeueReusableCellWithIdentifier:TagCellIdentifier];
-    Tag *tag                    = [[[TagStore sharedStore] allTags] objectAtIndex:indexPath.row];
+    Tag *tag                    = [self.tags objectAtIndex:indexPath.row];
     cell.tagTextLabel.text      = tag.name;
     //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
     
     if (self.previewImageURLs.count > 0 ) {
-        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"ph.jpeg"]];
+        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
     }
     return cell;
 }
@@ -148,18 +170,26 @@
 
 - (void)tableView:(nonnull UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSArray *tags = [[TagStore sharedStore] allTags];
-        Tag *tag      = tags[indexPath.row];
-        
-        [[TagStore sharedStore] removeTag:tag];
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        Tag *tag      = self.tags[indexPath.row];
+        [self.managedObjectContext deleteObject:tag];
+        [self saveContext];
+        self.tags = nil;
+        [self setupTagsWithDefaultTag];
     }
+}
+
+- (void)saveContext {
+    NSError *error = nil;
+    if ([self.managedObjectContext hasChanges] && ![self.managedObjectContext save:&error]) {
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+    }
+    
 }
 
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"Show Tag Photos"]) {
         TagPhotosViewController *tpvc = [segue destinationViewController];
-        Tag *passTag = [[[TagStore sharedStore] allTags] objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
         tpvc.tag = passTag;
         
     }
@@ -171,13 +201,15 @@
 - (void)setupTagsWithDefaultTag {
     __weak ViewController *weakSelf = self;
     
-    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:[[[TagStore sharedStore] allTags] count]];
+    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:self.tags.count];
     
-    NSUInteger tagsCount   = [[[TagStore sharedStore] allTags] count];
+    NSUInteger tagsCount   = self.tags.count;
     NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
     NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,strTagsCount,1,@""]];
     NSURLRequest *request  = [NSURLRequest requestWithURL:url];
-    NSLog(@"url %@",url);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"url %@",url);
+    }
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     if (op) {
         op.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -218,17 +250,16 @@
               UITextField *tagTextField =  alert.textFields[0];
               if (![tagTextField.text isEqualToString:@""]) {
                   NSString *addTagName = tagTextField.text;
-                  NSLog(@"%@",addTagName);
+                  if (IS_DEBUG_MODE) {
+                      NSLog(@"%@",addTagName);
+                  }
                   
-                  Tag *newTag = [[TagStore sharedStore] createTag];
+                  Tag *newTag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
+                                                              inManagedObjectContext:self.managedObjectContext];
                   newTag.name = addTagName;
-                  
-                  NSInteger lastRow = [[[TagStore sharedStore] allTags] indexOfObject:newTag];
-                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:lastRow inSection:0];
-                  
+                  [self saveContext];
+                  self.tags = nil;
                   [self setupTagsWithDefaultTag];
-                  [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
-                      
                   
               }
           }];
@@ -238,7 +269,7 @@
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
                                                            style:UIAlertActionStyleCancel
                                                          handler:^(UIAlertAction * _Nonnull action) {
-//                                                             NSLog(@"Cancel");
+
                                                          }];
     
     [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
@@ -261,6 +292,37 @@
 }
 
 #pragma mark - Lazy Initialization
+
+- (NSMutableArray *)tags {
+    if (!_tags) {
+        _tags = [[NSMutableArray alloc] init];
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+        _tags = [[self.managedObjectContext executeFetchRequest:request
+                                                 error:NULL] mutableCopy];
+    }
+    return _tags;
+}
+
+- (AppDelegate *)appDelegate {
+    if (!_appDelegate) {
+        _appDelegate = [[UIApplication sharedApplication] delegate];
+    }
+    return _appDelegate;
+}
+
+- (NSManagedObjectContext *)managedObjectContext {
+    if (!_managedObjectContext) {
+        _managedObjectContext = self.appDelegate.managedObjectContext;
+    }
+    return _managedObjectContext;
+}
+
+- (NSManagedObjectModel *)managedObjectModel {
+    if (!_managedObjectModel) {
+        _managedObjectModel = self.appDelegate.managedObjectModel;
+    }
+    return _managedObjectModel;
+}
 
 - (NSMutableArray *)dataPreviewImageURLs {
     if (!_dataPreviewImageURLs) {

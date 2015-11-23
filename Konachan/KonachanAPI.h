@@ -5,6 +5,11 @@
 //  Copyright (c) 2015 yaqinking. All rights reserved.
 //
 
+
+//Debug mode
+
+#define IS_DEBUG_MODE 0
+
 //Get Post
 
 //get post with limit per page image and page number and tags
