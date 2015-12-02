@@ -135,6 +135,10 @@
     if (sourceSiteShort == nil) {
         self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
         NSLog(@"default set to konachan.net");
+        [[NSUserDefaults standardUserDefaults] setValue:@"Konachan.net" forKey:kSourceSite];
+        if ([[NSUserDefaults standardUserDefaults] synchronize]) {
+            NSLog(@"default write source site to konachan.net");
+        }
     } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
         self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
     } else if ([sourceSiteShort isEqualToString:kKonachanSafe]) {

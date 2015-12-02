@@ -135,35 +135,8 @@
                         <sections>
                             <tableViewSection id="hFJ-kU-ah5">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Oas-Ry-x6W">
-                                        <rect key="frame" x="0.0" y="64" width="600" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Oas-Ry-x6W" id="uka-Sq-bRB">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cis-fb-qjn">
-                                                    <rect key="frame" x="8" y="7" width="584" height="30"/>
-                                                    <animations/>
-                                                    <state key="normal" title="Choose source">
-                                                        <color key="titleColor" red="0.1019607843" green="0.1019607843" blue="0.1019607843" alpha="1" colorSpace="calibratedRGB"/>
-                                                    </state>
-                                                    <connections>
-                                                        <action selector="chooseSource:" destination="U2Y-Ta-od7" eventType="touchUpInside" id="uH7-xR-YKY"/>
-                                                    </connections>
-                                                </button>
-                                            </subviews>
-                                            <animations/>
-                                            <constraints>
-                                                <constraint firstItem="Cis-fb-qjn" firstAttribute="trailing" secondItem="uka-Sq-bRB" secondAttribute="trailingMargin" id="27a-ss-QmO"/>
-                                                <constraint firstItem="Cis-fb-qjn" firstAttribute="centerY" secondItem="uka-Sq-bRB" secondAttribute="centerY" id="Xph-4a-RQv"/>
-                                                <constraint firstItem="Cis-fb-qjn" firstAttribute="leading" secondItem="uka-Sq-bRB" secondAttribute="leadingMargin" id="fXW-sZ-O2d"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                        <animations/>
-                                    </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="dHe-v8-SLE">
-                                        <rect key="frame" x="0.0" y="108" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="64" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="dHe-v8-SLE" id="Mja-HH-yuq">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
