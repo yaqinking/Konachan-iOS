@@ -104,8 +104,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
-    
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,FETCH_AMOUNT,pageOffset,tag]];
+    NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,fetchAmount,pageOffset,tag]];
     self.pageOffset ++;
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -135,7 +135,9 @@ static NSString * const CellIdentifier = @"PhotoCell";
         
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.collectionView.infiniteScrollingView stopAnimating];
+                self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
                 [self.collectionView reloadData];
+                
                 if (IS_DEBUG_MODE) {
                     NSLog(@"count %lu",(unsigned long)self.photosURL.count);
                 }

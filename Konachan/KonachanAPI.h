@@ -8,18 +8,18 @@
 
 //Debug mode
 
-#define IS_DEBUG_MODE 0
+#define IS_DEBUG_MODE 1
 
 //Get Post
 
 //get post with limit per page image and page number and tags
-#define KONACHAN_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%@&page=%i&tags=%@"
+#define KONACHAN_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%i&page=%i&tags=%@"
 
 //safe mode Konachan
-#define KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%@&page=%i&tags=%@+rating:s"
+#define KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS @"http://konachan.com/post.json?limit=%i&page=%i&tags=%@+rating:s"
 
 //yande.re
-#define YANDERE_POST_LIMIT_PAGE_TAGS  @"https://yande.re/post.json?limit=%@&page=%i&tags=%@"
+#define YANDERE_POST_LIMIT_PAGE_TAGS  @"https://yande.re/post.json?limit=%i&page=%i&tags=%@"
 
 //Example
 //Get saenai_heroine_no_sodatekata Perpage 10 images
@@ -41,12 +41,14 @@
 
 #define KONACHAN_KEY_TAGS @"tags"
 
-#define FETCH_AMOUNT @"30"
+#define kFetchAmountDefault @"30"
 
 #define kSourceSite   @"source_site"
 #define kKonachanMain @"Konachan.com"
 #define kKonachanSafe @"Konachan.net"
 #define kYandere      @"Yande.re"
+#define kFetchAmount  @"fetch_amount"
+#define kLoadThumb    @"load_thumb"
 
 //Ratings
 #define kRatingSafe         @"s"

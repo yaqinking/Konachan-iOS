@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "KonachanAPI.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [self configureSettings];
     return YES;
 }
 
@@ -134,5 +136,17 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
     }
 }
 
+#pragma mark - Configure Settings
+
+- (void)configureSettings {
+    NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
+    if (fetchAmount == 0) {
+        [[NSUserDefaults standardUserDefaults] setInteger:[kFetchAmountDefault integerValue] forKey:kFetchAmount];
+    }
+    NSLog(@"Fetch Acmount %lu",fetchAmount);
+    BOOL loadThumb = [[NSUserDefaults standardUserDefaults] boolForKey:kLoadThumb];
+    NSLog(@"Load Thumb %i",loadThumb);
+    
+}
 
 @end

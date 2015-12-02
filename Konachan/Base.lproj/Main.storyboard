@@ -135,8 +135,34 @@
                         <sections>
                             <tableViewSection id="hFJ-kU-ah5">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="dHe-v8-SLE">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="FYg-6T-HIC">
                                         <rect key="frame" x="0.0" y="64" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="FYg-6T-HIC" id="BGM-vO-HZa">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hQg-pg-oi4">
+                                                    <rect key="frame" x="13" y="0.0" width="579" height="43"/>
+                                                    <animations/>
+                                                    <state key="normal" title="Choose source site"/>
+                                                    <connections>
+                                                        <action selector="chooseSource:" destination="U2Y-Ta-od7" eventType="touchUpInside" id="UlO-W9-Uy6"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <animations/>
+                                            <constraints>
+                                                <constraint firstItem="hQg-pg-oi4" firstAttribute="top" secondItem="BGM-vO-HZa" secondAttribute="top" id="EAz-wo-6ra"/>
+                                                <constraint firstItem="hQg-pg-oi4" firstAttribute="leading" secondItem="BGM-vO-HZa" secondAttribute="leadingMargin" constant="5" id="VOs-Qe-Is5"/>
+                                                <constraint firstItem="hQg-pg-oi4" firstAttribute="trailing" secondItem="BGM-vO-HZa" secondAttribute="trailingMargin" id="e41-QG-Lla"/>
+                                                <constraint firstAttribute="bottom" secondItem="hQg-pg-oi4" secondAttribute="bottom" id="qc1-fc-h5h"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <animations/>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="dHe-v8-SLE">
+                                        <rect key="frame" x="0.0" y="108" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="dHe-v8-SLE" id="Mja-HH-yuq">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
@@ -182,6 +208,57 @@
                                         </tableViewCellContentView>
                                         <animations/>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="50" id="7eN-GF-Dri">
+                                        <rect key="frame" x="0.0" y="152" width="600" height="50"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="7eN-GF-Dri" id="Uv7-5f-3jd">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="49"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Fetch amount" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iSB-KY-Krg">
+                                                    <rect key="frame" x="14" y="8" width="106" height="32"/>
+                                                    <animations/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1up-Ou-VIh">
+                                                    <rect key="frame" x="548" y="10" width="30" height="30"/>
+                                                    <animations/>
+                                                    <state key="normal" title="Set"/>
+                                                    <connections>
+                                                        <action selector="setFetchAmount:" destination="U2Y-Ta-od7" eventType="touchUpInside" id="fOL-SO-vX8"/>
+                                                    </connections>
+                                                </button>
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="FNY-wJ-Nt7">
+                                                    <rect key="frame" x="434" y="8" width="54" height="30"/>
+                                                    <animations/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="54" id="DEh-CG-oVN"/>
+                                                        <constraint firstAttribute="width" constant="56" id="s54-2p-ECz"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                                    <variation key="default">
+                                                        <mask key="constraints">
+                                                            <exclude reference="s54-2p-ECz"/>
+                                                        </mask>
+                                                    </variation>
+                                                </textField>
+                                            </subviews>
+                                            <animations/>
+                                            <constraints>
+                                                <constraint firstItem="FNY-wJ-Nt7" firstAttribute="top" secondItem="iSB-KY-Krg" secondAttribute="top" id="0kF-QE-Lga"/>
+                                                <constraint firstItem="1up-Ou-VIh" firstAttribute="bottom" secondItem="iSB-KY-Krg" secondAttribute="bottom" id="2rR-yn-KVV"/>
+                                                <constraint firstItem="iSB-KY-Krg" firstAttribute="centerY" secondItem="Uv7-5f-3jd" secondAttribute="centerY" id="7OJ-pT-V2d"/>
+                                                <constraint firstItem="FNY-wJ-Nt7" firstAttribute="top" secondItem="Uv7-5f-3jd" secondAttribute="topMargin" id="8Kx-B0-QUK"/>
+                                                <constraint firstItem="1up-Ou-VIh" firstAttribute="leading" secondItem="FNY-wJ-Nt7" secondAttribute="trailing" constant="60" id="XDn-wP-cLI"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="1up-Ou-VIh" secondAttribute="trailing" constant="14" id="aoQ-qC-nBM"/>
+                                                <constraint firstItem="iSB-KY-Krg" firstAttribute="leading" secondItem="Uv7-5f-3jd" secondAttribute="leadingMargin" constant="6" id="bFR-O8-trD"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <animations/>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -193,6 +270,7 @@
                     <connections>
                         <outlet property="cachedSizeLabel" destination="QIS-eD-Bi6" id="58m-lh-CQC"/>
                         <outlet property="clearCacheSwitcher" destination="awv-nJ-huu" id="L3O-lM-Gnt"/>
+                        <outlet property="fetchAmountTextField" destination="FNY-wJ-Nt7" id="H5x-mn-do8"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tKd-5D-zbK" userLabel="First Responder" sceneMemberID="firstResponder"/>

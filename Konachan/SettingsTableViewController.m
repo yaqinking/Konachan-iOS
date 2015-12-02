@@ -11,13 +11,15 @@
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import "MBProgressHUD.h"
-
+#import "KonachanAPI.h"
 #define kSourceSite @"source_site"
 
 
 @interface SettingsTableViewController ()
 
+@property (weak, nonatomic) IBOutlet UITextField *fetchAmountTextField;
 
+@property (weak, nonatomic) IBOutlet UISwitch *loadThumbSwitch;
 
 @end
 
@@ -26,7 +28,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self calculateCachedPicsSize];
-    
+    [self configureFetchAmount];
 }
 
 - (void)calculateCachedPicsSize {
@@ -35,6 +37,13 @@
         weakSelf.cachedSizeLabel.text = [NSString stringWithFormat:@"%.2f M", totalSize/1024.0/1024.0];
     }];
     
+}
+
+- (void)configureFetchAmount {
+    NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
+    self.fetchAmountTextField.text = [NSString stringWithFormat:@"%lu",fetchAmount];
+    BOOL isLoadThumb = [[NSUserDefaults standardUserDefaults] boolForKey:kLoadThumb];
+    self.loadThumbSwitch.selected = isLoadThumb;
 }
 
 - (IBAction)chooseSource:(UIButton *)sender {
@@ -63,6 +72,17 @@
         [self calculateCachedPicsSize];
     }];
     
+}
+
+- (IBAction)setFetchAmount:(id)sender {
+    NSInteger fetchAmount = [self.fetchAmountTextField.text integerValue];
+    if (fetchAmount < [kFetchAmountDefault integerValue]) {
+        return;
+    } else {
+        [[NSUserDefaults standardUserDefaults] setInteger:fetchAmount forKey:kFetchAmount];
+        NSLog(@"Set amount success %lu", fetchAmount);
+        [self.fetchAmountTextField resignFirstResponder];
+    }
 }
 
 @end

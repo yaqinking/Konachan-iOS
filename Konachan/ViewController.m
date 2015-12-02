@@ -29,12 +29,11 @@
 
 @end
 
-#define PAGE_LIMIT = 12
-
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    NSLog(@"viewDidLoad");
     [self observeiCloudChanges];
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
@@ -42,12 +41,13 @@
     navBar.shadowImage      = nil;
     navBar.translucent      = YES;
     navBar.barStyle         = UIBarStyleBlackTranslucent;
-    
+
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
     
     [self setupSourceSite];
     
+    self.navigationItem.title = @"Konachan";
     if (IS_DEBUG_MODE) {
         NSLog(@"sourcesite -> %@",self.sourceSite);
     }
@@ -86,6 +86,13 @@
     
 }
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+    }
+    return self;
+}
+
 - (void)observeiCloudChanges {
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     [defaultCenter addObserverForName:NSPersistentStoreDidImportUbiquitousContentChangesNotification
@@ -103,7 +110,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self setupSourceSite];
-    [self.tableView triggerPullToRefresh];
+//    [self.tableView triggerPullToRefresh];
 
 }
 
@@ -113,16 +120,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    [defaultCenter removeObserver:self
-                             name:NSPersistentStoreDidImportUbiquitousContentChangesNotification
-                           object:self.managedObjectContext];
-    
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+    NSLog(@"viewDidDisappear");
 
 }
 
@@ -208,8 +206,7 @@
     self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:self.tags.count];
     
     NSUInteger tagsCount   = self.tags.count;
-    NSString *strTagsCount = [NSString stringWithFormat:@"%lu",(unsigned long)tagsCount];
-    NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,strTagsCount,1,@""]];
+    NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,tagsCount,1,@""]];
     NSURLRequest *request  = [NSURLRequest requestWithURL:url];
     if (IS_DEBUG_MODE) {
         NSLog(@"url %@",url);
@@ -340,6 +337,16 @@
         _previewImageURLs = [[NSArray alloc] init];
     }
     return _previewImageURLs;
+}
+
+- (void)dealloc {
+    NSLog(@"dealloc");
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter removeObserver:self
+                             name:NSPersistentStoreDidImportUbiquitousContentChangesNotification
+                           object:self.managedObjectContext];
+    
+
 }
 
 @end
