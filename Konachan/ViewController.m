@@ -110,18 +110,12 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self setupSourceSite];
-//    [self.tableView triggerPullToRefresh];
+    [self.tableView triggerPullToRefresh];
 
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    NSLog(@"viewDidDisappear");
-
 }
 
 - (void)setupSourceSite {

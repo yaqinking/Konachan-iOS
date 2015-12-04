@@ -48,8 +48,9 @@
 #define kKonachanSafe @"Konachan.net"
 #define kYandere      @"Yande.re"
 #define kFetchAmount  @"fetch_amount"
-#define kLoadThumb    @"load_thumb"
-
+#define kThumbLoadWay @"thumbLoadWay"
+#define kLoadThumb @"Load thumbs"
+#define kPredownloadPicture @"Predownload pictures"
 //Ratings
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"

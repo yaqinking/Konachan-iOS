@@ -11,7 +11,7 @@
 #import "KonachanAPI.h"
 #import "Tag+CoreDataProperties.h"
 #import "Picture.h"
-
+#import "MBProgressHUD.h"
 #import "AFNetworking.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "MWPhotoBrowser.h"
@@ -24,7 +24,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 @interface TagPhotosViewController ()
 
 @property (strong, nonatomic) NSMutableArray *photos;
-@property (strong, nonatomic) NSMutableArray *photosURL;
+@property (strong, nonatomic) NSMutableArray *previewPhotosURL;
 @property (nonatomic) BOOL isEnterBrowser;
 
 @end
@@ -65,7 +65,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
     if (!self.isEnterBrowser) {
         [self.photos removeAllObjects];
         self.photos = nil;
-        self.photosURL = nil;
+        self.previewPhotosURL = nil;
     }
 }
 
@@ -77,13 +77,13 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (nonnull UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PhotoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSURL *photoURL = [self.photosURL objectAtIndex:indexPath.row];
+    NSURL *photoURL = [self.previewPhotosURL objectAtIndex:indexPath.row];
     [cell.image setImageWithURL:photoURL usingActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     return cell;
 }
 
 - (NSInteger)collectionView:(nonnull UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.photosURL.count;
+    return self.previewPhotosURL.count;
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -108,6 +108,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,fetchAmount,pageOffset,tag]];
     self.pageOffset ++;
     
+    NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
+    
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     if (IS_DEBUG_MODE) {
         NSLog(@"url %@",url);
@@ -120,26 +122,51 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }
 
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        
         dispatch_async(dispatch_queue_create("data", nil), ^{
             for (NSDictionary *picDict in responseObject) {
-    //            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
+                NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
                 NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
                 NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
-      
+                
                 Picture *photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
                 photoPic.caption = picTitle;
+                if (IS_DEBUG_MODE) {
+//                    NSLog(@"Sample URL %@",sampleURLString);
+//                    NSLog(@"Preview URL %@",previewURLString);
+                }
                 
-                [self.photosURL addObject:[NSURL URLWithString:sampleURLString]];
+                NSString *thumbLoadWay = [[NSUserDefaults standardUserDefaults] valueForKey:kThumbLoadWay];
+                if ([thumbLoadWay isEqualToString:kLoadThumb]) {
+                    [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                } else if ([thumbLoadWay isEqualToString:kPredownloadPicture]) {
+                    [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+                }
+                
                 [self.photos addObject:photoPic];
             }
-        
+            NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
+            
+            
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.collectionView.infiniteScrollingView stopAnimating];
+                if (afterReqPhotosCount == 0) {
+                    NSLog(@"No images");
+                    self.navigationItem.title = @"No images";
+                    [self showHUDWithTitle:@"No images >_<" content:@""];
+                    return ;
+                }
+                if (afterReqPhotosCount == beforeReqPhotosCount) {
+                    [self showHUDWithTitle:@"No more images >_>" content:@""];
+                }
+
                 self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
                 [self.collectionView reloadData];
                 
                 if (IS_DEBUG_MODE) {
-                    NSLog(@"count %lu",(unsigned long)self.photosURL.count);
+                    NSLog(@"count %lu",(unsigned long)self.previewPhotosURL.count);
                 }
                 
             });
@@ -155,7 +182,15 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
-
+- (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.labelText = title;
+    hud.detailsLabelText = content;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+    });
+}
 - (void)setupSourceSite {
     NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
 //    NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
@@ -205,11 +240,11 @@ static NSString * const CellIdentifier = @"PhotoCell";
 }
 
 
-- (NSMutableArray *)photosURL {
-    if (!_photosURL) {
-        _photosURL = [[NSMutableArray alloc] init];
+- (NSMutableArray *)previewPhotosURL {
+    if (!_previewPhotosURL) {
+        _previewPhotosURL = [[NSMutableArray alloc] init];
     }
-    return _photosURL;
+    return _previewPhotosURL;
 }
 
 //- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {

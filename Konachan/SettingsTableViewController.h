@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface SettingsTableViewController : UITableViewController
+
 @property (weak, nonatomic) IBOutlet UILabel *cachedSizeLabel;
-@property (weak, nonatomic) IBOutlet UISwitch *clearCacheSwitcher;
 
 @end
