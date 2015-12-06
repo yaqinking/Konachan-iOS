@@ -36,6 +36,7 @@
 		F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Tag+CoreDataProperties.m"; sourceTree = "<group>"; };
 		F42D2C461C02E9930049494A /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
 		F42D2C471C02E9930049494A /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
+		F47800C01C12C0DD00428F2C /* KonachanTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KonachanTool.h; sourceTree = "<group>"; };
 		F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsTableViewController.m; sourceTree = "<group>"; };
 		F4E5F0E31B71ED5600AA21D6 /* KonachanAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KonachanAPI.h; sourceTree = "<group>"; };
@@ -144,6 +145,7 @@
 		F4F0A33E1B71E94000289149 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F47800C01C12C0DD00428F2C /* KonachanTool.h */,
 				F4F0A33F1B71E94000289149 /* main.m */,
 			);
 			name = "Supporting Files";

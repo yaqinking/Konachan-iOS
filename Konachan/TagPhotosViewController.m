@@ -8,16 +8,10 @@
 
 #import "TagPhotosViewController.h"
 #import "PhotoCell.h"
-#import "KonachanAPI.h"
+#import "KonachanTool.h"
 #import "Tag+CoreDataProperties.h"
 #import "Picture.h"
-#import "MBProgressHUD.h"
-#import "AFNetworking.h"
-#import <SDWebImage/UIImageView+WebCache.h>
 #import "MWPhotoBrowser.h"
-
-#import "SVPullToRefresh.h"
-#import "UIImageView+UIActivityIndicatorForSDWebImage.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
@@ -25,7 +19,11 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 @property (strong, nonatomic) NSMutableArray *photos;
 @property (strong, nonatomic) NSMutableArray *previewPhotosURL;
+
+@property (strong, nonatomic) MWPhotoBrowser *browser;
+
 @property (nonatomic) BOOL isEnterBrowser;
+@property (nonatomic) NSInteger fetchAmount;
 
 @end
 
@@ -90,22 +88,20 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (void)collectionView:(nonnull UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     self.isEnterBrowser = YES;
-    MWPhotoBrowser *browser = [[MWPhotoBrowser alloc] initWithPhotos:self.photos];
-    [browser setCurrentPhotoIndex:indexPath.row];
-    browser.delegate = self;
     
-    browser.enableGrid = NO;
-    browser.displayNavArrows = YES;
-    browser.zoomPhotosToFill = YES;
-    browser.enableSwipeToDismiss = YES;
-    
-    [self.navigationController pushViewController:browser animated:YES];
+    self.browser = [[MWPhotoBrowser alloc] initWithPhotos:self.photos];
+    [self.browser setCurrentPhotoIndex:indexPath.row];
+    self.browser.delegate = self;
+    self.browser.enableGrid = NO;
+    self.browser.displayNavArrows = YES;
+    self.browser.zoomPhotosToFill = YES;
+    self.browser.enableSwipeToDismiss = YES;
+    [self.navigationController pushViewController:self.browser animated:YES];
 }
 
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
-    NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,fetchAmount,pageOffset,tag]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,self.fetchAmount,pageOffset,tag]];
     self.pageOffset ++;
     
     NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
@@ -161,7 +157,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
                 if (afterReqPhotosCount == beforeReqPhotosCount) {
                     [self showHUDWithTitle:@"No more images >_>" content:@""];
                 }
-
                 self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
                 [self.collectionView reloadData];
                 
@@ -175,6 +170,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",error);
+        self.navigationItem.title = @"No images";
+        [self showHUDWithTitle:@"Error" content:@"Connection reset by peer."];
         //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
         self.pageOffset --;
         //失败后也要让上拉加载控件 stop
@@ -182,11 +179,14 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
+
+#pragma mark - Util
+
 - (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.labelText = title;
     hud.detailsLabelText = content;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     });
@@ -245,6 +245,10 @@ static NSString * const CellIdentifier = @"PhotoCell";
         _previewPhotosURL = [[NSMutableArray alloc] init];
     }
     return _previewPhotosURL;
+}
+
+- (NSInteger)fetchAmount {
+    return [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
 }
 
 //- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {

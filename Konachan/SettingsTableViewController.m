@@ -39,7 +39,9 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger row = indexPath.row;
-    NSLog(@"Row %i",row);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"Row %li",(long)row);
+    }
     switch (row) {
         case 0:
             [self clearCache:self];
@@ -142,23 +144,25 @@
         [self showHUDWithTitle:@"Error >_<"
                        content:@"Min fetch amount is 30"];
         return;
-    } else if (fetchAmount == 512180) {
-        exit(0);
-    } else if (fetchAmount == 512181) {
-        [self showHUDWithTitle:@"Set source site"
-                    content:@"Set to Konachan.com success!"];
-        [self setSourceSiteTo:@"Konachan.com"];
-    } else if (fetchAmount == 512182) {
-        [self showHUDWithTitle:@"Set source site"
-                       content:@"Set to yande.re success!"];
-        [self setSourceSiteTo:@"Yande.re"];
-    }else if (fetchAmount > 100) {
+    }
+    if (IS_DEBUG_MODE) {
+        if (fetchAmount == 512181) {
+            [self showHUDWithTitle:@"Set source site"
+                           content:@"Set to Konachan.com success!"];
+            [self setSourceSiteTo:@"Konachan.com"];
+        } else if (fetchAmount == 512182) {
+            [self showHUDWithTitle:@"Set source site"
+                           content:@"Set to yande.re success!"];
+            [self setSourceSiteTo:@"Yande.re"];
+        }
+    }
+    if (fetchAmount > 100) {
         [self showHUDWithTitle:@"Error >_<"
                        content:@"Max fetch amount is 100"];
     } else {
         [[NSUserDefaults standardUserDefaults] setInteger:fetchAmount forKey:kFetchAmount];
-        NSLog(@"Set amount success %lu", fetchAmount);
-        [self showHUDWithTitle:@"Success!" content:[NSString stringWithFormat:@"Set fetch amount to %i success!",fetchAmount]];
+//        NSLog(@"Set amount success %lu", fetchAmount);
+        [self showHUDWithTitle:@"Success!" content:[NSString stringWithFormat:@"Set fetch amount to %li success!",(long)fetchAmount]];
     }
 }
 
@@ -173,7 +177,7 @@
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.labelText = title;
     hud.detailsLabelText = content;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     });

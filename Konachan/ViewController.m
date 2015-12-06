@@ -8,14 +8,10 @@
 
 #import "ViewController.h"
 #import "TagPhotosViewController.h"
-#import "KonachanAPI.h"
+#import "KonachanTool.h"
 #import "Tag+CoreDataProperties.h"
 #import "TagTableViewCell.h"
 #import "AppDelegate.h"
-#import "AFNetworking.h"
-#import <SDWebImage/UIImageView+WebCache.h>
-#import "SVPullToRefresh.h"
-
 
 @interface ViewController ()
 
@@ -103,7 +99,18 @@
                                self.tags = nil;
                                [self setupTagsWithDefaultTag];
                            }];
-    
+//    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorStoresWillChangeNotification
+//                               object:self.managedObjectContext
+//                                queue:[NSOperationQueue mainQueue]
+//                           usingBlock:^(NSNotification * _Nonnull note) {
+//                               NSLog(@"NSPersistentStoreCoordinatorStoresWillChangeNotification");
+//                           }];
+//    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorWillRemoveStoreNotification
+//                               object:self.managedObjectContext
+//                                queue:[NSOperationQueue mainQueue]
+//                           usingBlock:^(NSNotification * _Nonnull note) {
+//                               NSLog(@"NSPersistentStoreCoordinatorWillRemoveStoreNotification");
+//                           }];
 }
 
 
@@ -197,7 +204,7 @@
 - (void)setupTagsWithDefaultTag {
     __weak ViewController *weakSelf = self;
     
-    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:self.tags.count];
+//    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:self.tags.count];
     
     NSUInteger tagsCount   = self.tags.count;
     NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,tagsCount,1,@""]];
@@ -225,12 +232,12 @@
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",[error localizedDescription]);
+        [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
         [self.tableView.pullToRefreshView stopAnimating];
         
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
-
 
 
 - (IBAction)addTag:(id)sender {
@@ -342,5 +349,18 @@
     
 
 }
+
+#pragma mark - Util
+
+- (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.labelText = title;
+    hud.detailsLabelText = content;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+    });
+}
+
 
 @end

@@ -82,7 +82,9 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
     // Create the coordinator and store
     _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
     NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:ApplicationDocumentsDirectoryName];
-    NSLog(@"storeURL %@",storeURL);
+    if (IS_DEBUG_MODE) {
+        NSLog(@"storeURL %@",storeURL);
+    }
     NSDictionary *storeOptions = @{NSPersistentStoreUbiquitousContentNameKey: ContentNameKey};
     NSError *error = nil;
     NSString *failureReason = @"There was an error creating or loading the application's saved data.";
@@ -100,8 +102,10 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         abort();
     }
     
-    NSURL *finaliCloudURL = [store URL];
-    NSLog(@"finaliCloudURL: %@", finaliCloudURL);
+    if (IS_DEBUG_MODE) {
+        NSURL *finaliCloudURL = [store URL];
+        NSLog(@"finaliCloudURL: %@", finaliCloudURL);
+    }
     return _persistentStoreCoordinator;
 }
 
@@ -130,7 +134,7 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
             // Replace this implementation with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            NSLog(@"Core Data Saving --- Unresolved error %@, %@", error, [error userInfo]);
 //            abort();
         }
     }
@@ -139,13 +143,22 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
 #pragma mark - Configure Settings
 
 - (void)configureSettings {
-    NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if (fetchAmount == 0) {
-        [[NSUserDefaults standardUserDefaults] setInteger:[kFetchAmountDefault integerValue] forKey:kFetchAmount];
+        [userDefaults setInteger:[kFetchAmountDefault integerValue] forKey:kFetchAmount];
     }
-    NSLog(@"Fetch Acmount %lu",fetchAmount);
-    BOOL loadThumb = [[NSUserDefaults standardUserDefaults] boolForKey:kLoadThumb];
-    NSLog(@"Load Thumb %i",loadThumb);
+    
+    NSString *thumbLoadWay = [userDefaults valueForKey:kThumbLoadWay];
+    NSLog(@"Load Thumb Way %@",thumbLoadWay);
+    if (thumbLoadWay == nil) {
+        [userDefaults setValue:kLoadThumb forKey:kThumbLoadWay];
+    }
+    [userDefaults synchronize];
+    if (IS_DEBUG_MODE) {
+        NSLog(@"Fetch Acmount %lu",(long)fetchAmount);
+        NSLog(@"Load Thumb %@",thumbLoadWay);
+    }
     
 }
 
