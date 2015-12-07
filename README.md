@@ -18,7 +18,27 @@ A bettter way to browser images from
 
 ↑ Tap to show next or previous picture.
 
-~~It has many issues, but It works.~~
+In Settings, You can change:
+
+Set fetch mount from 30 to 100.
+
+Preview image type:
+
+	1. Load thumbs (Just give you a fast preview image.)
+	2. Predownload pictures (First download large image, then you can quickly look through them.)
+	
+
+Download image type:
+
+	1. Sample (Picture resolution under 1500px )
+	2. JPEG (Picture resolution about 2000px or 4000px)
+	3. Original (Original file. The highest picture's resolution.)
+
+Change source site:
+
+	1. Konachan.com
+	2. Konachan.net
+	3. Yande.re
 
 ## Contact
 - [About](https://about.me/yaqinking)
@@ -28,10 +48,8 @@ A bettter way to browser images from
 - [AFNetworking](https://github.com/AFNetworking/AFNetworking)
 - [MWPhotoBrowser](https://github.com/mwaterfall/MWPhotoBrowser)
 - [SDWebImage](https://github.com/rs/SDWebImage)
-- [SVPullToRefresh](https://github.com/samvermette/SVPullToRefresh)
 - [DACircularProgress](https://github.com/danielamitay/DACircularProgress)
 - [CocoaPods](https://cocoapods.org/)
-- [ActionSheetPicker-3.0](https://github.com/skywinder/ActionSheetPicker-3.0)
 - [UIActivityIndicator-for-SDWebImage](https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage)
 
 ## License
