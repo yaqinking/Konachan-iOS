@@ -59,34 +59,16 @@
     self.tableView.backgroundColor = color;
     self.tableView.separatorColor  = color;
     
-    
-    
-    //fix first row hide when pull to refresh stop
-    if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
-        self.automaticallyAdjustsScrollViewInsets = NO;
-        
-        UIEdgeInsets insets = self.tableView.contentInset;
-        insets.top          = self.navigationController.navigationBar.bounds.size.height +
-        [UIApplication sharedApplication].statusBarFrame.size.height;
-        self.tableView.contentInset          = insets;
-        self.tableView.scrollIndicatorInsets = insets;
-    }
-    
-    __weak ViewController *weakSelf = self;
-    [self.tableView addPullToRefreshWithActionHandler:^{
-        [weakSelf setupTagsWithDefaultTag];
-    }];
-    
-    self.tableView.pullToRefreshView.arrowColor = [UIColor whiteColor];
-    self.tableView.pullToRefreshView.textColor  = [UIColor whiteColor];
-    
+    //Refresh Control
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self
+                            action:@selector(refreshTags:)
+                  forControlEvents:UIControlEventValueChanged];
+
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-    }
-    return self;
+- (void)refreshTags:(id)sender {
+    [self setupTagsWithDefaultTag];
 }
 
 - (void)observeiCloudChanges {
@@ -117,8 +99,8 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self setupSourceSite];
-    [self.tableView triggerPullToRefresh];
-
+    self.dataPreviewImageURLs = nil;
+    [self setupTagsWithDefaultTag];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -202,10 +184,6 @@
 #pragma mark - Setup
 
 - (void)setupTagsWithDefaultTag {
-    __weak ViewController *weakSelf = self;
-    
-//    self.previewImageURLs = [[NSMutableArray alloc] initWithCapacity:self.tags.count];
-    
     NSUInteger tagsCount   = self.tags.count;
     NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,tagsCount,1,@""]];
     NSURLRequest *request  = [NSURLRequest requestWithURL:url];
@@ -218,8 +196,8 @@
     } else {
         op.responseSerializer = [AFImageResponseSerializer serializer];
     }
+    self.dataPreviewImageURLs = nil;
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-       
         for (NSDictionary *picDict in responseObject) {
             NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
             [self.dataPreviewImageURLs addObject:previewURLString];
@@ -228,13 +206,12 @@
         self.previewImageURLs = [self.dataPreviewImageURLs copy];
         
         [self.tableView reloadData];
-        [weakSelf.tableView.pullToRefreshView stopAnimating];
+        [self.refreshControl endRefreshing];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"failure %@",[error localizedDescription]);
         [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
-        [self.tableView.pullToRefreshView stopAnimating];
-        
+        [self.refreshControl endRefreshing];
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
@@ -347,7 +324,6 @@
                              name:NSPersistentStoreDidImportUbiquitousContentChangesNotification
                            object:self.managedObjectContext];
     
-
 }
 
 #pragma mark - Util

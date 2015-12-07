@@ -7,7 +7,6 @@
 //
 
 #import "SettingsTableViewController.h"
-#import "ActionSheetPicker.h"
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import "MBProgressHUD.h"
@@ -19,6 +18,8 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *fetchAmountTextField;
 @property (weak, nonatomic) IBOutlet UILabel *loadThumbWayTextField;
+@property (weak, nonatomic) IBOutlet UILabel *downloadImageTypeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sourceSiteLabel;
 
 @end
 
@@ -51,16 +52,101 @@
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             break;
         case 2:
-            [self switchThumbLoadWay:self];
+            [self changePreviewImageType];
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             break;
         case 3:
-            [self chooseSource:self];
+            [self changeDownloadImageType];
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            break;
+        case 4:
+            [self changeSourceSite];
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             break;
         default:
             break;
     }
+}
+
+- (void)changePreviewImageType {
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Change Preview Image Type"
+                                                                   message:@""
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction * action) {}];
+    UIAlertAction *loadPreviewImageAction = [UIAlertAction actionWithTitle:@"Load thumbs" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:action.title andKey:kThumbLoadWay];
+    }];
+    UIAlertAction *loadDownloadImageAction = [UIAlertAction actionWithTitle:@"Predownload pictures" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:action.title andKey:kThumbLoadWay];
+    }];
+    
+    [alert addAction:loadPreviewImageAction];
+    [alert addAction:loadDownloadImageAction];
+    [alert addAction:defaultAction];
+    
+    [self popoverPresentWith:alert To:self.loadThumbWayTextField];
+    [self presentViewController:alert animated:YES completion:nil];
+
+}
+
+- (void)popoverPresentWith:(UIAlertController *)alert To:(UILabel *) sender {
+    [alert setModalPresentationStyle:UIModalPresentationPopover];
+    UIPopoverPresentationController *popPresenter = [alert popoverPresentationController];
+    popPresenter.sourceView = sender;
+    popPresenter.sourceRect = sender.bounds;
+}
+
+- (void)changeDownloadImageType {
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Change Download Image Type"
+                                                                   message:@""
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction * action) {}];
+    UIAlertAction *loadSampleImageAction = [UIAlertAction actionWithTitle:@"Sample" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_SAMPLE andKey:kDownloadImageType];
+    }];
+    UIAlertAction *loadJPEGImageAction = [UIAlertAction actionWithTitle:@"JPEG" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_JPEG andKey:kDownloadImageType];
+    }];
+    UIAlertAction *loadFileImageAction = [UIAlertAction actionWithTitle:@"Original" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_FILE andKey:kDownloadImageType];
+    }];
+    [alert addAction:loadSampleImageAction];
+    [alert addAction:loadJPEGImageAction];
+    [alert addAction:loadFileImageAction];
+    [alert addAction:defaultAction];
+    
+    [self popoverPresentWith:alert To:self.downloadImageTypeLabel];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)changeSourceSite {
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Set Source Site To"
+                                                                   message:@""
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction * action) {}];
+    UIAlertAction *konachanAction = [UIAlertAction actionWithTitle:@"Konachan.com" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:action.title andKey:kSourceSite];
+    }];
+    UIAlertAction *konachanSafeModeAction = [UIAlertAction actionWithTitle:@"Konachan.net" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:action.title andKey:kSourceSite];
+    }];
+    UIAlertAction *yandereAction = [UIAlertAction actionWithTitle:@"Yande.re" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self writeConfigWith:action.title andKey:kSourceSite];
+    }];
+    
+    [alert addAction:konachanAction];
+    [alert addAction:konachanSafeModeAction];
+    [alert addAction:yandereAction];
+    [alert addAction:defaultAction];
+    
+    [self popoverPresentWith:alert To:self.sourceSiteLabel];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)calculateCachedPicsSize {
@@ -75,39 +161,6 @@
     NSInteger fetchAmount = [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
     self.fetchAmountTextField.text = [NSString stringWithFormat:@"%lu",fetchAmount];
     
-}
-
-- (void)chooseSource:(id)sender {
-    NSArray *sites = [NSArray arrayWithObjects:@"Konachan.com", @"Konachan.net", @"Yande.re",nil];
-    [ActionSheetStringPicker showPickerWithTitle:@"Source site"
-                                            rows:sites
-                                initialSelection:0
-           doneBlock:^(ActionSheetStringPicker *picker, NSInteger selectedIndex, id selectedValue) {
-//               NSLog(@"%@",selectedValue);
-               NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-               [defaults setValue:selectedValue forKey:kSourceSite];
-               if ([defaults synchronize]) {
-//                   NSLog(@"default write succes %@",selectedValue);
-               }
-
-           } cancelBlock:^(ActionSheetStringPicker *picker) {
-               
-           } origin:self.fetchAmountTextField];
-    
-}
-
-- (void)switchThumbLoadWay:(id)sender {
-    NSArray *loadWays = [NSArray arrayWithObjects:@"Load thumbs", @"Predownload pictures",nil];
-    [ActionSheetStringPicker showPickerWithTitle:@"Switch Thumb Load Way"
-                                            rows:loadWays
-                                initialSelection:0
-                                       doneBlock:^(ActionSheetStringPicker *picker, NSInteger selectedIndex, id selectedValue) {
-                                           NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                                           [defaults setValue:selectedValue forKey:kThumbLoadWay];
-                                           [defaults synchronize];
-                                       } cancelBlock:^(ActionSheetStringPicker *picker) {
-                                           
-                                       } origin:self.loadThumbWayTextField];
 }
 
 
@@ -149,11 +202,11 @@
         if (fetchAmount == 512181) {
             [self showHUDWithTitle:@"Set source site"
                            content:@"Set to Konachan.com success!"];
-            [self setSourceSiteTo:@"Konachan.com"];
+            [self writeConfigWith:@"Konachan.com" andKey:kSourceSite];
         } else if (fetchAmount == 512182) {
             [self showHUDWithTitle:@"Set source site"
                            content:@"Set to yande.re success!"];
-            [self setSourceSiteTo:@"Yande.re"];
+            [self writeConfigWith:@"Yande.re" andKey:kSourceSite];
         }
     }
     if (fetchAmount > 100) {
@@ -166,9 +219,9 @@
     }
 }
 
-- (void) setSourceSiteTo:(NSString *) site {
+- (void) writeConfigWith:(NSString *) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setValue:site forKey:kSourceSite];
+    [defaults setValue:value forKey:key];
     [defaults synchronize];
 }
 

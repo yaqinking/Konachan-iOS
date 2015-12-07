@@ -22,40 +22,28 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 @property (strong, nonatomic) MWPhotoBrowser *browser;
 
-@property (nonatomic) BOOL isEnterBrowser;
-@property (nonatomic) NSInteger fetchAmount;
+@property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
+@property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
+@property (nonatomic, assign) NSInteger fetchAmount;
 
 @end
 
 @implementation TagPhotosViewController
 
+#pragma mark - Life cycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.pageOffset = 1;
+    self.loadNextPage = NO;
     [self setupSourceSite];
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
-    //fix first row hide when pull to refresh stop
-    if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
-        self.automaticallyAdjustsScrollViewInsets = NO;
-        
-        UIEdgeInsets insets = self.collectionView.contentInset;
-        insets.top          = self.navigationController.navigationBar.bounds.size.height +
-        [UIApplication sharedApplication].statusBarFrame.size.height;
-        self.collectionView.contentInset          = insets;
-        self.collectionView.scrollIndicatorInsets = insets;
-    }
-    __weak TagPhotosViewController *weakSelf = self;
     
-    [self.collectionView addInfiniteScrollingWithActionHandler:^{
-        [weakSelf setupPhotosURLWithTag:weakSelf.tag.name andPageoffset:weakSelf.pageOffset];
-    }];
-
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    self.isEnterBrowser = NO;
+    self.enterBrowser = NO;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -64,6 +52,19 @@ static NSString * const CellIdentifier = @"PhotoCell";
         [self.photos removeAllObjects];
         self.photos = nil;
         self.previewPhotosURL = nil;
+    }
+}
+
+#pragma mark - Scroll view delegate
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    float endScrolling = scrollView.contentOffset.y + scrollView.frame.size.height;
+    
+    if (endScrolling >= scrollView.contentSize.height){
+        if (self.isLoadNextPage) {
+//            NSLog(@"loadNextPageData......");
+            [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+        }
     }
 }
 
@@ -87,7 +88,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 #pragma mark - UICollectionViewDelegate
 
 - (void)collectionView:(nonnull UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    self.isEnterBrowser = YES;
+    self.enterBrowser = YES;
     
     self.browser = [[MWPhotoBrowser alloc] initWithPhotos:self.photos];
     [self.browser setCurrentPhotoIndex:indexPath.row];
@@ -99,11 +100,12 @@ static NSString * const CellIdentifier = @"PhotoCell";
     [self.navigationController pushViewController:self.browser animated:YES];
 }
 
+#pragma mark - Load photos
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,self.fetchAmount,pageOffset,tag]];
     self.pageOffset ++;
-    
+    self.loadNextPage = NO;
     NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -118,15 +120,25 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }
 
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        
         dispatch_async(dispatch_queue_create("data", nil), ^{
             for (NSDictionary *picDict in responseObject) {
                 NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
                 NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
+                NSString *jpegURLString = picDict[KONACHAN_DOWNLOAD_TYPE_JPEG];
+                NSString *fileURLString = picDict[KONACHAN_DOWNLOAD_TYPE_FILE];
                 NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                NSString *downloadImageType = [userDefaults valueForKey:kDownloadImageType];
                 
-                Picture *photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                Picture *photoPic = nil;
+                if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_SAMPLE]) {
+                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                } else if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_JPEG]) {
+                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
+                } else if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_FILE]) {
+                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
+                }
+                
                 photoPic.caption = picTitle;
                 if (IS_DEBUG_MODE) {
 //                    NSLog(@"Sample URL %@",sampleURLString);
@@ -143,11 +155,8 @@ static NSString * const CellIdentifier = @"PhotoCell";
                 [self.photos addObject:photoPic];
             }
             NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
-            
-            
-            
+            self.loadNextPage = YES;
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.collectionView.infiniteScrollingView stopAnimating];
                 if (afterReqPhotosCount == 0) {
                     NSLog(@"No images");
                     self.navigationItem.title = @"No images";
@@ -174,8 +183,9 @@ static NSString * const CellIdentifier = @"PhotoCell";
         [self showHUDWithTitle:@"Error" content:@"Connection reset by peer."];
         //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
         self.pageOffset --;
+        self.loadNextPage = YES;
         //失败后也要让上拉加载控件 stop
-        [self.collectionView.infiniteScrollingView stopAnimating];
+//        [self.loadPhotosControl endRefreshing];
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
@@ -250,9 +260,5 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (NSInteger)fetchAmount {
     return [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
 }
-
-//- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
-//    return UIStatusBarAnimationFade;
-//}
 
 @end

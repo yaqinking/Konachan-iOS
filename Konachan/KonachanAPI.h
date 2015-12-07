@@ -49,6 +49,7 @@
 #define kYandere      @"Yande.re"
 #define kFetchAmount  @"fetch_amount"
 #define kThumbLoadWay @"thumbLoadWay"
+#define kDownloadImageType @"download_type"
 #define kLoadThumb @"Load thumbs"
 #define kPredownloadPicture @"Predownload pictures"
 //Ratings

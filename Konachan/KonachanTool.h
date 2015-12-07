@@ -10,6 +10,5 @@
 //Import third party header file
 #import "MBProgressHUD.h"
 #import "AFNetworking.h"
-#import "SVPullToRefresh.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "UIImageView+UIActivityIndicatorForSDWebImage.h"
