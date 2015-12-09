@@ -41,7 +41,9 @@
 
 #define KONACHAN_KEY_TAGS @"tags"
 
-#define kFetchAmountDefault @"30"
+#define kFetchAmountDefault    40
+#define kFetchAmountMin        30
+#define kFetchAmountiPadProMin 56
 
 #define kSourceSite   @"source_site"
 #define kKonachanMain @"Konachan.com"
@@ -56,3 +58,9 @@
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"
 #define kRatingExplicit     @"e"
+
+//For device adaption
+#define iPadProPortrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.height == 1366)
+#define iPadProLandscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.width == 1366)
+#define iPad ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+#define iPhone ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)

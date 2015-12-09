@@ -145,8 +145,15 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
 - (void)configureSettings {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
-    if (fetchAmount == 0) {
-        [userDefaults setInteger:[kFetchAmountDefault integerValue] forKey:kFetchAmount];
+    if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
+        NSLog(@"iPad Pro");
+        [userDefaults setInteger:kFetchAmountiPadProMin forKey:kFetchAmount];
+    } else if (fetchAmount == 0 && iPad) {
+        NSLog(@"iPad Retina");
+        //iPad need load more pictures in order to get pull up to load more pictures.
+        [userDefaults setInteger:kFetchAmountDefault forKey:kFetchAmount];
+    } else if (fetchAmount == 0 && iPhone) {
+        [userDefaults setInteger:kFetchAmountMin forKey:kFetchAmount];
     }
     
     NSString *thumbLoadWay = [userDefaults valueForKey:kThumbLoadWay];

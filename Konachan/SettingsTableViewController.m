@@ -193,7 +193,19 @@
 
 - (IBAction)setFetchAmount:(id)sender {
     NSInteger fetchAmount = [self.fetchAmountTextField.text integerValue];
-    if (fetchAmount < [kFetchAmountDefault integerValue]) {
+    
+    if ((fetchAmount < kFetchAmountiPadProMin && iPadProPortrait) ||
+        (fetchAmount < kFetchAmountiPadProMin && iPadProLandscape)) {
+        [self showHUDWithTitle:@"Error >_<"
+                       content:@"iPad Pro Min fetch amount is 56"];
+        return;
+    }
+    if (fetchAmount < kFetchAmountDefault && iPad) {
+        [self showHUDWithTitle:@"Error >_<"
+                       content:@"iPad Min fetch amount is 40"];
+        return;
+    }
+    if (fetchAmount < kFetchAmountMin && iPhone) {
         [self showHUDWithTitle:@"Error >_<"
                        content:@"Min fetch amount is 30"];
         return;
