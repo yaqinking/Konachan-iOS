@@ -122,37 +122,62 @@ static NSString * const CellIdentifier = @"PhotoCell";
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         dispatch_async(dispatch_queue_create("data", nil), ^{
             for (NSDictionary *picDict in responseObject) {
-                NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
-                NSString *sampleURLString  = picDict[KONACHAN_DOWNLOAD_TYPE_SAMPLE];
-                NSString *jpegURLString = picDict[KONACHAN_DOWNLOAD_TYPE_JPEG];
-                NSString *fileURLString = picDict[KONACHAN_DOWNLOAD_TYPE_FILE];
-                NSString *picTitle         = picDict[KONACHAN_KEY_TAGS];
+                NSString *previewURLString = picDict[PreviewURL];
+                NSString *sampleURLString  = picDict[SampleURL];
+                NSString *jpegURLString = picDict[JPEGURL];
+                NSString *fileURLString = picDict[FileURL];
+                NSString *picTitle         = picDict[PictureTags];
                 NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                NSString *downloadImageType = [userDefaults valueForKey:kDownloadImageType];
+                NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
                 
-                Picture *photoPic = nil;
-                if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_SAMPLE]) {
-                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
-                } else if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_JPEG]) {
-                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
-                } else if ([downloadImageType isEqualToString:KONACHAN_DOWNLOAD_TYPE_FILE]) {
-                    photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
+                Picture *photoPic;
+                
+                switch (downloadImageType) {
+                    case KonachanImageDownloadTypeSample:
+                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                        break;
+                    case KonachanImageDownloadTypeJPEG:
+                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
+                        break;
+                    case KonachanImageDownloadTypeFile:
+                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
+                        break;
+                    default:
+                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                        break;
                 }
-                
+                [self.photos addObject:photoPic];
                 photoPic.caption = picTitle;
                 if (IS_DEBUG_MODE) {
 //                    NSLog(@"Sample URL %@",sampleURLString);
 //                    NSLog(@"Preview URL %@",previewURLString);
                 }
                 
-                NSString *thumbLoadWay = [[NSUserDefaults standardUserDefaults] valueForKey:kThumbLoadWay];
-                if ([thumbLoadWay isEqualToString:kLoadThumb]) {
-                    [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
-                } else if ([thumbLoadWay isEqualToString:kPredownloadPicture]) {
-                    [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+                NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+                
+                switch (thumbLoadWay) {
+                    case KonachanPreviewImageLoadTypeLoadPreview:
+                        [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                        break;
+                    case KonachanPreviewImageLoadTypeLoadDownloaded:
+                        switch (downloadImageType) {
+                            case KonachanImageDownloadTypeSample:
+                                [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+                                break;
+                            case KonachanImageDownloadTypeJPEG:
+                                [self.previewPhotosURL addObject:[NSURL URLWithString:jpegURLString]];
+                                break;
+                            case KonachanImageDownloadTypeFile:
+                                [self.previewPhotosURL addObject:[NSURL URLWithString:fileURLString]];
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 
-                [self.photos addObject:photoPic];
             }
             NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
             self.loadNextPage = YES;
@@ -201,21 +226,36 @@ static NSString * const CellIdentifier = @"PhotoCell";
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     });
 }
+
 - (void)setupSourceSite {
-    NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
-//    NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
-    if (sourceSiteShort == nil) {
-        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
-//        NSLog(@"default set to konachan.com");
-    } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
-        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
-    } else if ([sourceSiteShort isEqualToString:kKonachanSafe]) {
-        self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-    } else if ([sourceSiteShort isEqualToString:kYandere]) {
-        self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+    NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
+    if (IS_DEBUG_MODE) {
+        NSLog(@"sourceSiteShort \n *** %li",sourceSiteType);
+    }
+    
+    switch (sourceSiteType) {
+        case KonachanSourceSiteTypeUnseted:
+            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
+            NSLog(@"default set to konachan.net");
+            [[NSUserDefaults standardUserDefaults] setInteger:KonachanSourceSiteTypeKonachan_net
+                                                       forKey:kSourceSite];
+            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
+                NSLog(@"default write source site to konachan.net");
+            }
+            break;
+        case KonachanSourceSiteTypeKonachan_com:
+            self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+            break;
+        case KonachanSourceSiteTypeKonachan_net:
+            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
+            break;
+        case KonachanSourceSiteTypeYande_re:
+            self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+            break;
+        default:
+            break;
     }
 }
-
 
 #pragma mark - UICollectionViewFlowLayoutDelegate
 

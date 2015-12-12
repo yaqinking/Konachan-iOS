@@ -76,10 +76,10 @@
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
                                                           handler:^(UIAlertAction * action) {}];
     UIAlertAction *loadPreviewImageAction = [UIAlertAction actionWithTitle:@"Load thumbs" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:action.title andKey:kThumbLoadWay];
+        [self writeConfigWith:KonachanPreviewImageLoadTypeLoadPreview andKey:kThumbLoadWay];
     }];
     UIAlertAction *loadDownloadImageAction = [UIAlertAction actionWithTitle:@"Predownload pictures" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:action.title andKey:kThumbLoadWay];
+        [self writeConfigWith:KonachanPreviewImageLoadTypeLoadDownloaded andKey:kThumbLoadWay];
     }];
     
     [alert addAction:loadPreviewImageAction];
@@ -106,13 +106,13 @@
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
                                                           handler:^(UIAlertAction * action) {}];
     UIAlertAction *loadSampleImageAction = [UIAlertAction actionWithTitle:@"Sample" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_SAMPLE andKey:kDownloadImageType];
+        [self writeConfigWith:KonachanImageDownloadTypeSample andKey:kDownloadImageType];
     }];
     UIAlertAction *loadJPEGImageAction = [UIAlertAction actionWithTitle:@"JPEG" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_JPEG andKey:kDownloadImageType];
+        [self writeConfigWith:KonachanImageDownloadTypeJPEG andKey:kDownloadImageType];
     }];
     UIAlertAction *loadFileImageAction = [UIAlertAction actionWithTitle:@"Original" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:KONACHAN_DOWNLOAD_TYPE_FILE andKey:kDownloadImageType];
+        [self writeConfigWith:KonachanImageDownloadTypeFile andKey:kDownloadImageType];
     }];
     [alert addAction:loadSampleImageAction];
     [alert addAction:loadJPEGImageAction];
@@ -131,13 +131,13 @@
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
                                                           handler:^(UIAlertAction * action) {}];
     UIAlertAction *konachanAction = [UIAlertAction actionWithTitle:@"Konachan.com" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:action.title andKey:kSourceSite];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
     }];
     UIAlertAction *konachanSafeModeAction = [UIAlertAction actionWithTitle:@"Konachan.net" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:action.title andKey:kSourceSite];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_net andKey:kSourceSite];
     }];
     UIAlertAction *yandereAction = [UIAlertAction actionWithTitle:@"Yande.re" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self writeConfigWith:action.title andKey:kSourceSite];
+        [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
     }];
     
     [alert addAction:konachanAction];
@@ -214,11 +214,11 @@
         if (fetchAmount == 512181) {
             [self showHUDWithTitle:@"Set source site"
                            content:@"Set to Konachan.com success!"];
-            [self writeConfigWith:@"Konachan.com" andKey:kSourceSite];
+            [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
         } else if (fetchAmount == 512182) {
             [self showHUDWithTitle:@"Set source site"
                            content:@"Set to yande.re success!"];
-            [self writeConfigWith:@"Yande.re" andKey:kSourceSite];
+            [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
         }
     }
     if (fetchAmount > 100) {
@@ -231,10 +231,14 @@
     }
 }
 
-- (void) writeConfigWith:(NSString *) value andKey:(NSString *)key{
+- (void) writeConfigWith:(NSInteger) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setValue:value forKey:key];
+    [defaults setInteger:value forKey:key];
     [defaults synchronize];
+}
+
+- (void) write {
+    
 }
 
 - (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {

@@ -33,27 +33,44 @@
 //get 10 posted images set you want display page number
 #define KONACHAN_POST_LIMIT_DEFAULT_PAGE @"http://konachan.com/post.json?limit=10&page=%i"
 
-//Download illustrate quality
-#define KONACHAN_DOWNLOAD_TYPE_SAMPLE  @"sample_url"
-#define KONACHAN_DOWNLOAD_TYPE_PREVIEW @"preview_url"
-#define KONACHAN_DOWNLOAD_TYPE_FILE    @"file_url"
-#define KONACHAN_DOWNLOAD_TYPE_JPEG    @"jpeg_url"
+//Download illustrate quality key
+static NSString * const PreviewURL = @"preview_url";
+static NSString * const SampleURL = @"sample_url";
+static NSString * const JPEGURL = @"jpeg_url";
+static NSString * const FileURL = @"file_url";
 
-#define KONACHAN_KEY_TAGS @"tags"
+//Get illustrate title/tags key
+static NSString * const PictureTags = @"tags";
+
+typedef NS_ENUM(NSInteger, KonachanImageDownloadType) {
+    KonachanImageDownloadTypeUnseted,
+    KonachanImageDownloadTypePreview,
+    KonachanImageDownloadTypeSample,
+    KonachanImageDownloadTypeJPEG,
+    KonachanImageDownloadTypeFile
+};
+
+typedef NS_ENUM(NSInteger, KonachanSourceSiteType) {
+    KonachanSourceSiteTypeUnseted,
+    KonachanSourceSiteTypeKonachan_com,
+    KonachanSourceSiteTypeKonachan_net,
+    KonachanSourceSiteTypeYande_re
+};
+
+typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
+    KonachanPreviewImageLoadTypeUnseted,
+    KonachanPreviewImageLoadTypeLoadPreview,
+    KonachanPreviewImageLoadTypeLoadDownloaded
+};
 
 #define kFetchAmountDefault    40
 #define kFetchAmountMin        30
 #define kFetchAmountiPadProMin 56
 
 #define kSourceSite   @"source_site"
-#define kKonachanMain @"Konachan.com"
-#define kKonachanSafe @"Konachan.net"
-#define kYandere      @"Yande.re"
 #define kFetchAmount  @"fetch_amount"
 #define kThumbLoadWay @"thumbLoadWay"
 #define kDownloadImageType @"download_type"
-#define kLoadThumb @"Load thumbs"
-#define kPredownloadPicture @"Predownload pictures"
 //Ratings
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"

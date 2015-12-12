@@ -156,19 +156,19 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         [userDefaults setInteger:kFetchAmountMin forKey:kFetchAmount];
     }
     
-    NSString *thumbLoadWay = [userDefaults valueForKey:kThumbLoadWay];
-    NSString *downloadImageType = [userDefaults valueForKey:kDownloadImageType];
-    if (thumbLoadWay == nil) {
-        [userDefaults setValue:kLoadThumb forKey:kThumbLoadWay];
+    NSInteger thumbLoadWay = [userDefaults integerForKey:kThumbLoadWay];
+    NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
+    if (thumbLoadWay == KonachanPreviewImageLoadTypeUnseted) {
+        [userDefaults setInteger:KonachanPreviewImageLoadTypeLoadPreview forKey:kThumbLoadWay];
     }
-    if (downloadImageType == nil) {
-        [userDefaults setValue:KONACHAN_DOWNLOAD_TYPE_SAMPLE forKey:kDownloadImageType];
+    if (downloadImageType == KonachanImageDownloadTypeUnseted) {
+        [userDefaults setInteger:KonachanImageDownloadTypeSample forKey:kDownloadImageType];
     }
     [userDefaults synchronize];
     if (IS_DEBUG_MODE) {
         NSLog(@"Fetch Acmount %lu",(long)fetchAmount);
-        NSLog(@"Load Thumb %@",thumbLoadWay);
-        NSLog(@"Download Image Type %@",downloadImageType);
+        NSLog(@"Load Thumb %li",thumbLoadWay);
+        NSLog(@"Download Image Type %li",downloadImageType);
     }
     
 }

@@ -108,24 +108,32 @@
 }
 
 - (void)setupSourceSite {
-    NSString *sourceSiteShort = [[NSUserDefaults standardUserDefaults] stringForKey:kSourceSite];
+    NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourceSiteShort \n *** %@",sourceSiteShort);
+        NSLog(@"sourceSiteShort \n *** %li",sourceSiteType);
     }
 
-    if (sourceSiteShort == nil) {
-        self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-        NSLog(@"default set to konachan.net");
-        [[NSUserDefaults standardUserDefaults] setValue:@"Konachan.net" forKey:kSourceSite];
-        if ([[NSUserDefaults standardUserDefaults] synchronize]) {
-            NSLog(@"default write source site to konachan.net");
-        }
-    } else if ([sourceSiteShort isEqualToString:kKonachanMain]) {
-        self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
-    } else if ([sourceSiteShort isEqualToString:kKonachanSafe]) {
-        self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-    } else if ([sourceSiteShort isEqualToString:kYandere]) {
-        self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+    switch (sourceSiteType) {
+        case KonachanSourceSiteTypeUnseted:
+            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
+            NSLog(@"default set to konachan.net");
+            [[NSUserDefaults standardUserDefaults] setInteger:KonachanSourceSiteTypeKonachan_net
+                                                       forKey:kSourceSite];
+            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
+                NSLog(@"default write source site to konachan.net");
+            }
+            break;
+        case KonachanSourceSiteTypeKonachan_com:
+            self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
+            break;
+        case KonachanSourceSiteTypeKonachan_net:
+            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
+            break;
+        case KonachanSourceSiteTypeYande_re:
+            self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
+            break;
+        default:
+            break;
     }
 }
 
@@ -199,7 +207,7 @@
     self.dataPreviewImageURLs = nil;
     [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         for (NSDictionary *picDict in responseObject) {
-            NSString *previewURLString = picDict[KONACHAN_DOWNLOAD_TYPE_PREVIEW];
+            NSString *previewURLString = picDict[PreviewURL];
             [self.dataPreviewImageURLs addObject:previewURLString];
         }
         
