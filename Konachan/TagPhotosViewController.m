@@ -36,7 +36,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
     [super viewDidLoad];
     self.pageOffset = 1;
     self.loadNextPage = NO;
-    [self setupSourceSite];
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     
 }
@@ -209,8 +208,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
         //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
         self.pageOffset --;
         self.loadNextPage = YES;
-        //失败后也要让上拉加载控件 stop
-//        [self.loadPhotosControl endRefreshing];
+
     }];
     [[NSOperationQueue mainQueue] addOperation:op];
 }
@@ -225,36 +223,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     });
-}
-
-- (void)setupSourceSite {
-    NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
-    if (IS_DEBUG_MODE) {
-        NSLog(@"sourceSiteShort \n *** %li",sourceSiteType);
-    }
-    
-    switch (sourceSiteType) {
-        case KonachanSourceSiteTypeUnseted:
-            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-            NSLog(@"default set to konachan.net");
-            [[NSUserDefaults standardUserDefaults] setInteger:KonachanSourceSiteTypeKonachan_net
-                                                       forKey:kSourceSite];
-            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
-                NSLog(@"default write source site to konachan.net");
-            }
-            break;
-        case KonachanSourceSiteTypeKonachan_com:
-            self.sourceSite = KONACHAN_POST_LIMIT_PAGE_TAGS;
-            break;
-        case KonachanSourceSiteTypeKonachan_net:
-            self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-            break;
-        case KonachanSourceSiteTypeYande_re:
-            self.sourceSite = YANDERE_POST_LIMIT_PAGE_TAGS;
-            break;
-        default:
-            break;
-    }
 }
 
 #pragma mark - UICollectionViewFlowLayoutDelegate

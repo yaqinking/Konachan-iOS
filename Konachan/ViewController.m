@@ -110,7 +110,7 @@
 - (void)setupSourceSite {
     NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourceSiteShort \n *** %li",sourceSiteType);
+        NSLog(@"sourceSiteShort \n *** %i",sourceSiteType);
     }
 
     switch (sourceSiteType) {
@@ -184,7 +184,7 @@
         TagPhotosViewController *tpvc = [segue destinationViewController];
         Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
         tpvc.tag = passTag;
-        
+        tpvc.sourceSite = self.sourceSite;
     }
 }
 
