@@ -25,6 +25,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
 @property (nonatomic, assign) NSInteger fetchAmount;
+@property (nonatomic, assign) NSUInteger currentIndex;
 
 @end
 
@@ -36,6 +37,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
     [super viewDidLoad];
     self.pageOffset = 1;
     self.loadNextPage = NO;
+    self.currentIndex = 0;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     
 }
@@ -43,6 +45,15 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.enterBrowser = NO;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    if (self.enterBrowser) {
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentIndex inSection:0]
+                                    atScrollPosition:UICollectionViewScrollPositionTop
+                                            animated:NO];
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -240,6 +251,11 @@ static NSString * const CellIdentifier = @"PhotoCell";
         return [self.photos objectAtIndex:index];
     }
     return nil;
+}
+
+- (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index {
+    //Set current index in order to at viewDidLayoutSubviews scroll to item position;
+    self.currentIndex = index;
 }
 
 #pragma mark - UIView

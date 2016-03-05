@@ -16,11 +16,7 @@
 @interface ViewController ()
 
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
-
-@property (nonatomic, strong) AppDelegate *appDelegate;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, strong) NSManagedObjectModel *managedObjectModel;
-
 @property (nonatomic, strong) NSMutableArray *tags;
 
 @end
@@ -79,7 +75,7 @@
                            usingBlock:^(NSNotification * _Nonnull note) {
                                NSLog(@"------- \n NSPersistentStoreDidImportUbiquitousContentChangesNotification \n --- %@",[NSThread currentThread]);
                                self.tags = nil;
-                               [self setupTagsWithDefaultTag];
+                               [self.tableView reloadData];
                            }];
 //    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorStoresWillChangeNotification
 //                               object:self.managedObjectContext
@@ -290,25 +286,12 @@
     return _tags;
 }
 
-- (AppDelegate *)appDelegate {
-    if (!_appDelegate) {
-        _appDelegate = [[UIApplication sharedApplication] delegate];
-    }
-    return _appDelegate;
-}
-
 - (NSManagedObjectContext *)managedObjectContext {
     if (!_managedObjectContext) {
-        _managedObjectContext = self.appDelegate.managedObjectContext;
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        _managedObjectContext = appDelegate.managedObjectContext;
     }
     return _managedObjectContext;
-}
-
-- (NSManagedObjectModel *)managedObjectModel {
-    if (!_managedObjectModel) {
-        _managedObjectModel = self.appDelegate.managedObjectModel;
-    }
-    return _managedObjectModel;
 }
 
 - (NSMutableArray *)dataPreviewImageURLs {
