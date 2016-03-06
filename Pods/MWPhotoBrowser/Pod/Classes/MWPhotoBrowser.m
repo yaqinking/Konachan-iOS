@@ -1590,9 +1590,16 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             
             // Show activity view controller
             NSMutableArray *items = [NSMutableArray arrayWithObject:[photo underlyingImage]];
-            if (photo.caption) {
-                [items addObject:photo.caption];
+            /** Remove Share Photo Keywords
+             */
+//            if (photo.caption) {
+//                [items addObject:photo.caption];
+//            }
+            // Add Share Photo Link
+            if (photo.photoURL) {
+                [items addObject:photo.photoURL];
             }
+            
             self.activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
             
             // Show loading spinner after a couple of seconds
