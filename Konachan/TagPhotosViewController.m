@@ -203,7 +203,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
                 }
                 self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
                 [self.collectionView reloadData];
-                
+                [self.browser reloadData];
                 if (IS_DEBUG_MODE) {
                     NSLog(@"count %lu",(unsigned long)self.previewPhotosURL.count);
                 }
@@ -256,6 +256,13 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index {
     //Set current index in order to at viewDidLayoutSubviews scroll to item position;
     self.currentIndex = index;
+    if (index >= (self.photos.count - 2)) {
+//        NSLog(@"Load More");
+        if (self.isLoadNextPage) {
+//            NSLog(@"Load More");
+            [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+        }
+    }
 }
 
 #pragma mark - UIView
