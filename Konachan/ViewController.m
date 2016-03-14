@@ -74,6 +74,7 @@
                                 queue:[NSOperationQueue mainQueue]
                            usingBlock:^(NSNotification * _Nonnull note) {
                                NSLog(@"------- \n NSPersistentStoreDidImportUbiquitousContentChangesNotification \n --- %@",[NSThread currentThread]);
+                               NSLog(@"%@",note.object);
                                self.tags = nil;
                                [self.tableView reloadData];
                            }];
@@ -94,6 +95,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self clearCachedMemoryImages];
     [self setupSourceSite];
     self.dataPreviewImageURLs = nil;
     [self setupTagsWithDefaultTag];
@@ -190,34 +192,28 @@
 - (void)setupTagsWithDefaultTag {
     NSUInteger tagsCount   = self.tags.count;
     NSURL *url             = [NSURL URLWithString:[NSString stringWithFormat: self.sourceSite,tagsCount,1,@""]];
-    NSURLRequest *request  = [NSURLRequest requestWithURL:url];
     if (IS_DEBUG_MODE) {
         NSLog(@"url %@",url);
     }
-    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    if (op) {
-        op.responseSerializer = [AFJSONResponseSerializer serializer];
-    } else {
-        op.responseSerializer = [AFImageResponseSerializer serializer];
-    }
     self.dataPreviewImageURLs = nil;
-    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        for (NSDictionary *picDict in responseObject) {
-            NSString *previewURLString = picDict[PreviewURL];
-            [self.dataPreviewImageURLs addObject:previewURLString];
-        }
-        
-        self.previewImageURLs = [self.dataPreviewImageURLs copy];
-        
-        [self.tableView reloadData];
-        [self.refreshControl endRefreshing];
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"failure %@",[error localizedDescription]);
-        [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
-        [self.refreshControl endRefreshing];
-    }];
-    [[NSOperationQueue mainQueue] addOperation:op];
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager GET:url.absoluteString
+      parameters:nil progress:nil
+         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+             for (NSDictionary *picDict in responseObject) {
+                 NSString *previewURLString = picDict[PreviewURL];
+                 [self.dataPreviewImageURLs addObject:previewURLString];
+             }
+             
+             self.previewImageURLs = [self.dataPreviewImageURLs copy];
+             
+             [self.tableView reloadData];
+             [self.refreshControl endRefreshing];
+         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+             NSLog(@"failure %@",[error localizedDescription]);
+             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
+             [self.refreshControl endRefreshing];
+         }];
 }
 
 
@@ -329,5 +325,15 @@
     });
 }
 
+#pragma mark - Memory
+
+- (void)didReceiveMemoryWarning {
+    [self clearCachedMemoryImages];
+    [super didReceiveMemoryWarning];
+}
+
+- (void)clearCachedMemoryImages {
+    [[SDImageCache sharedImageCache] clearMemory];
+}
 
 @end

@@ -34,5 +34,10 @@
 
 }
 
+- (void)prepareForReuse {
+    self.tagImageView.image = nil;
+//    self.tagTextLabel.text = nil;
+    [super prepareForReuse];
+}
 
 @end

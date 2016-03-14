@@ -12,6 +12,7 @@
 #import "Tag+CoreDataProperties.h"
 #import "Picture.h"
 #import "MWPhotoBrowser.h"
+#import "UIImageView+ProgressView.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
@@ -39,6 +40,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.loadNextPage = NO;
     self.currentIndex = 0;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+    [self setupImageDownloader];
     
 }
 
@@ -59,7 +61,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     if (!self.isEnterBrowser) {
-        [self.photos removeAllObjects];
         self.photos = nil;
         self.previewPhotosURL = nil;
     }
@@ -87,7 +88,12 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (nonnull UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PhotoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSURL *photoURL = [self.previewPhotosURL objectAtIndex:indexPath.row];
-    [cell.image setImageWithURL:photoURL usingActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    [cell.image setImageWithURL:photoURL usingActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [cell.image sd_setImageWithURL:photoURL completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        if (error) {
+//            [cell.image setImage:[UIImage imageNamed:@"placeholder"]];
+        }
+    } usingProgressView:nil];
     return cell;
 }
 
@@ -118,110 +124,105 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.loadNextPage = NO;
     NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
     
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
     if (IS_DEBUG_MODE) {
         NSLog(@"url %@",url);
     }
-    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    if (op) {
-        op.responseSerializer = [AFJSONResponseSerializer serializer];
-    } else {
-        op.responseSerializer = [AFImageResponseSerializer serializer];
-    }
-
-    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        dispatch_async(dispatch_queue_create("data", nil), ^{
-            for (NSDictionary *picDict in responseObject) {
-                NSString *previewURLString = picDict[PreviewURL];
-                NSString *sampleURLString  = picDict[SampleURL];
-                NSString *jpegURLString = picDict[JPEGURL];
-                NSString *fileURLString = picDict[FileURL];
-                NSString *picTitle         = picDict[PictureTags];
-                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
-                
-                Picture *photoPic;
-                
-                switch (downloadImageType) {
-                    case KonachanImageDownloadTypeSample:
-                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
-                        break;
-                    case KonachanImageDownloadTypeJPEG:
-                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
-                        break;
-                    case KonachanImageDownloadTypeFile:
-                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
-                        break;
-                    default:
-                        photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
-                        break;
-                }
-                [self.photos addObject:photoPic];
-                photoPic.caption = picTitle;
-                if (IS_DEBUG_MODE) {
-//                    NSLog(@"Sample URL %@",sampleURLString);
-//                    NSLog(@"Preview URL %@",previewURLString);
-                }
-                
-                NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
-                
-                switch (thumbLoadWay) {
-                    case KonachanPreviewImageLoadTypeLoadPreview:
-                        [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
-                        break;
-                    case KonachanPreviewImageLoadTypeLoadDownloaded:
-                        switch (downloadImageType) {
-                            case KonachanImageDownloadTypeSample:
-                                [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
-                                break;
-                            case KonachanImageDownloadTypeJPEG:
-                                [self.previewPhotosURL addObject:[NSURL URLWithString:jpegURLString]];
-                                break;
-                            case KonachanImageDownloadTypeFile:
-                                [self.previewPhotosURL addObject:[NSURL URLWithString:fileURLString]];
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                
-            }
-            NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager GET:url.absoluteString
+      parameters:nil
+        progress:nil
+         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+             dispatch_async(dispatch_queue_create("data", nil), ^{
+                 for (NSDictionary *picDict in responseObject) {
+                     NSString *previewURLString = picDict[PreviewURL];
+                     NSString *sampleURLString  = picDict[SampleURL];
+                     NSString *jpegURLString = picDict[JPEGURL];
+                     NSString *fileURLString = picDict[FileURL];
+                     NSString *picTitle         = picDict[PictureTags];
+                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                     NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
+                     
+                     Picture *photoPic;
+                     
+                     switch (downloadImageType) {
+                         case KonachanImageDownloadTypeSample:
+                             photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                             break;
+                         case KonachanImageDownloadTypeJPEG:
+                             photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
+                             break;
+                         case KonachanImageDownloadTypeFile:
+                             photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
+                             break;
+                         default:
+                             photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                             break;
+                     }
+                     [self.photos addObject:photoPic];
+                     photoPic.caption = picTitle;
+                     if (IS_DEBUG_MODE) {
+                         //                    NSLog(@"Sample URL %@",sampleURLString);
+                         //                    NSLog(@"Preview URL %@",previewURLString);
+                     }
+                     
+                     NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+                     
+                     switch (thumbLoadWay) {
+                         case KonachanPreviewImageLoadTypeLoadPreview:
+                             [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                             break;
+                         case KonachanPreviewImageLoadTypeLoadDownloaded:
+                             switch (downloadImageType) {
+                                 case KonachanImageDownloadTypeSample:
+                                     [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+                                     break;
+                                 case KonachanImageDownloadTypeJPEG:
+                                     [self.previewPhotosURL addObject:[NSURL URLWithString:jpegURLString]];
+                                     break;
+                                 case KonachanImageDownloadTypeFile:
+                                     [self.previewPhotosURL addObject:[NSURL URLWithString:fileURLString]];
+                                     break;
+                                 default:
+                                     break;
+                             }
+                             break;
+                         default:
+                             break;
+                     }
+                     
+                 }
+                 NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
+                 self.loadNextPage = YES;
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     if (afterReqPhotosCount == 0) {
+                         NSLog(@"No images");
+                         self.navigationItem.title = @"No images";
+                         [self showHUDWithTitle:@"No images >_<" content:@""];
+                         return ;
+                     }
+                     if (afterReqPhotosCount == beforeReqPhotosCount) {
+                         [self showHUDWithTitle:@"No more images >_>" content:@""];
+                     }
+                     self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
+                     [self.collectionView reloadData];
+                     [self.browser reloadData];
+                     if (IS_DEBUG_MODE) {
+                         NSLog(@"count %lu",(unsigned long)self.previewPhotosURL.count);
+                     }
+                     
+                 });
+                 
+             });
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"failure %@",error);
+            self.navigationItem.title = @"No images";
+            [self showHUDWithTitle:@"Error" content:@"Connection reset by peer."];
+            //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
+            self.pageOffset --;
             self.loadNextPage = YES;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (afterReqPhotosCount == 0) {
-                    NSLog(@"No images");
-                    self.navigationItem.title = @"No images";
-                    [self showHUDWithTitle:@"No images >_<" content:@""];
-                    return ;
-                }
-                if (afterReqPhotosCount == beforeReqPhotosCount) {
-                    [self showHUDWithTitle:@"No more images >_>" content:@""];
-                }
-                self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
-                [self.collectionView reloadData];
-                [self.browser reloadData];
-                if (IS_DEBUG_MODE) {
-                    NSLog(@"count %lu",(unsigned long)self.previewPhotosURL.count);
-                }
-                
-            });
-            
-        });
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"failure %@",error);
-        self.navigationItem.title = @"No images";
-        [self showHUDWithTitle:@"Error" content:@"Connection reset by peer."];
-        //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
-        self.pageOffset --;
-        self.loadNextPage = YES;
-
-    }];
-    [[NSOperationQueue mainQueue] addOperation:op];
+ 
+        }];
 }
 
 #pragma mark - Util
@@ -290,6 +291,15 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 - (NSInteger)fetchAmount {
     return [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
+}
+
+- (void)didReceiveMemoryWarning {
+    [[SDImageCache sharedImageCache] clearMemory];
+    [super didReceiveMemoryWarning];
+}
+
+- (void)setupImageDownloader {
+
 }
 
 @end

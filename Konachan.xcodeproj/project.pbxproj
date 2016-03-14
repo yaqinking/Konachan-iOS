@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		63FF1BEFD0F7970964CBBBDC /* libPods-Konachan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 702F1F16B23D31011B079044 /* libPods-Konachan.a */; };
+		F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */; };
 		F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */; };
 		F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F42D2C421C02E38C0049494A /* CloudKit.framework */; };
 		F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */; };
@@ -29,6 +30,8 @@
 		3077424D7FC7DA90DDAED1A0 /* Pods-Konachan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.release.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.release.xcconfig"; sourceTree = "<group>"; };
 		702F1F16B23D31011B079044 /* libPods-Konachan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Konachan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.debug.xcconfig"; sourceTree = "<group>"; };
+		F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+ProgressView.h"; sourceTree = "<group>"; };
+		F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+ProgressView.m"; sourceTree = "<group>"; };
 		F42D2C3D1C02DFFB0049494A /* Konachan.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Konachan.xcdatamodel; sourceTree = "<group>"; };
 		F42D2C3F1C02E0950049494A /* Konachan.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Konachan.entitlements; sourceTree = "<group>"; };
 		F42D2C421C02E38C0049494A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -138,6 +141,8 @@
 				F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */,
 				F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */,
 				F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */,
+				F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */,
+				F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -286,6 +291,7 @@
 				F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */,
 				F4F0A3461B71E94000289149 /* ViewController.m in Sources */,
 				F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */,
+				F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */,
 				F4F0A3431B71E94000289149 /* AppDelegate.m in Sources */,
 				F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */,
 				F4F0A3401B71E94000289149 /* main.m in Sources */,

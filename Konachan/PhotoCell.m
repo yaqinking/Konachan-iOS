@@ -21,5 +21,9 @@
 //    self.bounds = CGRectMake(0, 0, imageSize.width * 0.1, imageSize.width * 0.1);
 }
 
+- (void)prepareForReuse {
+    self.image.image = nil;
+    [super prepareForReuse];
+}
 
 @end
