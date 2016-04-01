@@ -60,6 +60,13 @@
     [self.refreshControl addTarget:self
                             action:@selector(refreshTags:)
                   forControlEvents:UIControlEventValueChanged];
+    
+//    NSLog(@"before 5s");
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            NSLog(@"5s reload data");
+            self.tags = nil;
+            [self.tableView reloadData];
+        });
 
 }
 
@@ -73,23 +80,22 @@
                                object:self.managedObjectContext.persistentStoreCoordinator
                                 queue:[NSOperationQueue mainQueue]
                            usingBlock:^(NSNotification * _Nonnull note) {
-                               NSLog(@"------- \n NSPersistentStoreDidImportUbiquitousContentChangesNotification \n --- %@",[NSThread currentThread]);
-                               NSLog(@"%@",note.object);
+                               [self.managedObjectContext mergeChangesFromContextDidSaveNotification:note];
                                self.tags = nil;
                                [self.tableView reloadData];
                            }];
-//    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorStoresWillChangeNotification
-//                               object:self.managedObjectContext
-//                                queue:[NSOperationQueue mainQueue]
-//                           usingBlock:^(NSNotification * _Nonnull note) {
-//                               NSLog(@"NSPersistentStoreCoordinatorStoresWillChangeNotification");
-//                           }];
-//    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorWillRemoveStoreNotification
-//                               object:self.managedObjectContext
-//                                queue:[NSOperationQueue mainQueue]
-//                           usingBlock:^(NSNotification * _Nonnull note) {
-//                               NSLog(@"NSPersistentStoreCoordinatorWillRemoveStoreNotification");
-//                           }];
+    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorStoresWillChangeNotification
+                               object:self.managedObjectContext
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:^(NSNotification * _Nonnull note) {
+                               NSLog(@"NSPersistentStoreCoordinatorStoresWillChangeNotification");
+                           }];
+    [defaultCenter addObserverForName:NSPersistentStoreCoordinatorWillRemoveStoreNotification
+                               object:self.managedObjectContext
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:^(NSNotification * _Nonnull note) {
+                               NSLog(@"NSPersistentStoreCoordinatorWillRemoveStoreNotification");
+                           }];
 }
 
 

@@ -144,6 +144,8 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
 
 - (void)configureSettings {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    [userDefaults registerDefaults:@{ kPreloadNextPage : @YES }];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
         NSLog(@"iPad Pro");

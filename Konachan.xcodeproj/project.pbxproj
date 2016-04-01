@@ -13,6 +13,7 @@
 		F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F42D2C421C02E38C0049494A /* CloudKit.framework */; };
 		F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */; };
 		F42D2C491C02E9930049494A /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C471C02E9930049494A /* Tag.m */; };
+		F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */; };
 		F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */; };
 		F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */; };
 		F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0EE1B71FF4E00AA21D6 /* Picture.m */; };
@@ -39,6 +40,8 @@
 		F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Tag+CoreDataProperties.m"; sourceTree = "<group>"; };
 		F42D2C461C02E9930049494A /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
 		F42D2C471C02E9930049494A /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
+		F43A0CB21CAE7346005BFE74 /* PreloadPhotoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreloadPhotoManager.h; sourceTree = "<group>"; };
+		F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreloadPhotoManager.m; sourceTree = "<group>"; };
 		F47800C01C12C0DD00428F2C /* KonachanTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KonachanTool.h; sourceTree = "<group>"; };
 		F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SettingsTableViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -143,6 +146,8 @@
 				F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */,
 				F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */,
 				F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */,
+				F43A0CB21CAE7346005BFE74 /* PreloadPhotoManager.h */,
+				F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -293,6 +298,7 @@
 				F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */,
 				F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */,
 				F4F0A3431B71E94000289149 /* AppDelegate.m in Sources */,
+				F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */,
 				F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */,
 				F4F0A3401B71E94000289149 /* main.m in Sources */,
 			);

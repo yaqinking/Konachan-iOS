@@ -20,6 +20,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *loadThumbWayTextField;
 @property (weak, nonatomic) IBOutlet UILabel *downloadImageTypeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *sourceSiteLabel;
+@property (weak, nonatomic) IBOutlet UISwitch *preloadNextPageSwitch;
+
 
 @end
 
@@ -34,6 +36,7 @@
     [super viewWillAppear:animated];
     [self calculateCachedPicsSize];
     [self configureFetchAmount];
+    [self configurePreloadNextPage];
 }
 
 #pragma mark - Table View Delegate Methods
@@ -43,29 +46,44 @@
     if (IS_DEBUG_MODE) {
         NSLog(@"Row %li",(long)row);
     }
-    switch (row) {
+    switch (indexPath.section) {
         case 0:
-            [self clearCache:self];
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            switch (row) {
+                case 0:
+                    [self clearCache:self];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                case 1:
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                case 2:
+                    [self changePreviewImageType];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                case 3:
+                    [self changeDownloadImageType];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                case 4:
+                    [self changeSourceSite];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                default:
+                    break;
+            }
             break;
         case 1:
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            break;
-        case 2:
-            [self changePreviewImageType];
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            break;
-        case 3:
-            [self changeDownloadImageType];
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            break;
-        case 4:
-            [self changeSourceSite];
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            break;
+            switch (row) {
+                case 0:
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                default:
+                    break;
+            }
         default:
             break;
     }
+    
 }
 
 - (void)changePreviewImageType {
@@ -163,7 +181,10 @@
     
 }
 
-
+- (void)configurePreloadNextPage {
+    BOOL isPreloadNextPage = [[NSUserDefaults standardUserDefaults] boolForKey:kPreloadNextPage];
+    self.preloadNextPageSwitch.on = isPreloadNextPage;
+}
 
 - (void)clearCache:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Do you want to clear image cache?" message:@"" preferredStyle:UIAlertControllerStyleAlert];
@@ -230,6 +251,15 @@
         [self showHUDWithTitle:@"Success!" content:[NSString stringWithFormat:@"Set fetch amount to %li success!",(long)fetchAmount]];
     }
 }
+
+- (IBAction)changePreloadNextPageImage:(UISwitch *)sender {
+    if (sender.on) {
+        [self writeConfigWith:1 andKey:kPreloadNextPage];
+    } else {
+        [self writeConfigWith:0 andKey:kPreloadNextPage];
+    }
+}
+
 
 - (void) writeConfigWith:(NSInteger) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

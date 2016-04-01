@@ -13,8 +13,10 @@
 #import "Picture.h"
 #import "MWPhotoBrowser.h"
 #import "UIImageView+ProgressView.h"
+#import "PreloadPhotoManager.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
+NSString * const TagAll = @"";
 
 @interface TagPhotosViewController ()
 
@@ -25,6 +27,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
+
 @property (nonatomic, assign) NSInteger fetchAmount;
 @property (nonatomic, assign) NSUInteger currentIndex;
 
@@ -40,7 +43,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.loadNextPage = NO;
     self.currentIndex = 0;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
-    [self setupImageDownloader];
     
 }
 
@@ -88,7 +90,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (nonnull UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PhotoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSURL *photoURL = [self.previewPhotosURL objectAtIndex:indexPath.row];
-//    [cell.image setImageWithURL:photoURL usingActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [cell.image sd_setImageWithURL:photoURL completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
         if (error) {
 //            [cell.image setImage:[UIImage imageNamed:@"placeholder"]];
@@ -113,13 +114,30 @@ static NSString * const CellIdentifier = @"PhotoCell";
     self.browser.displayNavArrows = YES;
     self.browser.zoomPhotosToFill = YES;
     self.browser.enableSwipeToDismiss = YES;
+//    self.browser.automaticallyAdjustsScrollViewInsets = YES;
     [self.navigationController pushViewController:self.browser animated:YES];
+}
+
+- (BOOL)isCurrentLoadAllWithTag:(NSString *)tag {
+    return ([tag isEqualToString:@"post"] || [tag isEqualToString:@"all"]) ? YES : NO;
 }
 
 #pragma mark - Load photos
 
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:self.sourceSite,self.fetchAmount,pageOffset,tag]];
+    MBProgressHUD *hud;
+    if (!self.isLoadNextPage) {
+        hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        hud.mode = MBProgressHUDModeIndeterminate;
+        hud.labelText = @"Loading";
+    }
+    
+    NSString *url;
+    if ([self isCurrentLoadAllWithTag:tag]) {
+        url = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset, TagAll];
+    } else {
+        url = [NSString stringWithFormat:self.sourceSite,self.fetchAmount,pageOffset,tag];
+    }
     self.pageOffset ++;
     self.loadNextPage = NO;
     NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
@@ -129,11 +147,13 @@ static NSString * const CellIdentifier = @"PhotoCell";
     }
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:url.absoluteString
+    [manager GET:url
       parameters:nil
         progress:nil
          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+             NSLog(@"Manager Thred %@",[NSThread currentThread]);
              dispatch_async(dispatch_queue_create("data", nil), ^{
+                 NSLog(@"Data Start Process %@",[NSThread currentThread]);
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
                      NSString *sampleURLString  = picDict[SampleURL];
@@ -194,7 +214,10 @@ static NSString * const CellIdentifier = @"PhotoCell";
                  }
                  NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
                  self.loadNextPage = YES;
+                 [self setupPreloadNextPageImagesWithTag:tag pageOffset:pageOffset];
                  dispatch_async(dispatch_get_main_queue(), ^{
+                     [hud hide:YES];
+                     NSLog(@"Data processed %@",[NSThread currentThread]);
                      if (afterReqPhotosCount == 0) {
                          NSLog(@"No images");
                          self.navigationItem.title = @"No images";
@@ -216,12 +239,12 @@ static NSString * const CellIdentifier = @"PhotoCell";
              });
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"failure %@",error);
+            [hud hide:YES];
             self.navigationItem.title = @"No images";
             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer."];
             //由于在发送请求之前已经将 pageOffset + 1 ,这里需要 - 1 来保证过几秒之后加载的还是请求失败的页面，毕竟 API 短时间内使用次数有限……
             self.pageOffset --;
             self.loadNextPage = YES;
- 
         }];
 }
 
@@ -237,9 +260,21 @@ static NSString * const CellIdentifier = @"PhotoCell";
     });
 }
 
+- (void)setupPreloadNextPageImagesWithTag:(NSString *)tag pageOffset:(NSInteger )pageOffset{
+    BOOL isPreloadNextPageImages = [[NSUserDefaults standardUserDefaults] boolForKey:kPreloadNextPage];
+    if (isPreloadNextPageImages) {
+        NSString *nextPage;
+        if ([self isCurrentLoadAllWithTag:tag]) {
+            nextPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset+1, TagAll];
+        } else {
+            nextPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset+1, tag];
+        }
+        NSLog(@"Next Page URL String %@",nextPage);
+        [[PreloadPhotoManager manager] GET:nextPage];
+    }
+}
+
 #pragma mark - UICollectionViewFlowLayoutDelegate
-
-
 
 #pragma mark - MWPhotoBrowserDelegate
 
@@ -257,7 +292,7 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index {
     //Set current index in order to at viewDidLayoutSubviews scroll to item position;
     self.currentIndex = index;
-    if (index >= (self.photos.count - 2)) {
+    if (index >= (self.photos.count - 6)) {
 //        NSLog(@"Load More");
         if (self.isLoadNextPage) {
 //            NSLog(@"Load More");
@@ -296,10 +331,6 @@ static NSString * const CellIdentifier = @"PhotoCell";
 - (void)didReceiveMemoryWarning {
     [[SDImageCache sharedImageCache] clearMemory];
     [super didReceiveMemoryWarning];
-}
-
-- (void)setupImageDownloader {
-
 }
 
 @end

@@ -71,6 +71,7 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define kFetchAmount  @"fetch_amount"
 #define kThumbLoadWay @"thumbLoadWay"
 #define kDownloadImageType @"download_type"
+#define kPreloadNextPage @"preload_next_page"
 //Ratings
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"
