@@ -16,6 +16,7 @@
 #import "PreloadPhotoManager.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
+
 NSString * const TagAll = @"";
 
 @interface TagPhotosViewController ()
@@ -65,6 +66,8 @@ NSString * const TagAll = @"";
     if (!self.isEnterBrowser) {
         self.photos = nil;
         self.previewPhotosURL = nil;
+        [[NSNotificationCenter defaultCenter] postNotificationName:KonachanNeedClearPrefechNotification
+                                                            object:nil];
     }
 }
 
@@ -151,9 +154,7 @@ NSString * const TagAll = @"";
       parameters:nil
         progress:nil
          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-             NSLog(@"Manager Thred %@",[NSThread currentThread]);
              dispatch_async(dispatch_queue_create("data", nil), ^{
-                 NSLog(@"Data Start Process %@",[NSThread currentThread]);
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
                      NSString *sampleURLString  = picDict[SampleURL];
@@ -217,7 +218,6 @@ NSString * const TagAll = @"";
                  [self setupPreloadNextPageImagesWithTag:tag pageOffset:pageOffset];
                  dispatch_async(dispatch_get_main_queue(), ^{
                      [hud hide:YES];
-                     NSLog(@"Data processed %@",[NSThread currentThread]);
                      if (afterReqPhotosCount == 0) {
                          NSLog(@"No images");
                          self.navigationItem.title = @"No images";
@@ -269,7 +269,6 @@ NSString * const TagAll = @"";
         } else {
             nextPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset+1, tag];
         }
-        NSLog(@"Next Page URL String %@",nextPage);
         [[PreloadPhotoManager manager] GET:nextPage];
     }
 }

@@ -11,13 +11,30 @@
 #import "AFNetworking.h"
 #import "KonachanAPI.h"
 
-NSString * const KCPreloadPhotoDidCompletedNotification = @"com.yaqinking.konachan.preloaded.photo.completed";
+NSString * const KonachanNeedClearPrefechNotification = @"KonachanNeedClearPrefechNotification";
 
 @interface PreloadPhotoManager()
+
+@property (nonatomic, strong) NSMutableArray *preferchURLS;
 
 @end
 
 @implementation PreloadPhotoManager
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleClearPrefech)
+                                                     name:KonachanNeedClearPrefechNotification
+                                                   object:nil];
+    }
+    return self;
+}
+
+- (void)handleClearPrefech {
+    [self.preferchURLS removeAllObjects];
+}
 
 + (PreloadPhotoManager *)manager {
     static PreloadPhotoManager *sharedInstance = nil;
@@ -31,7 +48,6 @@ NSString * const KCPreloadPhotoDidCompletedNotification = @"com.yaqinking.konach
 - (void)GET:(NSString *)url {
     SDWebImagePrefetcher *fecher = [SDWebImagePrefetcher sharedImagePrefetcher];
     fecher.maxConcurrentDownloads = 5;
-    __block NSMutableArray *preferchURLS = [NSMutableArray new];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url
       parameters:nil
@@ -51,18 +67,18 @@ NSString * const KCPreloadPhotoDidCompletedNotification = @"com.yaqinking.konach
                      
                      switch (thumbLoadWay) {
                          case KonachanPreviewImageLoadTypeLoadPreview:
-                             [preferchURLS addObject:[NSURL URLWithString:previewURLString]];
+                             [self.preferchURLS addObject:[NSURL URLWithString:previewURLString]];
                              break;
                          case KonachanPreviewImageLoadTypeLoadDownloaded:
                              switch (downloadImageType) {
                                  case KonachanImageDownloadTypeSample:
-                                     [preferchURLS addObject:[NSURL URLWithString:sampleURLString]];
+                                     [self.preferchURLS addObject:[NSURL URLWithString:sampleURLString]];
                                      break;
                                  case KonachanImageDownloadTypeJPEG:
-                                     [preferchURLS addObject:[NSURL URLWithString:jpegURLString]];
+                                     [self.preferchURLS addObject:[NSURL URLWithString:jpegURLString]];
                                      break;
                                  case KonachanImageDownloadTypeFile:
-                                     [preferchURLS addObject:[NSURL URLWithString:fileURLString]];
+                                     [self.preferchURLS addObject:[NSURL URLWithString:fileURLString]];
                                      break;
                                  default:
                                      break;
@@ -72,7 +88,7 @@ NSString * const KCPreloadPhotoDidCompletedNotification = @"com.yaqinking.konach
                              break;
                      }
                  }
-                 [fecher prefetchURLs:preferchURLS progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+                 [fecher prefetchURLs:self.preferchURLS progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
 //                     NSLog(@"Progress Finised %i Total %i",noOfFinishedUrls, noOfTotalUrls);
                  } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
 //                     NSLog(@"Completed Finised %i Skipped %i",noOfFinishedUrls, noOfSkippedUrls);
@@ -82,6 +98,13 @@ NSString * const KCPreloadPhotoDidCompletedNotification = @"com.yaqinking.konach
          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
              NSLog(@"%@ failure %@",[self class],error);
          }];
+}
+
+- (NSMutableArray *)preferchURLS {
+    if (!_preferchURLS) {
+        _preferchURLS = [NSMutableArray new];
+    }
+    return _preferchURLS;
 }
 
 @end

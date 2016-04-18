@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * const KCPreloadPhotoDidCompletedNotification;
+extern NSString * const KonachanNeedClearPrefechNotification;
 
 @interface PreloadPhotoManager : NSObject
 
