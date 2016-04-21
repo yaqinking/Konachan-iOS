@@ -114,10 +114,25 @@ NSString * const TagAll = @"";
 #pragma mark - UICollectionViewFlowLayout
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (iPad && self.isLoadOriginal) {
-        return CGSizeMake(505, 300);
+    if (self.isLoadOriginal) {
+        if (iPadProLandscape || iPadProPortrait) {
+            return CGSizeMake(675, 485);
+        }
+        if (iPad) {
+            return CGSizeMake(505, 355);
+        }
+        if (iPhone6Portrait || iPhone6Landscape) {
+            return CGSizeMake(325, 165);
+        }
+        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
+            return CGSizeMake(362, 180);
+        }
     }
     return CGSizeMake(150, 150);
+}
+
+- (void)viewWillLayoutSubviews {
+    NSLog(@"viewWillLayoutSubviews");
 }
 
 #pragma mark - UICollectionViewDelegate
