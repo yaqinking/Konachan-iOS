@@ -28,9 +28,12 @@ NSString * const TagAll = @"";
 
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
+@property (nonatomic, assign, getter=isLoadOriginal) BOOL loadOriginal;
 
 @property (nonatomic, assign) NSInteger fetchAmount;
 @property (nonatomic, assign) NSUInteger currentIndex;
+
+
 
 @end
 
@@ -43,6 +46,8 @@ NSString * const TagAll = @"";
     self.pageOffset = 1;
     self.loadNextPage = NO;
     self.currentIndex = 0;
+    NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+    self.loadOriginal = thumbLoadWay == KonachanPreviewImageLoadTypeLoadDownloaded ? YES : NO;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     
 }
@@ -105,7 +110,18 @@ NSString * const TagAll = @"";
     return self.previewPhotosURL.count;
 }
 
+
+#pragma mark - UICollectionViewFlowLayout
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (iPad && self.isLoadOriginal) {
+        return CGSizeMake(505, 300);
+    }
+    return CGSizeMake(150, 150);
+}
+
 #pragma mark - UICollectionViewDelegate
+
 
 - (void)collectionView:(nonnull UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     self.enterBrowser = YES;
