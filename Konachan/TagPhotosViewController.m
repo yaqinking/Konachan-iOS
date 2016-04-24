@@ -33,7 +33,8 @@ NSString * const TagAll = @"";
 @property (nonatomic, assign) NSInteger fetchAmount;
 @property (nonatomic, assign) NSUInteger currentIndex;
 
-
+@property (nonatomic, assign) CGFloat screenWidth;
+@property (nonatomic, assign) CGFloat screenHeight;
 
 @end
 
@@ -49,7 +50,10 @@ NSString * const TagAll = @"";
     NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
     self.loadOriginal = thumbLoadWay == KonachanPreviewImageLoadTypeLoadDownloaded ? YES : NO;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
-    
+    [self setupCollectionViewLayout];
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    self.screenWidth = screenBounds.size.width;
+    self.screenHeight = screenBounds.size.height;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -64,6 +68,13 @@ NSString * const TagAll = @"";
                                     atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:NO];
     }
+}
+
+- (void)setupCollectionViewLayout {
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 5;
+    layout.minimumInteritemSpacing = 0;
+    self.collectionView.collectionViewLayout = layout;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -127,12 +138,17 @@ NSString * const TagAll = @"";
         if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
             return CGSizeMake(362, 180);
         }
+    } else {
+        if (iPhone6Portrait || iPhone6Landscape) {
+//            return CGSizeMake(375/3-5, 667/6);
+            return CGSizeMake(120, 112);
+        }
+        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
+//            return CGSizeMake(414/4-5, 736/8);
+            return CGSizeMake(99, 92);
+        }
     }
     return CGSizeMake(150, 150);
-}
-
-- (void)viewWillLayoutSubviews {
-    NSLog(@"viewWillLayoutSubviews");
 }
 
 #pragma mark - UICollectionViewDelegate
