@@ -145,7 +145,8 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
 - (void)configureSettings {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
-    [userDefaults registerDefaults:@{ kPreloadNextPage : @YES }];
+    [userDefaults registerDefaults:@{ kPreloadNextPage : @YES,
+                                      kSwitchSite : @NO}];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
         NSLog(@"iPad Pro");
@@ -167,11 +168,6 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         [userDefaults setInteger:KonachanImageDownloadTypeSample forKey:kDownloadImageType];
     }
     [userDefaults synchronize];
-    if (IS_DEBUG_MODE) {
-        NSLog(@"Fetch Acmount %lu",(long)fetchAmount);
-        NSLog(@"Load Thumb %li",thumbLoadWay);
-        NSLog(@"Download Image Type %li",downloadImageType);
-    }
     
 }
 

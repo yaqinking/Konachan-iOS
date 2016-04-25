@@ -28,9 +28,13 @@ NSString * const TagAll = @"";
 
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
+@property (nonatomic, assign, getter=isLoadOriginal) BOOL loadOriginal;
 
 @property (nonatomic, assign) NSInteger fetchAmount;
 @property (nonatomic, assign) NSUInteger currentIndex;
+
+@property (nonatomic, assign) CGFloat screenWidth;
+@property (nonatomic, assign) CGFloat screenHeight;
 
 @end
 
@@ -43,8 +47,13 @@ NSString * const TagAll = @"";
     self.pageOffset = 1;
     self.loadNextPage = NO;
     self.currentIndex = 0;
+    NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+    self.loadOriginal = thumbLoadWay == KonachanPreviewImageLoadTypeLoadDownloaded ? YES : NO;
     [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
-    
+    [self setupCollectionViewLayout];
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    self.screenWidth = screenBounds.size.width;
+    self.screenHeight = screenBounds.size.height;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -59,6 +68,13 @@ NSString * const TagAll = @"";
                                     atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:NO];
     }
+}
+
+- (void)setupCollectionViewLayout {
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 5;
+    layout.minimumInteritemSpacing = 0;
+    self.collectionView.collectionViewLayout = layout;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -105,7 +121,38 @@ NSString * const TagAll = @"";
     return self.previewPhotosURL.count;
 }
 
+
+#pragma mark - UICollectionViewFlowLayout
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (self.isLoadOriginal) {
+        if (iPadProLandscape || iPadProPortrait) {
+            return CGSizeMake(675, 485);
+        }
+        if (iPad) {
+            return CGSizeMake(505, 355);
+        }
+        if (iPhone6Portrait || iPhone6Landscape) {
+            return CGSizeMake(325, 165);
+        }
+        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
+            return CGSizeMake(362, 180);
+        }
+    } else {
+        if (iPhone6Portrait || iPhone6Landscape) {
+//            return CGSizeMake(375/3-5, 667/6);
+            return CGSizeMake(120, 112);
+        }
+        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
+//            return CGSizeMake(414/4-5, 736/8);
+            return CGSizeMake(99, 92);
+        }
+    }
+    return CGSizeMake(150, 150);
+}
+
 #pragma mark - UICollectionViewDelegate
+
 
 - (void)collectionView:(nonnull UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     self.enterBrowser = YES;

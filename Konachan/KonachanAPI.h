@@ -72,6 +72,8 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define kThumbLoadWay @"thumbLoadWay"
 #define kDownloadImageType @"download_type"
 #define kPreloadNextPage @"preload_next_page"
+#define kSwitchSite @"switch_site"
+
 //Ratings
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"
@@ -82,3 +84,7 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define iPadProLandscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.width == 1366)
 #define iPad ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 #define iPhone ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+#define iPhone6Portrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [UIScreen mainScreen].bounds.size.height == 667)
+#define iPhone6Landscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [UIScreen mainScreen].bounds.size.width == 667)
+#define iPhone6PlusPortrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [UIScreen mainScreen].bounds.size.height == 736)
+#define iPhone6PlusLandscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [UIScreen mainScreen].bounds.size.width == 736)

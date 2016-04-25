@@ -37,6 +37,70 @@
     [self calculateCachedPicsSize];
     [self configureFetchAmount];
     [self configurePreloadNextPage];
+    [self setupGestures];
+}
+
+- (void)setupGestures {
+    UITapGestureRecognizer *switchTapGesture = [[UITapGestureRecognizer alloc] init];
+    switchTapGesture.numberOfTouchesRequired = 1;
+    switchTapGesture.numberOfTapsRequired = 5;
+    [switchTapGesture addTarget:self action:@selector(configureSwitchSite)];
+    [self.tableView addGestureRecognizer:switchTapGesture];
+
+    UISwipeGestureRecognizer *switchToYandereGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToYandereGesture.direction = UISwipeGestureRecognizerDirectionRight;
+    switchToYandereGesture.numberOfTouchesRequired = 3;
+    [switchToYandereGesture addTarget:self action:@selector(responseToYandereGesture)];
+    [self.tableView addGestureRecognizer:switchToYandereGesture];
+    
+    UISwipeGestureRecognizer *switchToKonachanComGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToKonachanComGesture.direction = UISwipeGestureRecognizerDirectionLeft;
+    switchToKonachanComGesture.numberOfTouchesRequired = 3;
+    [switchToKonachanComGesture addTarget:self action:@selector(responseToKonachanComGesture)];
+    [self.tableView addGestureRecognizer:switchToKonachanComGesture];
+    
+    UISwipeGestureRecognizer *switchToKonachanNetGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToKonachanNetGesture.direction = UISwipeGestureRecognizerDirectionLeft;
+    switchToKonachanNetGesture.numberOfTouchesRequired = 2;
+    [switchToKonachanNetGesture addTarget:self action:@selector(responseToKonachanNetGesture)];
+    [self.tableView addGestureRecognizer:switchToKonachanNetGesture];
+}
+
+- (void)responseToYandereGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to yande.re success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
+    }
+}
+
+- (void)responseToKonachanComGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to Konachan.com success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
+    }
+}
+
+- (void)responseToKonachanNetGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to Konachan.net success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_net andKey:kSourceSite];
+    }
+}
+
+- (BOOL)isSwitchSiteON {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kSwitchSite];
+}
+
+- (void)configureSwitchSite {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL savedValue = [defaults boolForKey:kSwitchSite];
+    [defaults setBool:!savedValue forKey:kSwitchSite];
+    if ([defaults synchronize]) {
+        [self showHUDWithTitle:@"Siwtch Site" content:(!savedValue ? @"ON" : @"OFF")];
+    }
 }
 
 #pragma mark - Table View Delegate Methods
@@ -231,23 +295,11 @@
                        content:@"Min fetch amount is 30"];
         return;
     }
-    if (IS_DEBUG_MODE) {
-        if (fetchAmount == 512181) {
-            [self showHUDWithTitle:@"Set source site"
-                           content:@"Set to Konachan.com success!"];
-            [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
-        } else if (fetchAmount == 512182) {
-            [self showHUDWithTitle:@"Set source site"
-                           content:@"Set to yande.re success!"];
-            [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
-        }
-    }
     if (fetchAmount > 100) {
         [self showHUDWithTitle:@"Error >_<"
                        content:@"Max fetch amount is 100"];
     } else {
         [[NSUserDefaults standardUserDefaults] setInteger:fetchAmount forKey:kFetchAmount];
-//        NSLog(@"Set amount success %lu", fetchAmount);
         [self showHUDWithTitle:@"Success!" content:[NSString stringWithFormat:@"Set fetch amount to %li success!",(long)fetchAmount]];
     }
 }
@@ -260,15 +312,10 @@
     }
 }
 
-
 - (void) writeConfigWith:(NSInteger) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setInteger:value forKey:key];
     [defaults synchronize];
-}
-
-- (void) write {
-    
 }
 
 - (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {
