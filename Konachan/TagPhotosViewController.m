@@ -310,6 +310,15 @@ NSString * const TagAll = @"";
 - (void)setupPreloadNextPageImagesWithTag:(NSString *)tag pageOffset:(NSInteger )pageOffset{
     BOOL isPreloadNextPageImages = [[NSUserDefaults standardUserDefaults] boolForKey:kPreloadNextPage];
     if (isPreloadNextPageImages) {
+        if (pageOffset == 1) {
+            NSString *firstPage;
+            if ([self isCurrentLoadAllWithTag:tag]) {
+                firstPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset, TagAll];
+            } else {
+                firstPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset, tag];
+            }
+            [[PreloadPhotoManager manager] GET:firstPage];
+        }
         NSString *nextPage;
         if ([self isCurrentLoadAllWithTag:tag]) {
             nextPage = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset+1, TagAll];

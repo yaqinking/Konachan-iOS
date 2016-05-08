@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "KonachanAPI.h"
+#import "ViewController.h"
 
 @interface AppDelegate ()
 
@@ -20,6 +21,24 @@
     // Override point for customization after application launch.
     [self configureSettings];
     return YES;
+}
+
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+    NSString *shortcutItemType = shortcutItem.type;
+    NSArray *viewControllers = ((UINavigationController *)self.window.rootViewController).viewControllers;
+    if ([shortcutItemType isEqualToString:@"moe.yaqinking.Konachan.AddKeyword"]) {
+        ViewController *viewController = viewControllers[0];
+        [viewController addTag:nil];
+    } else if ([shortcutItemType isEqualToString:@"moe.yaqinking.Konachan.ViewAll"]) {
+        [self popToRootViewController];
+        ViewController *viewController = viewControllers[0];
+        [viewController performSegueWithIdentifier:@"Show Tag Photos" sender:@"ViewAll"];
+    }
+}
+
+- (void)popToRootViewController {
+    UINavigationController *navigationViewController = (UINavigationController *)self.window.rootViewController;
+    [navigationViewController popToRootViewControllerAnimated:NO];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -46,7 +65,13 @@
     [self saveContext];
 }
 
-
+- (void)configureShortcutItems {
+//    UIApplicationShortcutItem *addKeywordItem = [[UIApplicationShortcutItem alloc] initWithType:@"com.yaqinking.konachan.add-keyword" localizedTitle:@"Add Keyword"
+//        localizedSubtitle:@"Add New Keyword"
+//        icon:nil
+//        userInfo:nil];
+//    [[UIApplication sharedApplication] setShortcutItems:@[addKeywordItem]];
+}
 
 #pragma mark - Core Data stack
 

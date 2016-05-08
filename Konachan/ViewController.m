@@ -172,6 +172,7 @@
         [self saveContext];
         self.tags = nil;
         [self setupTagsWithDefaultTag];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
 }
 
@@ -180,13 +181,21 @@
     if ([self.managedObjectContext hasChanges] && ![self.managedObjectContext save:&error]) {
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
     }
-    
 }
 
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"Show Tag Photos"]) {
         TagPhotosViewController *tpvc = [segue destinationViewController];
-        Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        Tag *passTag;
+        if ([sender isKindOfClass:[NSString class]]) {
+            NSEntityDescription *ed = [NSEntityDescription entityForName:@"Tag"
+                                  inManagedObjectContext:self.managedObjectContext];
+            passTag = (Tag *)[[NSManagedObject alloc] initWithEntity:ed
+                               insertIntoManagedObjectContext:nil];
+            passTag.name = @"all";
+        } else {
+            passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        }
         tpvc.tag = passTag;
         tpvc.sourceSite = self.sourceSite;
     }

@@ -92,6 +92,7 @@ NSString * const KonachanNeedClearPrefechNotification = @"KonachanNeedClearPrefe
 //                     NSLog(@"Progress Finised %i Total %i",noOfFinishedUrls, noOfTotalUrls);
                  } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
 //                     NSLog(@"Completed Finised %i Skipped %i",noOfFinishedUrls, noOfSkippedUrls);
+                     [self.preferchURLS removeAllObjects];
                  }];
                  
              });
