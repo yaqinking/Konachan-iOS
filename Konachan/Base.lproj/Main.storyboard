@@ -3,6 +3,7 @@
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Segues with Peek and Pop" minToolsVersion="7.1"/>
     </dependencies>
     <scenes>
         <!--Tag Photos View Controller-->
@@ -84,7 +85,10 @@
                                 <connections>
                                     <outlet property="tagImageView" destination="Dov-ij-WRI" id="6gl-zl-GCg"/>
                                     <outlet property="tagTextLabel" destination="DYM-iS-Wg6" id="WJI-hW-m8m"/>
-                                    <segue destination="wc4-22-VQh" kind="show" identifier="Show Tag Photos" id="Njd-du-C90"/>
+                                    <segue destination="wc4-22-VQh" kind="show" identifier="Show Tag Photos" id="Njd-du-C90">
+                                        <segue key="commit" inheritsFrom="parent" id="Zvi-NG-JeG"/>
+                                        <segue key="preview" inheritsFrom="commit" id="ddh-NL-nlT"/>
+                                    </segue>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -419,4 +423,7 @@ https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage</string>
     <resources>
         <image name="placeholder" width="850" height="850"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="Njd-du-C90"/>
+    </inferredMetricsTieBreakers>
 </document>

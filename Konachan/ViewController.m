@@ -193,14 +193,14 @@
             passTag = (Tag *)[[NSManagedObject alloc] initWithEntity:ed
                                insertIntoManagedObjectContext:nil];
             passTag.name = @"all";
-        } else {
-            passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        } else if ([sender isKindOfClass:[UITableViewCell class]]) {
+            NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+            passTag = [self.tags objectAtIndex:indexPath.row];
         }
         tpvc.tag = passTag;
         tpvc.sourceSite = self.sourceSite;
     }
 }
-
 
 #pragma mark - Setup
 

@@ -99,7 +99,7 @@
     BOOL savedValue = [defaults boolForKey:kSwitchSite];
     [defaults setBool:!savedValue forKey:kSwitchSite];
     if ([defaults synchronize]) {
-        [self showHUDWithTitle:@"Siwtch Site" content:(!savedValue ? @"ON" : @"OFF")];
+        [self showHUDWithTitle:@"Switch Site" content:(!savedValue ? @"ON" : @"OFF")];
     }
 }
 
