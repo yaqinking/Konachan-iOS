@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * const KonachanNeedClearPrefechNotification;
-
 @interface PreloadPhotoManager : NSObject
 
 + (PreloadPhotoManager *)manager;

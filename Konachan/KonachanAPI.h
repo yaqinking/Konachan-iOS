@@ -42,6 +42,13 @@ static NSString * const FileURL = @"file_url";
 //Get illustrate title/tags key
 static NSString * const PictureTags = @"tags";
 
+static NSString * const KonachanShortcutItemAddKeyword = @"moe.yaqinking.Konachan.AddKeyword";
+static NSString * const KonachanShortcutItemViewAll    = @"moe.yaqinking.Konachan.ViewAll";
+static NSString * const KonachanShortcutItemViewLast   = @"moe.yaqinking.Konachan.ViewLast";
+static NSString * const KonachanShortcutItemViewSecond = @"moe.yaqinking.Konachan.ViewSecond";
+
+static NSString * const KonachanSegueIdentifierShowTagPhotos = @"Show Tag Photos";
+
 typedef NS_ENUM(NSInteger, KonachanImageDownloadType) {
     KonachanImageDownloadTypeUnseted,
     KonachanImageDownloadTypePreview,

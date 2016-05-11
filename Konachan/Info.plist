@@ -33,7 +33,7 @@
 			<key>UIApplicationShortcutItemIconType</key>
 			<string></string>
 			<key>UIApplicationShortcutItemTitle</key>
-			<string>Add Keyword</string>
+			<string>Add keyword</string>
 			<key>UIApplicationShortcutItemSubtitle</key>
 			<string></string>
 			<key>UIApplicationShortcutItemUserInfo</key>
@@ -50,7 +50,7 @@
 			<key>UIApplicationShortcutItemSubtitle</key>
 			<string></string>
 			<key>UIApplicationShortcutItemTitle</key>
-			<string>View All</string>
+			<string>View all</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER).ViewAll</string>
 			<key>UIApplicationShortcutItemUserInfo</key>

@@ -11,8 +11,6 @@
 #import "AFNetworking.h"
 #import "KonachanAPI.h"
 
-NSString * const KonachanNeedClearPrefechNotification = @"KonachanNeedClearPrefechNotification";
-
 @interface PreloadPhotoManager()
 
 @property (nonatomic, strong) NSMutableArray *preferchURLS;
@@ -20,21 +18,6 @@ NSString * const KonachanNeedClearPrefechNotification = @"KonachanNeedClearPrefe
 @end
 
 @implementation PreloadPhotoManager
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleClearPrefech)
-                                                     name:KonachanNeedClearPrefechNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (void)handleClearPrefech {
-    [self.preferchURLS removeAllObjects];
-}
 
 + (PreloadPhotoManager *)manager {
     static PreloadPhotoManager *sharedInstance = nil;

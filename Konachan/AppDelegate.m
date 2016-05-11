@@ -9,6 +9,9 @@
 #import "AppDelegate.h"
 #import "KonachanAPI.h"
 #import "ViewController.h"
+#import "Tag.h"
+
+
 
 @interface AppDelegate ()
 
@@ -17,22 +20,50 @@
 @implementation AppDelegate
 
 
+#warning 結束應用程序後，點擊 View xxx crash（啓動之後返回到 home 再點擊沒問題。）
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [self configureSettings];
+    [self congigureDynamicShortcutItems:(UIApplication *) application];
     return YES;
 }
 
+- (void)congigureDynamicShortcutItems:(UIApplication *)application {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    NSArray *fetchedTags = [self.managedObjectContext executeFetchRequest:request error:NULL];
+    if (fetchedTags.count > 1) {
+        Tag *lastTag = [fetchedTags lastObject];
+        Tag *secondTag = [fetchedTags objectAtIndex:(fetchedTags.count-2)];
+        NSString *lastKeyword = lastTag.name;
+        NSString *secondKeyword = secondTag.name;
+        UIMutableApplicationShortcutItem *lastItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewLast
+                                                                                             localizedTitle:[NSString stringWithFormat:@"View %@", lastKeyword]];
+        UIMutableApplicationShortcutItem *secondItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewSecond localizedTitle:[NSString stringWithFormat:@"View %@", secondKeyword]];
+        application.shortcutItems = @[secondItem, lastItem];
+    } else if (fetchedTags.count == 1){
+        Tag *lastTag = [fetchedTags lastObject];
+        NSString *lastKeyword = lastTag.name;
+        UIMutableApplicationShortcutItem *lastItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewLast
+                                                                                             localizedTitle:[NSString stringWithFormat:@"View %@", lastKeyword]];
+        application.shortcutItems = @[lastItem];
+    } else {
+        application.shortcutItems = nil;
+    }
+}
+
+
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+    
     NSString *shortcutItemType = shortcutItem.type;
     NSArray *viewControllers = ((UINavigationController *)self.window.rootViewController).viewControllers;
-    if ([shortcutItemType isEqualToString:@"moe.yaqinking.Konachan.AddKeyword"]) {
+    
+    if ([shortcutItemType isEqualToString:KonachanShortcutItemAddKeyword]) {
         ViewController *viewController = viewControllers[0];
         [viewController addTag:nil];
-    } else if ([shortcutItemType isEqualToString:@"moe.yaqinking.Konachan.ViewAll"]) {
+    } else {
         [self popToRootViewController];
         ViewController *viewController = viewControllers[0];
-        [viewController performSegueWithIdentifier:@"Show Tag Photos" sender:@"ViewAll"];
+        [viewController performSegueWithIdentifier:KonachanSegueIdentifierShowTagPhotos sender:shortcutItemType];
     }
 }
 
@@ -49,6 +80,7 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    [self congigureDynamicShortcutItems:application];
     [self saveContext];
 }
 
@@ -63,14 +95,6 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [self saveContext];
-}
-
-- (void)configureShortcutItems {
-//    UIApplicationShortcutItem *addKeywordItem = [[UIApplicationShortcutItem alloc] initWithType:@"com.yaqinking.konachan.add-keyword" localizedTitle:@"Add Keyword"
-//        localizedSubtitle:@"Add New Keyword"
-//        icon:nil
-//        userInfo:nil];
-//    [[UIApplication sharedApplication] setShortcutItems:@[addKeywordItem]];
 }
 
 #pragma mark - Core Data stack
@@ -174,10 +198,10 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
                                       kSwitchSite : @NO}];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
-        NSLog(@"iPad Pro");
+//        NSLog(@"iPad Pro");
         [userDefaults setInteger:kFetchAmountiPadProMin forKey:kFetchAmount];
     } else if (fetchAmount == 0 && iPad) {
-        NSLog(@"iPad Retina");
+//        NSLog(@"iPad Retina");
         //iPad need load more pictures in order to get pull up to load more pictures.
         [userDefaults setInteger:kFetchAmountDefault forKey:kFetchAmount];
     } else if (fetchAmount == 0 && iPhone) {

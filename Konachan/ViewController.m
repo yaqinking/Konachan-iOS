@@ -25,7 +25,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@"viewDidLoad");
     [self observeiCloudChanges];
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
@@ -68,6 +67,7 @@
             [self.tableView reloadData];
         });
 
+    
 }
 
 - (void)refreshTags:(id)sender {
@@ -188,11 +188,19 @@
         TagPhotosViewController *tpvc = [segue destinationViewController];
         Tag *passTag;
         if ([sender isKindOfClass:[NSString class]]) {
-            NSEntityDescription *ed = [NSEntityDescription entityForName:@"Tag"
+            if ([sender isEqualToString:KonachanShortcutItemViewAll]) {
+                NSEntityDescription *ed = [NSEntityDescription entityForName:@"Tag"
                                   inManagedObjectContext:self.managedObjectContext];
-            passTag = (Tag *)[[NSManagedObject alloc] initWithEntity:ed
-                               insertIntoManagedObjectContext:nil];
-            passTag.name = @"all";
+                passTag = (Tag *)[[NSManagedObject alloc] initWithEntity:ed
+                                   insertIntoManagedObjectContext:nil];
+                passTag.name = @"all";
+            }
+            if ([sender isEqualToString:KonachanShortcutItemViewLast]) {
+                passTag = [self.tags lastObject];
+            }
+            if ([sender isEqualToString:KonachanShortcutItemViewSecond]) {
+                passTag = [self.tags objectAtIndex:self.tags.count-2];
+            }
         } else if ([sender isKindOfClass:[UITableViewCell class]]) {
             NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
             passTag = [self.tags objectAtIndex:indexPath.row];

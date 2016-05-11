@@ -77,16 +77,6 @@ NSString * const TagAll = @"";
     self.collectionView.collectionViewLayout = layout;
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    if (!self.isEnterBrowser) {
-        self.photos = nil;
-        self.previewPhotosURL = nil;
-        [[NSNotificationCenter defaultCenter] postNotificationName:KonachanNeedClearPrefechNotification
-                                                            object:nil];
-    }
-}
-
 #pragma mark - Scroll view delegate
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
