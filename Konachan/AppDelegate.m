@@ -19,13 +19,11 @@
 
 @implementation AppDelegate
 
-
-#warning 結束應用程序後，點擊 View xxx crash（啓動之後返回到 home 再點擊沒問題。）
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [self configureSettings];
     [self congigureDynamicShortcutItems:(UIApplication *) application];
-    return YES;
+    return NO;
 }
 
 - (void)congigureDynamicShortcutItems:(UIApplication *)application {
@@ -56,13 +54,12 @@
     
     NSString *shortcutItemType = shortcutItem.type;
     NSArray *viewControllers = ((UINavigationController *)self.window.rootViewController).viewControllers;
+    ViewController *viewController = viewControllers[0];
+    [self popToRootViewController];
     
     if ([shortcutItemType isEqualToString:KonachanShortcutItemAddKeyword]) {
-        ViewController *viewController = viewControllers[0];
         [viewController addTag:nil];
     } else {
-        [self popToRootViewController];
-        ViewController *viewController = viewControllers[0];
         [viewController performSegueWithIdentifier:KonachanSegueIdentifierShowTagPhotos sender:shortcutItemType];
     }
 }
