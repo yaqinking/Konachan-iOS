@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define kDownloadImageType @"download_type"
 #define kPreloadNextPage @"preload_next_page"
 #define kSwitchSite @"switch_site"
-
+#define kOfflineMode @"offline_mode"
 //Ratings
 #define kRatingSafe         @"s"
 #define kRatingQuestionable @"q"

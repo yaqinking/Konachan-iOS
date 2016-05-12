@@ -1,5 +1,5 @@
 //
-//  Tag+CoreDataProperties.m
+//  Image+CoreDataProperties.m
 //  Konachan
 //
 //  Created by 小笠原やきん on 16/5/12.
@@ -9,11 +9,19 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Tag+CoreDataProperties.h"
+#import "Image+CoreDataProperties.h"
 
-@implementation Tag (CoreDataProperties)
+@implementation Image (CoreDataProperties)
 
-@dynamic name;
-@dynamic createDate;
+@dynamic create_at;
+@dynamic file_url;
+@dynamic jpeg_url;
+@dynamic md5;
+@dynamic preview_url;
+@dynamic rating;
+@dynamic sample_url;
+@dynamic tags;
+@dynamic site;
+@dynamic image_id;
 
 @end

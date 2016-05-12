@@ -18,6 +18,7 @@
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSMutableArray *tags;
+@property (nonatomic, strong) NSPersistentStore *cachePersistentStore;
 
 @end
 
@@ -40,7 +41,8 @@
     
     self.navigationItem.title = @"Konachan";
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourcesite -> %@",self.sourceSite);
+        NSLog(@"sourcesite -> %@ CPS %@",self.sourceSite, self.cachePersistentStore.URL);
+        
     }
     
     [self setupTagsWithDefaultTag];
@@ -114,7 +116,7 @@
 - (void)setupSourceSite {
     NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourceSiteShort \n *** %i",sourceSiteType);
+        NSLog(@"sourceSiteShort \n *** %li",(long)sourceSiteType);
     }
 
     switch (sourceSiteType) {
@@ -234,7 +236,7 @@
              [self.refreshControl endRefreshing];
          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
              NSLog(@"failure %@",[error localizedDescription]);
-             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
+//             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
              [self.refreshControl endRefreshing];
          }];
 }
@@ -311,6 +313,14 @@
         _managedObjectContext = appDelegate.managedObjectContext;
     }
     return _managedObjectContext;
+}
+
+- (NSPersistentStore *)cachePersistentStore {
+    if (!_cachePersistentStore) {
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        _cachePersistentStore = appDelegate.cachePersistentStore;
+    }
+    return _cachePersistentStore;
 }
 
 - (NSMutableArray *)dataPreviewImageURLs {

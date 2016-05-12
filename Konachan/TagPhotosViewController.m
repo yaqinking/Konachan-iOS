@@ -14,6 +14,8 @@
 #import "MWPhotoBrowser.h"
 #import "UIImageView+ProgressView.h"
 #import "PreloadPhotoManager.h"
+#import "Image.h"
+#import "AppDelegate.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
@@ -23,12 +25,16 @@ NSString * const TagAll = @"";
 
 @property (strong, nonatomic) NSMutableArray *photos;
 @property (strong, nonatomic) NSMutableArray *previewPhotosURL;
-
+@property (strong, nonatomic) NSMutableArray<NSString *> *cachedImageKeys;
 @property (strong, nonatomic) MWPhotoBrowser *browser;
+
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSPersistentStore *cachePersistentStore;
 
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
 @property (nonatomic, assign, getter=isLoadOriginal) BOOL loadOriginal;
+@property (nonatomic, assign, getter=isOffline) BOOL offline;
 
 @property (nonatomic, assign) NSInteger fetchAmount;
 @property (nonatomic, assign) NSUInteger currentIndex;
@@ -47,9 +53,15 @@ NSString * const TagAll = @"";
     self.pageOffset = 1;
     self.loadNextPage = NO;
     self.currentIndex = 0;
+    self.offline = YES;
     NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
     self.loadOriginal = thumbLoadWay == KonachanPreviewImageLoadTypeLoadDownloaded ? YES : NO;
-    [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+    NSLog(@"Offline %i", self.isOffline);
+    if (self.isOffline) {
+        [self setupOfflineDataWithTag:self.tag.name];
+    } else {
+        [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+    }
     [self setupCollectionViewLayout];
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     self.screenWidth = screenBounds.size.width;
@@ -63,11 +75,39 @@ NSString * const TagAll = @"";
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    NSLog(@"viewDidLayoutSubviews");
     if (self.enterBrowser) {
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentIndex inSection:0]
                                     atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:NO];
     }
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    /*
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+    NSArray *fetchedResults = [self.managedObjectContext executeFetchRequest:request error:nil];
+    NSLog(@"viewWillAppear Fetched Results %lu", (unsigned long)fetchedResults.count);
+    
+    NSString *frTitle = [NSString stringWithFormat:@"FR%lu", (unsigned long)fetchedResults.count];
+    UIBarButtonItem *fr = [[UIBarButtonItem alloc] initWithTitle:frTitle
+                                                           style:UIBarButtonItemStylePlain target:self action:@selector(showLocal:)];
+    self.navigationItem.rightBarButtonItem = fr;
+    
+//    self.offline = [[NSUserDefaults standardUserDefaults] boolForKey:@"OfflineMode"];
+    self.offline = YES;
+     */
+}
+
+- (void)showLocal:(id)sender {
+    NSLog(@"Local");
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [appDelegate saveContext];
 }
 
 - (void)setupCollectionViewLayout {
@@ -80,12 +120,14 @@ NSString * const TagAll = @"";
 #pragma mark - Scroll view delegate
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    float endScrolling = scrollView.contentOffset.y + scrollView.frame.size.height;
-    
-    if (endScrolling >= scrollView.contentSize.height){
-        if (self.isLoadNextPage) {
-//            NSLog(@"loadNextPageData......");
-            [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+    if (!self.isOffline) {
+        float endScrolling = scrollView.contentOffset.y + scrollView.frame.size.height;
+        
+        if (endScrolling >= scrollView.contentSize.height){
+            if (self.isLoadNextPage) {
+                NSLog(@"loadNextPageData......");
+                [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+            }
         }
     }
 }
@@ -99,12 +141,26 @@ NSString * const TagAll = @"";
 - (nonnull UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PhotoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSURL *photoURL = [self.previewPhotosURL objectAtIndex:indexPath.row];
-    [cell.image sd_setImageWithURL:photoURL completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if (error) {
-//            [cell.image setImage:[UIImage imageNamed:@"placeholder"]];
-        }
-    } usingProgressView:nil];
+    //use cachedKey to display photo
+    /*
+    NSString *cacheKey = photoURL.absoluteString;
+    [cell.image setImage:[self cachedImageForKey:cacheKey]];
+     */
+//    if (self.isOffline) {
+//        NSString *cacheKey = photoURL.absoluteString;
+//        [cell.image setImage:[self cachedImageForKey:cacheKey]];
+//    } else {
+        [cell.image sd_setImageWithURL:photoURL completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            if (error) {
+                [cell.image setImage:[UIImage imageNamed:@"placeholder"]];
+            }
+        } usingProgressView:nil];
+//    }
     return cell;
+}
+
+- (UIImage *)cachedImageForKey:(NSString *)cachedKey {
+    return [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:cachedKey];
 }
 
 - (NSInteger)collectionView:(nonnull UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -163,7 +219,67 @@ NSString * const TagAll = @"";
 }
 
 #pragma mark - Load photos
-
+- (void)setupOfflineDataWithTag:(NSString *)tag {
+    NSLog(@"Offline mode");
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+    NSArray<Image *> *fetchedResults = [self.managedObjectContext executeFetchRequest:request error:nil];
+    [fetchedResults enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSString *previewURLString = obj.preview_url;
+        NSString *sampleURLString = obj.sample_url;
+        NSString *fileURLString = obj.file_url;
+        NSString *jpegURLString = obj.jpeg_url;
+        NSString *picTitle = obj.tags;
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
+        
+        Picture *photoPic;
+        switch (downloadImageType) {
+            case KonachanImageDownloadTypeSample:
+                photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                break;
+            case KonachanImageDownloadTypeJPEG:
+                photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:jpegURLString]];
+                break;
+            case KonachanImageDownloadTypeFile:
+                photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:fileURLString]];
+                break;
+            default:
+                photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
+                break;
+        }
+        [self.photos addObject:photoPic];
+        photoPic.caption = picTitle;
+        
+        NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+        
+        switch (thumbLoadWay) {
+            case KonachanPreviewImageLoadTypeLoadPreview:
+                [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                
+                break;
+            case KonachanPreviewImageLoadTypeLoadDownloaded:
+                switch (downloadImageType) {
+                    case KonachanImageDownloadTypeSample:
+                        [self.previewPhotosURL addObject:[NSURL URLWithString:sampleURLString]];
+                        break;
+                    case KonachanImageDownloadTypeJPEG:
+                        [self.previewPhotosURL addObject:[NSURL URLWithString:jpegURLString]];
+                        break;
+                    case KonachanImageDownloadTypeFile:
+                        [self.previewPhotosURL addObject:[NSURL URLWithString:fileURLString]];
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }];
+    self.navigationItem.title = [NSString stringWithFormat:@"Total %lu",(unsigned long)self.photos.count];
+    [self.collectionView reloadData];
+    [self.browser reloadData];
+}
 - (void)setupPhotosURLWithTag:(NSString *)tag andPageoffset:(int)pageOffset {
     MBProgressHUD *hud;
     if (!self.isLoadNextPage) {
@@ -198,11 +314,34 @@ NSString * const TagAll = @"";
                      NSString *jpegURLString = picDict[JPEGURL];
                      NSString *fileURLString = picDict[FileURL];
                      NSString *picTitle         = picDict[PictureTags];
+                     NSString *md5 = picDict[@"md5"];
+                     NSInteger create_at = [picDict[@"created_at"] integerValue];
+                     NSInteger image_id = [picDict[@"id"] integerValue];
+                     NSString *rating = picDict[@"rating"];
                      NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                      NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
                      
-                     Picture *photoPic;
                      
+                     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+                     request.predicate = [NSPredicate predicateWithFormat:@"image_id == %i",image_id];
+                     NSArray *fetchedImages = [self.managedObjectContext executeFetchRequest:request error:NULL];
+                     NSLog(@"fetchedImages count %lu", (unsigned long)fetchedImages.count);
+                     if (fetchedImages.count == 0) {
+                         Image *image = [NSEntityDescription insertNewObjectForEntityForName:@"Image" inManagedObjectContext:self.managedObjectContext];
+                         image.image_id = [NSNumber numberWithInteger:image_id];
+                         image.create_at = [NSNumber numberWithInteger:create_at];
+                         image.md5 = md5;
+                         image.tags = picTitle;
+                         image.preview_url = previewURLString;
+                         image.sample_url = sampleURLString;
+                         image.file_url = fileURLString;
+                         image.jpeg_url = jpegURLString;
+                         image.rating = rating;
+                         [self.managedObjectContext assignObject:image toPersistentStore:self.cachePersistentStore];
+                         NSLog(@"Not exist %@", image);
+                     }
+                     
+                     Picture *photoPic;
                      switch (downloadImageType) {
                          case KonachanImageDownloadTypeSample:
                              photoPic = [[Picture alloc] initWithURL:[NSURL URLWithString:sampleURLString]];
@@ -229,6 +368,7 @@ NSString * const TagAll = @"";
                      switch (thumbLoadWay) {
                          case KonachanPreviewImageLoadTypeLoadPreview:
                              [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                             
                              break;
                          case KonachanPreviewImageLoadTypeLoadDownloaded:
                              switch (downloadImageType) {
@@ -337,11 +477,13 @@ NSString * const TagAll = @"";
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index {
     //Set current index in order to at viewDidLayoutSubviews scroll to item position;
     self.currentIndex = index;
-    if (index >= (self.photos.count - 6)) {
-//        NSLog(@"Load More");
-        if (self.isLoadNextPage) {
-//            NSLog(@"Load More");
-            [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+    if (!self.isOffline) {
+        if (index >= (self.photos.count - 6)) {
+    //        NSLog(@"Load More");
+            if (self.isLoadNextPage) {
+    //            NSLog(@"Load More");
+                [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
+            }
         }
     }
 }
@@ -361,6 +503,12 @@ NSString * const TagAll = @"";
     return _photos;
 }
 
+- (NSMutableArray<NSString *> *)cachedImageKeys {
+    if (!_cachedImageKeys) {
+        _cachedImageKeys = [[NSMutableArray alloc] init];
+    }
+    return _cachedImageKeys;
+}
 
 - (NSMutableArray *)previewPhotosURL {
     if (!_previewPhotosURL) {
@@ -377,5 +525,19 @@ NSString * const TagAll = @"";
     [[SDImageCache sharedImageCache] clearMemory];
     [super didReceiveMemoryWarning];
 }
+- (NSManagedObjectContext *)managedObjectContext {
+    if (!_managedObjectContext) {
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        _managedObjectContext = appDelegate.managedObjectContext;
+    }
+    return _managedObjectContext;
+}
 
+- (NSPersistentStore *)cachePersistentStore {
+    if (!_cachePersistentStore) {
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        _cachePersistentStore = appDelegate.cachePersistentStore;
+    }
+    return _cachePersistentStore;
+}
 @end

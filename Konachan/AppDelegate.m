@@ -23,7 +23,23 @@
     // Override point for customization after application launch.
     [self configureSettings];
     [self congigureDynamicShortcutItems:(UIApplication *) application];
+    [self configureKeyValueStore];
     return NO;
+}
+
+- (void)configureKeyValueStore {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    id currentiCloudToken = fileManager.ubiquityIdentityToken;
+    if (currentiCloudToken) {
+        NSData *newTokenData =
+        [NSKeyedArchiver archivedDataWithRootObject: currentiCloudToken];
+        [[NSUserDefaults standardUserDefaults]
+         setObject: newTokenData
+         forKey: @"com.yaqinking.Konachan.UbiquityIdentityToken"];
+    } else {
+        [[NSUserDefaults standardUserDefaults]
+         removeObjectForKey: @"com.yaqinking.Konachan.UbiquityIdentityToken"];
+    }
 }
 
 - (void)congigureDynamicShortcutItems:(UIApplication *)application {
@@ -103,6 +119,7 @@
 NSString *const ErrorDomain = @"yaqinking.moe";
 NSString *const ContentNameKey = @"moe~yaqinking~konachan";
 NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
+NSString *const ApplicationCacheDirectoryName = @"konachan-cache.sqlite";
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory named "moe.yaqinking.Konachan" in the application's documents directory.
@@ -131,11 +148,17 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
     if (IS_DEBUG_MODE) {
         NSLog(@"storeURL %@",storeURL);
     }
-    NSDictionary *storeOptions = @{NSPersistentStoreUbiquitousContentNameKey: ContentNameKey};
+    NSDictionary *storeOptions = @{NSPersistentStoreUbiquitousContentNameKey: ContentNameKey,
+                                   NSMigratePersistentStoresAutomaticallyOption: @YES,
+                                   NSInferMappingModelAutomaticallyOption: @YES};
     NSError *error = nil;
     NSString *failureReason = @"There was an error creating or loading the application's saved data.";
     NSPersistentStore *store = nil;
-    if (! (store = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:storeOptions error:&error])) {
+    if (! (store = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                              configuration:nil
+                                                                        URL:storeURL
+                                                                    options:storeOptions
+                                                                      error:&error])) {
         // Report any error we got.
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         dict[NSLocalizedDescriptionKey] = @"Failed to initialize the application's saved data";
@@ -148,13 +171,44 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         abort();
     }
     
+    // Create cache store to save SDWebImage fetched images key, when user switch to local browser mode fetch all images key as data source (Maybe create a new MWPhotobrowser is the good choice?)
+    NSURL *cacheStoreURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:ApplicationCacheDirectoryName];
+    if (IS_DEBUG_MODE) {
+        NSLog(@"Cache Store URL %@", cacheStoreURL);
+    }
+    NSDictionary *cacheStoreOptions = @{NSMigratePersistentStoresAutomaticallyOption: @YES,
+                                        NSInferMappingModelAutomaticallyOption: @YES};
+    NSPersistentStore *cacheStore = nil;
+    NSError *cacheError = nil;
+    if (! (cacheStore = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                                   configuration:@"Cache"
+                                                                             URL:cacheStoreURL
+                                                                         options:cacheStoreOptions
+                                                                           error:&cacheError])) {
+        // Report any error we got.
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        dict[NSLocalizedDescriptionKey] = @"Failed to initialize the application's cached data";
+        dict[NSLocalizedFailureReasonErrorKey] = failureReason;
+        dict[NSUnderlyingErrorKey] = error;
+        error = [NSError errorWithDomain:ErrorDomain code:9235 userInfo:dict];
+        // Replace this with code to handle the error appropriately.
+        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+        NSLog(@"Unresolved cache error %@, %@", error, [error userInfo]);
+        abort();
+    }
+    
     if (IS_DEBUG_MODE) {
         NSURL *finaliCloudURL = [store URL];
         NSLog(@"finaliCloudURL: %@", finaliCloudURL);
+        NSURL *finalCacheStoreURL = [cacheStore URL];
+        NSLog(@"Cache Store URL %@", finalCacheStoreURL);
     }
     return _persistentStoreCoordinator;
 }
 
+- (NSPersistentStore *)cachePersistentStore {
+    return [_persistentStoreCoordinator.persistentStores lastObject];
+}
 
 - (NSManagedObjectContext *)managedObjectContext {
     // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
@@ -192,7 +246,8 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
     [userDefaults registerDefaults:@{ kPreloadNextPage : @YES,
-                                      kSwitchSite : @NO}];
+                                      kSwitchSite : @NO,
+                                      kOfflineMode : @NO }];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
 //        NSLog(@"iPad Pro");
