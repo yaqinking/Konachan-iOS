@@ -18,6 +18,7 @@
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSMutableArray *tags;
+@property (nonatomic, strong) NSPersistentStore *cachePersistentStore;
 
 @end
 
@@ -25,7 +26,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@"viewDidLoad");
     [self observeiCloudChanges];
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor        = [UIColor whiteColor];
@@ -41,7 +41,8 @@
     
     self.navigationItem.title = @"Konachan";
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourcesite -> %@",self.sourceSite);
+        NSLog(@"sourcesite -> %@ CPS %@",self.sourceSite, self.cachePersistentStore.URL);
+        
     }
     
     [self setupTagsWithDefaultTag];
@@ -68,6 +69,7 @@
             [self.tableView reloadData];
         });
 
+    
 }
 
 - (void)refreshTags:(id)sender {
@@ -114,7 +116,7 @@
 - (void)setupSourceSite {
     NSInteger sourceSiteType = [[NSUserDefaults standardUserDefaults] integerForKey:kSourceSite];
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourceSiteShort \n *** %i",sourceSiteType);
+        NSLog(@"sourceSiteShort \n *** %li",(long)sourceSiteType);
     }
 
     switch (sourceSiteType) {
@@ -172,6 +174,7 @@
         [self saveContext];
         self.tags = nil;
         [self setupTagsWithDefaultTag];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
 }
 
@@ -180,18 +183,34 @@
     if ([self.managedObjectContext hasChanges] && ![self.managedObjectContext save:&error]) {
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
     }
-    
 }
 
 - (void)prepareForSegue:(nonnull UIStoryboardSegue *)segue sender:(nullable id)sender {
     if ([segue.identifier isEqualToString:@"Show Tag Photos"]) {
         TagPhotosViewController *tpvc = [segue destinationViewController];
-        Tag *passTag = [self.tags objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        Tag *passTag;
+        if ([sender isKindOfClass:[NSString class]]) {
+            if ([sender isEqualToString:KonachanShortcutItemViewAll]) {
+                NSEntityDescription *ed = [NSEntityDescription entityForName:@"Tag"
+                                  inManagedObjectContext:self.managedObjectContext];
+                passTag = (Tag *)[[NSManagedObject alloc] initWithEntity:ed
+                                   insertIntoManagedObjectContext:nil];
+                passTag.name = @"all";
+            }
+            if ([sender isEqualToString:KonachanShortcutItemViewLast]) {
+                passTag = [self.tags lastObject];
+            }
+            if ([sender isEqualToString:KonachanShortcutItemViewSecond]) {
+                passTag = [self.tags objectAtIndex:self.tags.count-2];
+            }
+        } else if ([sender isKindOfClass:[UITableViewCell class]]) {
+            NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+            passTag = [self.tags objectAtIndex:indexPath.row];
+        }
         tpvc.tag = passTag;
         tpvc.sourceSite = self.sourceSite;
     }
 }
-
 
 #pragma mark - Setup
 
@@ -217,7 +236,7 @@
              [self.refreshControl endRefreshing];
          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
              NSLog(@"failure %@",[error localizedDescription]);
-             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
+//             [self showHUDWithTitle:@"Error" content:@"Connection reset by peer. >_>"];
              [self.refreshControl endRefreshing];
          }];
 }
@@ -294,6 +313,14 @@
         _managedObjectContext = appDelegate.managedObjectContext;
     }
     return _managedObjectContext;
+}
+
+- (NSPersistentStore *)cachePersistentStore {
+    if (!_cachePersistentStore) {
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        _cachePersistentStore = appDelegate.cachePersistentStore;
+    }
+    return _cachePersistentStore;
 }
 
 - (NSMutableArray *)dataPreviewImageURLs {

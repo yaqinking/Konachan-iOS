@@ -8,6 +8,10 @@
 
 #import "AppDelegate.h"
 #import "KonachanAPI.h"
+#import "ViewController.h"
+#import "Tag.h"
+
+
 
 @interface AppDelegate ()
 
@@ -15,11 +19,70 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [self configureSettings];
-    return YES;
+    [self congigureDynamicShortcutItems:(UIApplication *) application];
+    [self configureKeyValueStore];
+    return NO;
+}
+
+- (void)configureKeyValueStore {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    id currentiCloudToken = fileManager.ubiquityIdentityToken;
+    if (currentiCloudToken) {
+        NSData *newTokenData =
+        [NSKeyedArchiver archivedDataWithRootObject: currentiCloudToken];
+        [[NSUserDefaults standardUserDefaults]
+         setObject: newTokenData
+         forKey: @"com.yaqinking.Konachan.UbiquityIdentityToken"];
+    } else {
+        [[NSUserDefaults standardUserDefaults]
+         removeObjectForKey: @"com.yaqinking.Konachan.UbiquityIdentityToken"];
+    }
+}
+
+- (void)congigureDynamicShortcutItems:(UIApplication *)application {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    NSArray *fetchedTags = [self.managedObjectContext executeFetchRequest:request error:NULL];
+    if (fetchedTags.count > 1) {
+        Tag *lastTag = [fetchedTags lastObject];
+        Tag *secondTag = [fetchedTags objectAtIndex:(fetchedTags.count-2)];
+        NSString *lastKeyword = lastTag.name;
+        NSString *secondKeyword = secondTag.name;
+        UIMutableApplicationShortcutItem *lastItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewLast
+                                                                                             localizedTitle:[NSString stringWithFormat:@"View %@", lastKeyword]];
+        UIMutableApplicationShortcutItem *secondItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewSecond localizedTitle:[NSString stringWithFormat:@"View %@", secondKeyword]];
+        application.shortcutItems = @[secondItem, lastItem];
+    } else if (fetchedTags.count == 1){
+        Tag *lastTag = [fetchedTags lastObject];
+        NSString *lastKeyword = lastTag.name;
+        UIMutableApplicationShortcutItem *lastItem = [[UIMutableApplicationShortcutItem alloc] initWithType:KonachanShortcutItemViewLast
+                                                                                             localizedTitle:[NSString stringWithFormat:@"View %@", lastKeyword]];
+        application.shortcutItems = @[lastItem];
+    } else {
+        application.shortcutItems = nil;
+    }
+}
+
+
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+    
+    NSString *shortcutItemType = shortcutItem.type;
+    NSArray *viewControllers = ((UINavigationController *)self.window.rootViewController).viewControllers;
+    ViewController *viewController = viewControllers[0];
+    [self popToRootViewController];
+    
+    if ([shortcutItemType isEqualToString:KonachanShortcutItemAddKeyword]) {
+        [viewController addTag:nil];
+    } else {
+        [viewController performSegueWithIdentifier:KonachanSegueIdentifierShowTagPhotos sender:shortcutItemType];
+    }
+}
+
+- (void)popToRootViewController {
+    UINavigationController *navigationViewController = (UINavigationController *)self.window.rootViewController;
+    [navigationViewController popToRootViewControllerAnimated:NO];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -30,6 +93,7 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    [self congigureDynamicShortcutItems:application];
     [self saveContext];
 }
 
@@ -46,8 +110,6 @@
     [self saveContext];
 }
 
-
-
 #pragma mark - Core Data stack
 
 @synthesize managedObjectContext = _managedObjectContext;
@@ -57,6 +119,7 @@
 NSString *const ErrorDomain = @"yaqinking.moe";
 NSString *const ContentNameKey = @"moe~yaqinking~konachan";
 NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
+NSString *const ApplicationCacheDirectoryName = @"konachan-cache.sqlite";
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory named "moe.yaqinking.Konachan" in the application's documents directory.
@@ -85,11 +148,17 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
     if (IS_DEBUG_MODE) {
         NSLog(@"storeURL %@",storeURL);
     }
-    NSDictionary *storeOptions = @{NSPersistentStoreUbiquitousContentNameKey: ContentNameKey};
+    NSDictionary *storeOptions = @{NSPersistentStoreUbiquitousContentNameKey: ContentNameKey,
+                                   NSMigratePersistentStoresAutomaticallyOption: @YES,
+                                   NSInferMappingModelAutomaticallyOption: @YES};
     NSError *error = nil;
     NSString *failureReason = @"There was an error creating or loading the application's saved data.";
     NSPersistentStore *store = nil;
-    if (! (store = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:storeOptions error:&error])) {
+    if (! (store = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                              configuration:nil
+                                                                        URL:storeURL
+                                                                    options:storeOptions
+                                                                      error:&error])) {
         // Report any error we got.
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         dict[NSLocalizedDescriptionKey] = @"Failed to initialize the application's saved data";
@@ -102,13 +171,44 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         abort();
     }
     
+    // Create cache store to save SDWebImage fetched images key, when user switch to local browser mode fetch all images key as data source (Maybe create a new MWPhotobrowser is the good choice?)
+    NSURL *cacheStoreURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:ApplicationCacheDirectoryName];
+    if (IS_DEBUG_MODE) {
+        NSLog(@"Cache Store URL %@", cacheStoreURL);
+    }
+    NSDictionary *cacheStoreOptions = @{NSMigratePersistentStoresAutomaticallyOption: @YES,
+                                        NSInferMappingModelAutomaticallyOption: @YES};
+    NSPersistentStore *cacheStore = nil;
+    NSError *cacheError = nil;
+    if (! (cacheStore = [ _persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                                   configuration:@"Cache"
+                                                                             URL:cacheStoreURL
+                                                                         options:cacheStoreOptions
+                                                                           error:&cacheError])) {
+        // Report any error we got.
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        dict[NSLocalizedDescriptionKey] = @"Failed to initialize the application's cached data";
+        dict[NSLocalizedFailureReasonErrorKey] = failureReason;
+        dict[NSUnderlyingErrorKey] = error;
+        error = [NSError errorWithDomain:ErrorDomain code:9235 userInfo:dict];
+        // Replace this with code to handle the error appropriately.
+        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+        NSLog(@"Unresolved cache error %@, %@", error, [error userInfo]);
+        abort();
+    }
+    
     if (IS_DEBUG_MODE) {
         NSURL *finaliCloudURL = [store URL];
         NSLog(@"finaliCloudURL: %@", finaliCloudURL);
+        NSURL *finalCacheStoreURL = [cacheStore URL];
+        NSLog(@"Cache Store URL %@", finalCacheStoreURL);
     }
     return _persistentStoreCoordinator;
 }
 
+- (NSPersistentStore *)cachePersistentStore {
+    return [_persistentStoreCoordinator.persistentStores lastObject];
+}
 
 - (NSManagedObjectContext *)managedObjectContext {
     // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
@@ -145,13 +245,15 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
 - (void)configureSettings {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
-    [userDefaults registerDefaults:@{ kPreloadNextPage : @YES }];
+    [userDefaults registerDefaults:@{ kPreloadNextPage : @YES,
+                                      kSwitchSite : @NO,
+                                      kOfflineMode : @NO }];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
-        NSLog(@"iPad Pro");
+//        NSLog(@"iPad Pro");
         [userDefaults setInteger:kFetchAmountiPadProMin forKey:kFetchAmount];
     } else if (fetchAmount == 0 && iPad) {
-        NSLog(@"iPad Retina");
+//        NSLog(@"iPad Retina");
         //iPad need load more pictures in order to get pull up to load more pictures.
         [userDefaults setInteger:kFetchAmountDefault forKey:kFetchAmount];
     } else if (fetchAmount == 0 && iPhone) {
@@ -167,11 +269,6 @@ NSString *const ApplicationDocumentsDirectoryName = @"konachan.sqlite";
         [userDefaults setInteger:KonachanImageDownloadTypeSample forKey:kDownloadImageType];
     }
     [userDefaults synchronize];
-    if (IS_DEBUG_MODE) {
-        NSLog(@"Fetch Acmount %lu",(long)fetchAmount);
-        NSLog(@"Load Thumb %li",thumbLoadWay);
-        NSLog(@"Download Image Type %li",downloadImageType);
-    }
     
 }
 

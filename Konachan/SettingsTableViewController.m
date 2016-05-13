@@ -11,6 +11,8 @@
 #import <SDWebImage/SDWebImageManager.h>
 #import "MBProgressHUD.h"
 #import "KonachanAPI.h"
+#import "LocalImageDataSource.h"
+
 #define kSourceSite @"source_site"
 
 
@@ -21,7 +23,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *downloadImageTypeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *sourceSiteLabel;
 @property (weak, nonatomic) IBOutlet UISwitch *preloadNextPageSwitch;
-
+@property (weak, nonatomic) IBOutlet UISwitch *offlineModeSwitch;
 
 @end
 
@@ -37,6 +39,71 @@
     [self calculateCachedPicsSize];
     [self configureFetchAmount];
     [self configurePreloadNextPage];
+    [self congigureOfflineMode];
+    [self setupGestures];
+}
+
+- (void)setupGestures {
+    UITapGestureRecognizer *switchTapGesture = [[UITapGestureRecognizer alloc] init];
+    switchTapGesture.numberOfTouchesRequired = 1;
+    switchTapGesture.numberOfTapsRequired = 5;
+    [switchTapGesture addTarget:self action:@selector(configureSwitchSite)];
+    [self.tableView addGestureRecognizer:switchTapGesture];
+
+    UISwipeGestureRecognizer *switchToYandereGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToYandereGesture.direction = UISwipeGestureRecognizerDirectionRight;
+    switchToYandereGesture.numberOfTouchesRequired = 3;
+    [switchToYandereGesture addTarget:self action:@selector(responseToYandereGesture)];
+    [self.tableView addGestureRecognizer:switchToYandereGesture];
+    
+    UISwipeGestureRecognizer *switchToKonachanComGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToKonachanComGesture.direction = UISwipeGestureRecognizerDirectionLeft;
+    switchToKonachanComGesture.numberOfTouchesRequired = 3;
+    [switchToKonachanComGesture addTarget:self action:@selector(responseToKonachanComGesture)];
+    [self.tableView addGestureRecognizer:switchToKonachanComGesture];
+    
+    UISwipeGestureRecognizer *switchToKonachanNetGesture = [[UISwipeGestureRecognizer alloc] init];
+    switchToKonachanNetGesture.direction = UISwipeGestureRecognizerDirectionLeft;
+    switchToKonachanNetGesture.numberOfTouchesRequired = 2;
+    [switchToKonachanNetGesture addTarget:self action:@selector(responseToKonachanNetGesture)];
+    [self.tableView addGestureRecognizer:switchToKonachanNetGesture];
+}
+
+- (void)responseToYandereGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to yande.re success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
+    }
+}
+
+- (void)responseToKonachanComGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to Konachan.com success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
+    }
+}
+
+- (void)responseToKonachanNetGesture {
+    if ([self isSwitchSiteON]) {
+        [self showHUDWithTitle:@"Set source site"
+                       content:@"Set to Konachan.net success!"];
+        [self writeConfigWith:KonachanSourceSiteTypeKonachan_net andKey:kSourceSite];
+    }
+}
+
+- (BOOL)isSwitchSiteON {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kSwitchSite];
+}
+
+- (void)configureSwitchSite {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL savedValue = [defaults boolForKey:kSwitchSite];
+    [defaults setBool:!savedValue forKey:kSwitchSite];
+    if ([defaults synchronize]) {
+        [self showHUDWithTitle:@"Switch Site" content:(!savedValue ? @"ON" : @"OFF")];
+    }
 }
 
 #pragma mark - Table View Delegate Methods
@@ -186,16 +253,25 @@
     self.preloadNextPageSwitch.on = isPreloadNextPage;
 }
 
+- (void)congigureOfflineMode {
+    BOOL isOfflineMode = [[NSUserDefaults standardUserDefaults] boolForKey:kOfflineMode];
+    self.offlineModeSwitch.on = isOfflineMode;
+}
+
 - (void)clearCache:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Do you want to clear image cache?" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
                                                         style:UIAlertActionStyleDefault
                                                       handler:^(UIAlertAction * _Nonnull action) {
                                                           SDImageCache *imageCache = [SDImageCache sharedImageCache];
+                                                          
                                                           [imageCache clearMemory];
                                                           [imageCache clearDiskOnCompletion:^{
                                                               [self calculateCachedPicsSize];
                                                           }];
+                                                          
+                                                          LocalImageDataSource *dataSource = [[LocalImageDataSource alloc] init];
+                                                          [dataSource clearImages];
                                                       }];
     
     
@@ -231,23 +307,11 @@
                        content:@"Min fetch amount is 30"];
         return;
     }
-    if (IS_DEBUG_MODE) {
-        if (fetchAmount == 512181) {
-            [self showHUDWithTitle:@"Set source site"
-                           content:@"Set to Konachan.com success!"];
-            [self writeConfigWith:KonachanSourceSiteTypeKonachan_com andKey:kSourceSite];
-        } else if (fetchAmount == 512182) {
-            [self showHUDWithTitle:@"Set source site"
-                           content:@"Set to yande.re success!"];
-            [self writeConfigWith:KonachanSourceSiteTypeYande_re andKey:kSourceSite];
-        }
-    }
     if (fetchAmount > 100) {
         [self showHUDWithTitle:@"Error >_<"
                        content:@"Max fetch amount is 100"];
     } else {
         [[NSUserDefaults standardUserDefaults] setInteger:fetchAmount forKey:kFetchAmount];
-//        NSLog(@"Set amount success %lu", fetchAmount);
         [self showHUDWithTitle:@"Success!" content:[NSString stringWithFormat:@"Set fetch amount to %li success!",(long)fetchAmount]];
     }
 }
@@ -260,15 +324,18 @@
     }
 }
 
+- (IBAction)changeOfflineMode:(UISwitch *)sender {
+    if (sender.on) {
+        [self writeConfigWith:1 andKey:kOfflineMode];
+    } else {
+        [self writeConfigWith:0 andKey:kOfflineMode];
+    }
+}
 
 - (void) writeConfigWith:(NSInteger) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setInteger:value forKey:key];
     [defaults synchronize];
-}
-
-- (void) write {
-    
 }
 
 - (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {

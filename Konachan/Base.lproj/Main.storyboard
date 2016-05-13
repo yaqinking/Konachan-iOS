@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="MZv-CQ-1kJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="MZv-CQ-1kJ">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Segues with Peek and Pop" minToolsVersion="7.1"/>
     </dependencies>
     <scenes>
         <!--Tag Photos View Controller-->
@@ -84,7 +85,10 @@
                                 <connections>
                                     <outlet property="tagImageView" destination="Dov-ij-WRI" id="6gl-zl-GCg"/>
                                     <outlet property="tagTextLabel" destination="DYM-iS-Wg6" id="WJI-hW-m8m"/>
-                                    <segue destination="wc4-22-VQh" kind="show" identifier="Show Tag Photos" id="Njd-du-C90"/>
+                                    <segue destination="wc4-22-VQh" kind="show" identifier="Show Tag Photos" id="Njd-du-C90">
+                                        <segue key="commit" inheritsFrom="parent" id="Zvi-NG-JeG"/>
+                                        <segue key="preview" inheritsFrom="commit" id="ddh-NL-nlT"/>
+                                    </segue>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -321,6 +325,34 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="C7e-pZ-81H">
+                                        <rect key="frame" x="0.0" y="412" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="C7e-pZ-81H" id="C9s-By-lgz">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Offline mode" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dUO-ao-j0H">
+                                                    <rect key="frame" x="16" y="11" width="99" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0H2-sq-MKA">
+                                                    <rect key="frame" x="538" y="6" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="changeOfflineMode:" destination="U2Y-Ta-od7" eventType="valueChanged" id="YxR-Xp-CXa"/>
+                                                    </connections>
+                                                </switch>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="0H2-sq-MKA" secondAttribute="trailing" constant="5" id="YOg-UW-7YH"/>
+                                                <constraint firstItem="dUO-ao-j0H" firstAttribute="centerY" secondItem="C9s-By-lgz" secondAttribute="centerY" id="bFe-wP-kJv"/>
+                                                <constraint firstItem="dUO-ao-j0H" firstAttribute="centerY" secondItem="0H2-sq-MKA" secondAttribute="centerY" id="hoS-zw-QaR"/>
+                                                <constraint firstItem="dUO-ao-j0H" firstAttribute="leading" secondItem="C9s-By-lgz" secondAttribute="leadingMargin" constant="8" id="pwe-RP-lwL"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -334,6 +366,7 @@
                         <outlet property="downloadImageTypeLabel" destination="jyf-EE-9f2" id="9C0-Zu-Zty"/>
                         <outlet property="fetchAmountTextField" destination="i44-EZ-b30" id="aAo-fx-FOm"/>
                         <outlet property="loadThumbWayTextField" destination="97e-8c-N2x" id="ebZ-0I-Va2"/>
+                        <outlet property="offlineModeSwitch" destination="0H2-sq-MKA" id="DwT-8V-BVn"/>
                         <outlet property="preloadNextPageSwitch" destination="AWP-78-V5y" id="p36-ZO-6Js"/>
                         <outlet property="sourceSiteLabel" destination="Z07-up-t1E" id="DVH-WB-LtA"/>
                     </connections>
@@ -419,4 +452,7 @@ https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage</string>
     <resources>
         <image name="placeholder" width="850" height="850"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="Njd-du-C90"/>
+    </inferredMetricsTieBreakers>
 </document>

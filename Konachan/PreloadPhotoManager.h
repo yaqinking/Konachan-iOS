@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * const KonachanNeedClearPrefechNotification;
+extern NSString * const PreloadPhotoProgressDidChangeNotification;
+extern NSString * const PreloadPhotoProgressFinishedKey;
+extern NSString * const PreloadPhotoProgressTotalKey;
+extern NSString * const PreloadPhotoPrograssCompletedKey;
 
 @interface PreloadPhotoManager : NSObject
 

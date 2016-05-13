@@ -7,13 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		63FF1BEFD0F7970964CBBBDC /* libPods-Konachan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 702F1F16B23D31011B079044 /* libPods-Konachan.a */; };
+		E78BA1616C91627C21B33B51 /* libPods-Konachan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F714913419619E016DD4 /* libPods-Konachan.a */; };
 		F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */; };
 		F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */; };
 		F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F42D2C421C02E38C0049494A /* CloudKit.framework */; };
 		F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */; };
 		F42D2C491C02E9930049494A /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C471C02E9930049494A /* Tag.m */; };
 		F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */; };
+		F44997D81CE433D1007ABD4A /* Image+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */; };
+		F44997D91CE433D1007ABD4A /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D71CE433D1007ABD4A /* Image.m */; };
+		F4C2DB7A1CE5525400F68F0F /* LocalImageDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */; };
 		F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */; };
 		F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */; };
 		F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0EE1B71FF4E00AA21D6 /* Picture.m */; };
@@ -28,9 +31,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3077424D7FC7DA90DDAED1A0 /* Pods-Konachan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.release.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.release.xcconfig"; sourceTree = "<group>"; };
-		702F1F16B23D31011B079044 /* libPods-Konachan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Konachan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.debug.xcconfig"; sourceTree = "<group>"; };
+		2DB3BBB9E18B37BD0F2999AA /* Pods-Konachan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.release.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.release.xcconfig"; sourceTree = "<group>"; };
+		4150F714913419619E016DD4 /* libPods-Konachan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Konachan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		987AD3BEF79561765A45C17A /* Pods-Konachan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Konachan.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Konachan/Pods-Konachan.debug.xcconfig"; sourceTree = "<group>"; };
 		F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+ProgressView.h"; sourceTree = "<group>"; };
 		F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+ProgressView.m"; sourceTree = "<group>"; };
 		F42D2C3D1C02DFFB0049494A /* Konachan.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Konachan.xcdatamodel; sourceTree = "<group>"; };
@@ -42,7 +45,14 @@
 		F42D2C471C02E9930049494A /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
 		F43A0CB21CAE7346005BFE74 /* PreloadPhotoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreloadPhotoManager.h; sourceTree = "<group>"; };
 		F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreloadPhotoManager.m; sourceTree = "<group>"; };
+		F44997D11CE420B2007ABD4A /* Konachan v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Konachan v2.xcdatamodel"; sourceTree = "<group>"; };
+		F44997D41CE433D1007ABD4A /* Image+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Image+CoreDataProperties.h"; sourceTree = "<group>"; };
+		F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Image+CoreDataProperties.m"; sourceTree = "<group>"; };
+		F44997D61CE433D1007ABD4A /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
+		F44997D71CE433D1007ABD4A /* Image.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Image.m; sourceTree = "<group>"; };
 		F47800C01C12C0DD00428F2C /* KonachanTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KonachanTool.h; sourceTree = "<group>"; };
+		F4C2DB781CE5525400F68F0F /* LocalImageDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalImageDataSource.h; sourceTree = "<group>"; };
+		F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalImageDataSource.m; sourceTree = "<group>"; };
 		F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SettingsTableViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		F4E5F0E31B71ED5600AA21D6 /* KonachanAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KonachanAPI.h; sourceTree = "<group>"; };
@@ -71,30 +81,60 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63FF1BEFD0F7970964CBBBDC /* libPods-Konachan.a in Frameworks */,
 				F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */,
+				E78BA1616C91627C21B33B51 /* libPods-Konachan.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A96963A51A37633C23F2656 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */,
-				3077424D7FC7DA90DDAED1A0 /* Pods-Konachan.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		A353000DCD6FDBFC8A4459AE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				F42D2C421C02E38C0049494A /* CloudKit.framework */,
-				702F1F16B23D31011B079044 /* libPods-Konachan.a */,
+				4150F714913419619E016DD4 /* libPods-Konachan.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DA6CA22F04ED32CAE823CD89 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				987AD3BEF79561765A45C17A /* Pods-Konachan.debug.xcconfig */,
+				2DB3BBB9E18B37BD0F2999AA /* Pods-Konachan.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		F44997D21CE422CE007ABD4A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F44997D41CE433D1007ABD4A /* Image+CoreDataProperties.h */,
+				F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */,
+				F44997D61CE433D1007ABD4A /* Image.h */,
+				F44997D71CE433D1007ABD4A /* Image.m */,
+				F42D2C441C02E9930049494A /* Tag+CoreDataProperties.h */,
+				F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */,
+				F42D2C461C02E9930049494A /* Tag.h */,
+				F42D2C471C02E9930049494A /* Tag.m */,
+				F4E5F0ED1B71FF4E00AA21D6 /* Picture.h */,
+				F4E5F0EE1B71FF4E00AA21D6 /* Picture.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		F44997D31CE422FB007ABD4A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F4E5F0E41B71F92C00AA21D6 /* TagTableViewCell.h */,
+				F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */,
+				F4F0A3581B71E9E600289149 /* PhotoCell.h */,
+				F4F0A3591B71E9E600289149 /* PhotoCell.m */,
+				F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */,
+				F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 		F4F0A3321B71E94000289149 = {
@@ -102,8 +142,8 @@
 			children = (
 				F4F0A33D1B71E94000289149 /* Konachan */,
 				F4F0A33C1B71E94000289149 /* Products */,
-				1A96963A51A37633C23F2656 /* Pods */,
 				A353000DCD6FDBFC8A4459AE /* Frameworks */,
+				DA6CA22F04ED32CAE823CD89 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -118,15 +158,9 @@
 		F4F0A33D1B71E94000289149 /* Konachan */ = {
 			isa = PBXGroup;
 			children = (
-				F42D2C441C02E9930049494A /* Tag+CoreDataProperties.h */,
-				F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */,
-				F42D2C461C02E9930049494A /* Tag.h */,
-				F42D2C471C02E9930049494A /* Tag.m */,
+				F44997D21CE422CE007ABD4A /* Model */,
 				F42D2C3F1C02E0950049494A /* Konachan.entitlements */,
-				F4E5F0ED1B71FF4E00AA21D6 /* Picture.h */,
-				F4E5F0EE1B71FF4E00AA21D6 /* Picture.m */,
-				F4E5F0E41B71F92C00AA21D6 /* TagTableViewCell.h */,
-				F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */,
+				F44997D31CE422FB007ABD4A /* View */,
 				F4F0A3441B71E94000289149 /* ViewController.h */,
 				F4F0A3451B71E94000289149 /* ViewController.m */,
 				F4E5F0E31B71ED5600AA21D6 /* KonachanAPI.h */,
@@ -139,15 +173,13 @@
 				F4F0A33E1B71E94000289149 /* Supporting Files */,
 				F4F0A3551B71E9C000289149 /* TagPhotosViewController.h */,
 				F4F0A3561B71E9C000289149 /* TagPhotosViewController.m */,
-				F4F0A3581B71E9E600289149 /* PhotoCell.h */,
-				F4F0A3591B71E9E600289149 /* PhotoCell.m */,
 				F4C6B05E1B76FEEE00A0198A /* SettingsTableViewController.h */,
 				F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */,
 				F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */,
-				F42BB1A21C96DD6D0044E307 /* UIImageView+ProgressView.h */,
-				F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */,
 				F43A0CB21CAE7346005BFE74 /* PreloadPhotoManager.h */,
 				F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */,
+				F4C2DB781CE5525400F68F0F /* LocalImageDataSource.h */,
+				F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -168,12 +200,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F4F0A3521B71E94000289149 /* Build configuration list for PBXNativeTarget "Konachan" */;
 			buildPhases = (
-				BC6F0ECAE85EC637247FCA91 /* Check Pods Manifest.lock */,
+				0DA885B4D3B32FB409804EB1 /* 📦 Check Pods Manifest.lock */,
 				F4F0A3371B71E94000289149 /* Sources */,
 				F4F0A3381B71E94000289149 /* Frameworks */,
 				F4F0A3391B71E94000289149 /* Resources */,
-				B3C6C1218BDFF8B0A32783E2 /* Copy Pods Resources */,
-				D0E3914F88BD69A892443ABD /* Embed Pods Frameworks */,
+				A7EB5B561325F980D35A9B9E /* 📦 Embed Pods Frameworks */,
+				767971EC70A10FF92B5AC90B /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -236,29 +268,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B3C6C1218BDFF8B0A32783E2 /* Copy Pods Resources */ = {
+		0DA885B4D3B32FB409804EB1 /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Konachan/Pods-Konachan-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BC6F0ECAE85EC637247FCA91 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,14 +283,29 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		D0E3914F88BD69A892443ABD /* Embed Pods Frameworks */ = {
+		767971EC70A10FF92B5AC90B /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Konachan/Pods-Konachan-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A7EB5B561325F980D35A9B9E /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,7 +327,10 @@
 				F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */,
 				F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */,
 				F4F0A3461B71E94000289149 /* ViewController.m in Sources */,
+				F44997D81CE433D1007ABD4A /* Image+CoreDataProperties.m in Sources */,
 				F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */,
+				F44997D91CE433D1007ABD4A /* Image.m in Sources */,
+				F4C2DB7A1CE5525400F68F0F /* LocalImageDataSource.m in Sources */,
 				F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */,
 				F4F0A3431B71E94000289149 /* AppDelegate.m in Sources */,
 				F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */,
@@ -410,7 +445,7 @@
 		};
 		F4F0A3531B71E94000289149 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C54C747AC23F2A1372DCD9CA /* Pods-Konachan.debug.xcconfig */;
+			baseConfigurationReference = 987AD3BEF79561765A45C17A /* Pods-Konachan.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Konachan/Konachan.entitlements;
@@ -426,7 +461,7 @@
 		};
 		F4F0A3541B71E94000289149 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3077424D7FC7DA90DDAED1A0 /* Pods-Konachan.release.xcconfig */;
+			baseConfigurationReference = 2DB3BBB9E18B37BD0F2999AA /* Pods-Konachan.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Konachan/Konachan.entitlements;
@@ -467,9 +502,10 @@
 		F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				F44997D11CE420B2007ABD4A /* Konachan v2.xcdatamodel */,
 				F42D2C3D1C02DFFB0049494A /* Konachan.xcdatamodel */,
 			);
-			currentVersion = F42D2C3D1C02DFFB0049494A /* Konachan.xcdatamodel */;
+			currentVersion = F44997D11CE420B2007ABD4A /* Konachan v2.xcdatamodel */;
 			path = Konachan.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
