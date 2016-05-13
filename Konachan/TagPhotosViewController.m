@@ -100,6 +100,17 @@ NSString * const TagAll = @"";
     self.navigationItem.rightBarButtonItem = rightItem;
 }
 
+- (void)setupCollectionViewLayout {
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 5;
+    layout.minimumInteritemSpacing = 0;
+    self.collectionView.collectionViewLayout = layout;
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 }
@@ -108,13 +119,6 @@ NSString * const TagAll = @"";
     [super viewWillDisappear:animated];
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     [appDelegate saveContext];
-}
-
-- (void)setupCollectionViewLayout {
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.minimumLineSpacing = 5;
-    layout.minimumInteritemSpacing = 0;
-    self.collectionView.collectionViewLayout = layout;
 }
 
 #pragma mark - Scroll view delegate
