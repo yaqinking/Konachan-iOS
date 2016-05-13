@@ -11,9 +11,15 @@
 #import "AFNetworking.h"
 #import "KonachanAPI.h"
 
+NSString * const PreloadPhotoProgressDidChangeNotification = @"PreloadPhotoProgressDidChangeNotification";
+NSString * const PreloadPhotoProgressFinishedKey           = @"finished";
+NSString * const PreloadPhotoProgressTotalKey              = @"total";
+NSString * const PreloadPhotoPrograssCompletedKey          = @"completed";
+
 @interface PreloadPhotoManager()
 
 @property (nonatomic, strong) NSMutableArray *preferchURLS;
+@property (nonatomic, strong) NSString *downloadImageTypeKey;
 
 @end
 
@@ -36,52 +42,61 @@
       parameters:nil
         progress:nil
          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-             dispatch_async(dispatch_queue_create("data", nil), ^{
+             dispatch_async(dispatch_queue_create("cache_queue", nil), ^{
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
-                     NSString *sampleURLString  = picDict[SampleURL];
-                     NSString *jpegURLString = picDict[JPEGURL];
-                     NSString *fileURLString = picDict[FileURL];
-                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                     NSInteger downloadImageType = [userDefaults integerForKey:kDownloadImageType];
-                     
-                     
+                     NSString *downloadImageURLString = picDict[self.downloadImageTypeKey];
+                     NSURL *downloadImageURL = [NSURL URLWithString:downloadImageURLString];
                      NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
-                     
                      switch (thumbLoadWay) {
                          case KonachanPreviewImageLoadTypeLoadPreview:
                              [self.preferchURLS addObject:[NSURL URLWithString:previewURLString]];
                              break;
                          case KonachanPreviewImageLoadTypeLoadDownloaded:
-                             switch (downloadImageType) {
-                                 case KonachanImageDownloadTypeSample:
-                                     [self.preferchURLS addObject:[NSURL URLWithString:sampleURLString]];
-                                     break;
-                                 case KonachanImageDownloadTypeJPEG:
-                                     [self.preferchURLS addObject:[NSURL URLWithString:jpegURLString]];
-                                     break;
-                                 case KonachanImageDownloadTypeFile:
-                                     [self.preferchURLS addObject:[NSURL URLWithString:fileURLString]];
-                                     break;
-                                 default:
-                                     break;
-                             }
+                             [self.preferchURLS addObject:downloadImageURL];
                              break;
                          default:
                              break;
                      }
                  }
                  [fecher prefetchURLs:self.preferchURLS progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
-//                     NSLog(@"Progress Finised %i Total %i",noOfFinishedUrls, noOfTotalUrls);
+                     NSNumber *finised = [NSNumber numberWithUnsignedInteger:noOfFinishedUrls];
+                     NSNumber *total = [NSNumber numberWithUnsignedInteger:noOfTotalUrls];
+                     NSDictionary *userInfo = @{ PreloadPhotoProgressFinishedKey: finised,
+                                                 PreloadPhotoProgressTotalKey: total,
+                                                 PreloadPhotoPrograssCompletedKey: @NO };
+                     [[NSNotificationCenter defaultCenter] postNotificationName:PreloadPhotoProgressDidChangeNotification object:nil userInfo:userInfo];
                  } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-//                     NSLog(@"Completed Finised %i Skipped %i",noOfFinishedUrls, noOfSkippedUrls);
                      [self.preferchURLS removeAllObjects];
+                     NSDictionary *userInfo = @{ PreloadPhotoPrograssCompletedKey: @YES };
+                     [[NSNotificationCenter defaultCenter] postNotificationName:PreloadPhotoProgressDidChangeNotification object:nil userInfo:userInfo];
                  }];
                  
              });
          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
              NSLog(@"%@ failure %@",[self class],error);
          }];
+}
+
+- (NSString *)downloadImageTypeKey {
+    if (!_downloadImageTypeKey) {
+        NSInteger downloadImageType = [[NSUserDefaults standardUserDefaults] integerForKey:kDownloadImageType];
+        switch (downloadImageType) {
+            case KonachanImageDownloadTypeSample:
+                _downloadImageTypeKey = SampleURL;
+                break;
+            case KonachanImageDownloadTypeJPEG:
+                _downloadImageTypeKey = JPEGURL;
+                break;
+            case KonachanImageDownloadTypeFile:
+                _downloadImageTypeKey = FileURL;
+                break;
+            default:
+                _downloadImageTypeKey = SampleURL;
+                break;
+        }
+    }
+    return _downloadImageTypeKey;
 }
 
 - (NSMutableArray *)preferchURLS {

@@ -8,6 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+@class Image;
+@class Tag;
+
 @interface LocalImageDataSource : NSObject
+
+- (NSDictionary *)imageDataDictionaryWithTag:(NSString *)tag;
+- (void)insertImagesFromResonseObject:(id)responseObject;
+- (void)clearImages;
 
 @end

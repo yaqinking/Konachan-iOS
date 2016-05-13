@@ -11,6 +11,8 @@
 #import <SDWebImage/SDWebImageManager.h>
 #import "MBProgressHUD.h"
 #import "KonachanAPI.h"
+#import "LocalImageDataSource.h"
+
 #define kSourceSite @"source_site"
 
 
@@ -21,7 +23,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *downloadImageTypeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *sourceSiteLabel;
 @property (weak, nonatomic) IBOutlet UISwitch *preloadNextPageSwitch;
-
+@property (weak, nonatomic) IBOutlet UISwitch *offlineModeSwitch;
 
 @end
 
@@ -37,6 +39,7 @@
     [self calculateCachedPicsSize];
     [self configureFetchAmount];
     [self configurePreloadNextPage];
+    [self congigureOfflineMode];
     [self setupGestures];
 }
 
@@ -250,16 +253,25 @@
     self.preloadNextPageSwitch.on = isPreloadNextPage;
 }
 
+- (void)congigureOfflineMode {
+    BOOL isOfflineMode = [[NSUserDefaults standardUserDefaults] boolForKey:kOfflineMode];
+    self.offlineModeSwitch.on = isOfflineMode;
+}
+
 - (void)clearCache:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Do you want to clear image cache?" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
                                                         style:UIAlertActionStyleDefault
                                                       handler:^(UIAlertAction * _Nonnull action) {
                                                           SDImageCache *imageCache = [SDImageCache sharedImageCache];
+                                                          
                                                           [imageCache clearMemory];
                                                           [imageCache clearDiskOnCompletion:^{
                                                               [self calculateCachedPicsSize];
                                                           }];
+                                                          
+                                                          LocalImageDataSource *dataSource = [[LocalImageDataSource alloc] init];
+                                                          [dataSource clearImages];
                                                       }];
     
     
@@ -309,6 +321,14 @@
         [self writeConfigWith:1 andKey:kPreloadNextPage];
     } else {
         [self writeConfigWith:0 andKey:kPreloadNextPage];
+    }
+}
+
+- (IBAction)changeOfflineMode:(UISwitch *)sender {
+    if (sender.on) {
+        [self writeConfigWith:1 andKey:kOfflineMode];
+    } else {
+        [self writeConfigWith:0 andKey:kOfflineMode];
     }
 }
 
