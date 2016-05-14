@@ -122,11 +122,11 @@
     switch (sourceSiteType) {
         case KonachanSourceSiteTypeUnseted:
             self.sourceSite = KONACHAN_SAFE_MODE_POST_LIMIT_PAGE_TAGS;
-            NSLog(@"default set to konachan.net");
+//            NSLog(@"default set to konachan.net");
             [[NSUserDefaults standardUserDefaults] setInteger:KonachanSourceSiteTypeKonachan_net
                                                        forKey:kSourceSite];
             if ([[NSUserDefaults standardUserDefaults] synchronize]) {
-                NSLog(@"default write source site to konachan.net");
+//                NSLog(@"default write source site to konachan.net");
             }
             break;
         case KonachanSourceSiteTypeKonachan_com:
@@ -243,7 +243,7 @@
 
 
 - (IBAction)addTag:(id)sender {
-    NSLog(@"addTag");
+//    NSLog(@"addTag");
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Add Tag"
                                                                    message:@""
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -338,7 +338,7 @@
 }
 
 - (void)dealloc {
-    NSLog(@"dealloc");
+//    NSLog(@"dealloc");
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     [defaultCenter removeObserver:self
                              name:NSPersistentStoreDidImportUbiquitousContentChangesNotification

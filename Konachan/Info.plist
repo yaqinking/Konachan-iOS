@@ -15,11 +15,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3.1</string>
+	<string>1.6</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>23</string>
+	<string>26</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -32,17 +32,17 @@
 		<dict>
 			<key>UIApplicationShortcutItemIconType</key>
 			<string></string>
-			<key>UIApplicationShortcutItemTitle</key>
-			<string>Add keyword</string>
 			<key>UIApplicationShortcutItemSubtitle</key>
 			<string></string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Add keyword</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).AddKeyword</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>addKeywordKey</key>
 				<string>addKeywordValue</string>
 			</dict>
-			<key>UIApplicationShortcutItemType</key>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER).AddKeyword</string>
 		</dict>
 		<dict>
 			<key>UIApplicationShortcutItemIconType</key>

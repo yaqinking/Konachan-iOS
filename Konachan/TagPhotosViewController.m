@@ -60,9 +60,6 @@ NSString * const TagAll = @"";
         [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
     }
     [self setupCollectionViewLayout];
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    self.screenWidth = screenBounds.size.width;
-    self.screenHeight = screenBounds.size.height;
     [self observeNotifications];
 }
 
@@ -102,7 +99,7 @@ NSString * const TagAll = @"";
 
 - (void)setupCollectionViewLayout {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.minimumLineSpacing = 5;
+    layout.minimumLineSpacing = 1;
     layout.minimumInteritemSpacing = 0;
     self.collectionView.collectionViewLayout = layout;
 }
@@ -152,34 +149,84 @@ NSString * const TagAll = @"";
     return self.previewPhotosURL.count;
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    [self.collectionView.collectionViewLayout invalidateLayout];
+}
+
 
 #pragma mark - UICollectionViewFlowLayout
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return [self calculateCollectionViewItemSize];
+}
+
+- (CGSize )calculateCollectionViewItemSize {
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    self.screenWidth = screenBounds.size.width;
+    self.screenHeight = screenBounds.size.height;
+
+    CGFloat navBarHeight = self.navigationController.navigationBar.bounds.size.height;
+    NSInteger itemSpacing = 1;
+    NSInteger heightItemCount = 1;
+    NSInteger widthItemCount = 1;
+    CGFloat contentWidth;
+    CGFloat contentHeight;
     if (self.isLoadOriginal) {
-        if (iPadProLandscape || iPadProPortrait) {
-            return CGSizeMake(675, 485);
-        }
-        if (iPad) {
-            return CGSizeMake(505, 355);
-        }
-        if (iPhone6Portrait || iPhone6Landscape) {
-            return CGSizeMake(325, 165);
-        }
-        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
-            return CGSizeMake(362, 180);
+        if (iPadProPortrait) {
+            widthItemCount = 2;
+            heightItemCount = 4;
+        } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
+            heightItemCount = 3;
+        } else if (iPadProLandscape || iPadLandscape || iPhone6Landscape ||
+                   iPhone6PlusLandscape || iPhone4InchLandscape || iPhone3_5InchLandscape) {
+            widthItemCount = 2;
+            heightItemCount = 2;
+        } else if (iPadPortrait) {
+            heightItemCount = 2;
+        } else if (iPhone3_5InchPortrait) {
+            heightItemCount = 2;
+        } else {
+            //Unknown device
+            widthItemCount = 2;
+            heightItemCount = 2;
         }
     } else {
-        if (iPhone6Portrait || iPhone6Landscape) {
-//            return CGSizeMake(375/3-5, 667/6);
-            return CGSizeMake(120, 112);
-        }
-        if (iPhone6PlusPortrait || iPhone6PlusLandscape) {
-//            return CGSizeMake(414/4-5, 736/8);
-            return CGSizeMake(99, 92);
+        if (iPadProPortrait) {
+            widthItemCount = 5;
+            heightItemCount = 7;
+        } else if (iPadProLandscape){
+            widthItemCount = 6;
+            heightItemCount = 5;
+        } else if (iPadPortrait) {
+            widthItemCount = 4;
+            heightItemCount = 5;
+        } else if (iPadLandscape) {
+            widthItemCount = 5;
+            heightItemCount = 4;
+        } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
+            widthItemCount = 2;
+            heightItemCount = 4;
+        } else if (iPhone6Landscape || iPhone6PlusLandscape || iPhone4InchLandscape) {
+            widthItemCount = 4;
+            heightItemCount = 2;
+        } else if (iPhone3_5InchPortrait) {
+            widthItemCount = 2;
+            heightItemCount = 3;
+        } else if (iPhone3_5InchLandscape) {
+            widthItemCount = 3;
+            heightItemCount = 2;
+        } else {
+            //Unknown device
+            widthItemCount = 3;
+            heightItemCount = 5;
         }
     }
-    return CGSizeMake(150, 150);
+    //ContentWidth need minus items spacing
+    contentWidth = self.screenWidth - (widthItemCount > 2 ? ((widthItemCount - 1) * itemSpacing) : 1);
+    //ContentHeight need minus navBarHeight and items spacing
+    contentHeight = self.screenHeight - navBarHeight - (heightItemCount > 2 ? ((heightItemCount - 1) * itemSpacing) : 1);
+    return CGSizeMake(contentWidth / widthItemCount, contentHeight / heightItemCount);
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -268,7 +315,7 @@ NSString * const TagAll = @"";
                  dispatch_async(dispatch_get_main_queue(), ^{
                      [hud hide:YES];
                      if (afterReqPhotosCount == 0) {
-                         NSLog(@"No images");
+//                         NSLog(@"No images");
                          self.navigationItem.title = @"No images";
                          [self showHUDWithTitle:@"No images >_<" content:@""];
                          return ;
