@@ -15,7 +15,6 @@
 
 #define kSourceSite @"source_site"
 
-
 @interface SettingsTableViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextField *fetchAmountTextField;
@@ -336,6 +335,9 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setInteger:value forKey:key];
     [defaults synchronize];
+    if ([key isEqualToString:kDownloadImageType]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:KonachanDownloadImageTypeDidChangedNotification object:nil];
+    }
 }
 
 - (void) showHUDWithTitle:(NSString *)title content:(NSString *)content {

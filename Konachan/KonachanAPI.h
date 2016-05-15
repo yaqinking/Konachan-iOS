@@ -48,6 +48,7 @@ static NSString * const KonachanShortcutItemViewLast   = @"moe.yaqinking.Konacha
 static NSString * const KonachanShortcutItemViewSecond = @"moe.yaqinking.Konachan.ViewSecond";
 
 static NSString * const KonachanSegueIdentifierShowTagPhotos = @"Show Tag Photos";
+static NSString * const KonachanDownloadImageTypeDidChangedNotification = @"DownloadImageTypeDidChangedNotification";
 
 typedef NS_ENUM(NSInteger, KonachanImageDownloadType) {
     KonachanImageDownloadTypeUnseted,

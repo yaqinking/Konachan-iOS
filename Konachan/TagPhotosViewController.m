@@ -16,7 +16,7 @@
 #import "PreloadPhotoManager.h"
 #import "LocalImageDataSource.h"
 #import "AppDelegate.h"
-
+#import <sys/utsname.h>
 static NSString * const CellIdentifier = @"PhotoCell";
 
 NSString * const TagAll = @"";
@@ -61,11 +61,20 @@ NSString * const TagAll = @"";
     }
     [self setupCollectionViewLayout];
     [self observeNotifications];
+    [self setupGestures];
+    [[SDImageCache sharedImageCache] setMaxMemoryCost:[self deviceMaxMemoryCost]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.enterBrowser = NO;
+    self.navigationController.hidesBarsOnSwipe = YES;
+}
+
+- (NSInteger)deviceMaxMemoryCost {
+    unsigned long long physicalMemory = [NSProcessInfo processInfo].physicalMemory;
+    NSInteger allowedMaxMemory = physicalMemory*0.5/4;
+    return allowedMaxMemory;
 }
 
 - (void)viewDidLayoutSubviews {
@@ -75,26 +84,6 @@ NSString * const TagAll = @"";
                                     atScrollPosition:UICollectionViewScrollPositionTop
                                             animated:NO];
     }
-}
-
-- (void)observeNotifications {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlePreloadPhotoProgressDidChanged:) name:PreloadPhotoProgressDidChangeNotification object:nil];
-}
-
-- (void)handlePreloadPhotoProgressDidChanged:(NSNotification *)noti {
-    NSNumber *finised = [noti.userInfo valueForKey:PreloadPhotoProgressFinishedKey];
-    NSNumber *total = [noti.userInfo valueForKey:PreloadPhotoProgressTotalKey];
-    BOOL completed = [[noti.userInfo valueForKey:PreloadPhotoPrograssCompletedKey] boolValue];
-    
-    UIBarButtonItem *rightItem;
-    NSString *progress;
-    if (completed) {
-        progress = [NSString stringWithFormat:@""];
-    } else {
-        progress = [NSString stringWithFormat:@"%@/%@", finised, total];
-    }
-    rightItem = [[UIBarButtonItem alloc] initWithTitle:progress style:UIBarButtonItemStyleDone target:self action:nil];
-    self.navigationItem.rightBarButtonItem = rightItem;
 }
 
 - (void)setupCollectionViewLayout {
@@ -114,8 +103,10 @@ NSString * const TagAll = @"";
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    [appDelegate saveContext];
+    if (self.isEnterBrowser) {
+        self.navigationController.hidesBarsOnSwipe = NO;
+    }
+    self.navigationItem.rightBarButtonItem = nil;
 }
 
 #pragma mark - Scroll view delegate
@@ -149,11 +140,12 @@ NSString * const TagAll = @"";
     return self.previewPhotosURL.count;
 }
 
+#pragma mark - Rotate
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     [self.collectionView.collectionViewLayout invalidateLayout];
 }
-
 
 #pragma mark - UICollectionViewFlowLayout
 
@@ -166,7 +158,6 @@ NSString * const TagAll = @"";
     self.screenWidth = screenBounds.size.width;
     self.screenHeight = screenBounds.size.height;
 
-    CGFloat navBarHeight = self.navigationController.navigationBar.bounds.size.height;
     NSInteger itemSpacing = 1;
     NSInteger heightItemCount = 1;
     NSInteger widthItemCount = 1;
@@ -225,7 +216,7 @@ NSString * const TagAll = @"";
     //ContentWidth need minus items spacing
     contentWidth = self.screenWidth - (widthItemCount > 2 ? ((widthItemCount - 1) * itemSpacing) : 1);
     //ContentHeight need minus navBarHeight and items spacing
-    contentHeight = self.screenHeight - navBarHeight - (heightItemCount > 2 ? ((heightItemCount - 1) * itemSpacing) : 1);
+    contentHeight = self.screenHeight - (heightItemCount > 2 ? ((heightItemCount - 1) * itemSpacing) : 1);
     return CGSizeMake(contentWidth / widthItemCount, contentHeight / heightItemCount);
 }
 
@@ -399,8 +390,6 @@ NSString * const TagAll = @"";
     }
 }
 
-#pragma mark - UICollectionViewFlowLayoutDelegate
-
 #pragma mark - MWPhotoBrowserDelegate
 
 - (NSUInteger)numberOfPhotosInPhotoBrowser:(MWPhotoBrowser *)photoBrowser {
@@ -425,6 +414,43 @@ NSString * const TagAll = @"";
                 [self setupPhotosURLWithTag:self.tag.name andPageoffset:self.pageOffset];
             }
         }
+    }
+}
+
+#pragma mark - Notification
+
+- (void)observeNotifications {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlePreloadPhotoProgressDidChanged:) name:PreloadPhotoProgressDidChangeNotification object:nil];
+}
+
+- (void)handlePreloadPhotoProgressDidChanged:(NSNotification *)noti {
+    NSNumber *finised = [noti.userInfo valueForKey:PreloadPhotoProgressFinishedKey];
+    NSNumber *total = [noti.userInfo valueForKey:PreloadPhotoProgressTotalKey];
+    BOOL completed = [[noti.userInfo valueForKey:PreloadPhotoPrograssCompletedKey] boolValue];
+    
+    UIBarButtonItem *rightItem;
+    NSString *progress;
+    if (completed) {
+        progress = [NSString stringWithFormat:@""];
+    } else {
+        progress = [NSString stringWithFormat:@"%@/%@", finised, total];
+    }
+    rightItem = [[UIBarButtonItem alloc] initWithTitle:progress style:UIBarButtonItemStyleDone target:self action:nil];
+    self.navigationItem.rightBarButtonItem = rightItem;
+}
+
+#pragma mark - Gestures
+
+- (void)setupGestures {
+    UIScreenEdgePanGestureRecognizer *leftEdgeGesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleLeftEdgeGesture:)];
+    leftEdgeGesture.edges = UIRectEdgeLeft;
+    [self.collectionView addGestureRecognizer:leftEdgeGesture];
+}
+
+- (void)handleLeftEdgeGesture:(UIScreenEdgePanGestureRecognizer *)gesture {
+    CGPoint p = [gesture velocityInView:self.collectionView];
+    if (p.x > _screenWidth) {
+        [self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -455,6 +481,7 @@ NSString * const TagAll = @"";
 }
 
 - (void)didReceiveMemoryWarning {
+    NSLog(@"didReceiveMemoryWarning");
     [[SDImageCache sharedImageCache] clearMemory];
     [super didReceiveMemoryWarning];
 }

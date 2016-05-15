@@ -25,6 +25,14 @@ NSString * const PreloadPhotoPrograssCompletedKey          = @"completed";
 
 @implementation PreloadPhotoManager
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleDownloadImageTypeChanged) name:KonachanDownloadImageTypeDidChangedNotification object:nil];
+    }
+    return self;
+}
+
 + (PreloadPhotoManager *)manager {
     static PreloadPhotoManager *sharedInstance = nil;
     static dispatch_once_t onceToken;
@@ -76,6 +84,11 @@ NSString * const PreloadPhotoPrograssCompletedKey          = @"completed";
          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
              NSLog(@"%@ failure %@",[self class],error);
          }];
+}
+
+// DownloadImageTypeKey 会发生改变的 poi，由于这个是 singleton 但是确实是会发生改变的，在改变 DownloadType 的时候发送一个 Notification 这里接收到之后把 downloadImageTypeKey 设为 nil，让它重新访问 Defaults 取数据。
+- (void)handleDownloadImageTypeChanged {
+    self.downloadImageTypeKey = nil;
 }
 
 - (NSString *)downloadImageTypeKey {

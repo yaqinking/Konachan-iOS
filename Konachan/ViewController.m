@@ -103,9 +103,12 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.refreshControl endRefreshing];
     [self clearCachedMemoryImages];
     [self setupSourceSite];
     self.dataPreviewImageURLs = nil;
+    self.navigationController.hidesBarsOnSwipe = NO;
     [self setupTagsWithDefaultTag];
 }
 
