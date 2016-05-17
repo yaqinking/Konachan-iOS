@@ -24,6 +24,7 @@
     [self configureSettings];
     [self congigureDynamicShortcutItems:(UIApplication *) application];
     [self configureKeyValueStore];
+    [self configureDataMigration];
     return NO;
 }
 
@@ -271,5 +272,19 @@ NSString *const ApplicationCacheDirectoryName = @"konachan-cache.sqlite";
     [userDefaults synchronize];
     
 }
+
+- (void)configureDataMigration {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    NSArray<Tag *> *tags = [self.managedObjectContext executeFetchRequest:request error:NULL];
+    if (tags.count != 0) {
+        [tags enumerateObjectsUsingBlock:^(Tag * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (!obj.createDate) {
+                obj.createDate = [NSDate new];
+            }
+        }];
+        [self saveContext];
+    }
+}
+
 
 @end

@@ -16,7 +16,7 @@
 #import "PreloadPhotoManager.h"
 #import "LocalImageDataSource.h"
 #import "AppDelegate.h"
-#import <sys/utsname.h>
+
 static NSString * const CellIdentifier = @"PhotoCell";
 
 NSString * const TagAll = @"";
@@ -37,6 +37,7 @@ NSString * const TagAll = @"";
 
 @property (nonatomic, assign) CGFloat screenWidth;
 @property (nonatomic, assign) CGFloat screenHeight;
+@property (nonatomic, assign) CGSize screenSize;
 
 @property (nonatomic, strong) NSString *downloadImageTypeKey;
 
@@ -99,8 +100,14 @@ NSString * const TagAll = @"";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    if (!self.isEnterBrowser) {
+        self.screenSize = self.view.bounds.size;
+    }
+    [self.collectionView.collectionViewLayout invalidateLayout];
 }
-
+/**
+ Land 507 5/5
+ */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     if (self.isEnterBrowser) {
@@ -123,6 +130,7 @@ NSString * const TagAll = @"";
     }
 }
 
+
 #pragma mark - UICollectionViewDataSource
 
 - (NSInteger)numberOfSectionsInCollectionView:(nonnull UICollectionView *)collectionView {
@@ -144,7 +152,10 @@ NSString * const TagAll = @"";
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    NSLog(@"S W %f H %f",size.width,size.height);
+    self.screenSize = size;
     [self.collectionView.collectionViewLayout invalidateLayout];
+    
 }
 
 #pragma mark - UICollectionViewFlowLayout
@@ -154,63 +165,129 @@ NSString * const TagAll = @"";
 }
 
 - (CGSize )calculateCollectionViewItemSize {
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    self.screenWidth = screenBounds.size.width;
-    self.screenHeight = screenBounds.size.height;
-
+    self.screenWidth = self.screenSize.width;
+    self.screenHeight = self.screenSize.height;
+    int splitScreenWidth = (int)self.screenSize.width;
+    BOOL isMultiTasking = NO;
+    if ((iPadPortrait || iPadLandscape) && (splitScreenWidth < iPad_Width)) {
+        isMultiTasking = YES;
+    }
+    if ((iPadProPortrait || iPadProLandscape) && (splitScreenWidth < iPad_Pro_Width)) {
+        isMultiTasking = YES;
+    }
     NSInteger itemSpacing = 1;
     NSInteger heightItemCount = 1;
     NSInteger widthItemCount = 1;
     CGFloat contentWidth;
     CGFloat contentHeight;
     if (self.isLoadOriginal) {
-        if (iPadProPortrait) {
-            widthItemCount = 2;
-            heightItemCount = 4;
-        } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
-            heightItemCount = 3;
-        } else if (iPadProLandscape || iPadLandscape || iPhone6Landscape ||
-                   iPhone6PlusLandscape || iPhone4InchLandscape || iPhone3_5InchLandscape) {
-            widthItemCount = 2;
-            heightItemCount = 2;
-        } else if (iPadPortrait) {
-            heightItemCount = 2;
-        } else if (iPhone3_5InchPortrait) {
-            heightItemCount = 2;
+        if (isMultiTasking) {
+            if (iPadProPortrait || iPadProLandscape) {
+                if (splitScreenWidth == SplitViewScreeniPad_Pro_Slide_Over) {
+                    heightItemCount = 4;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Half) {
+                    heightItemCount = 2;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Landscape2_3) {
+                    widthItemCount = 2;
+                    heightItemCount = 3;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Portrait_1_1_2) {
+                    heightItemCount = 4;
+                }
+            }
+            if (iPadPortrait || iPadLandscape) {
+                if (splitScreenWidth == SplitViewScreeniPad_Slide_Over) {
+                    heightItemCount = 4;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Half) {
+                    heightItemCount = 2;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Landscape2_3) {
+                    widthItemCount = 2;
+                    heightItemCount = 3;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Portrait_1_1_2) {
+                    heightItemCount = 4;
+                }
+            }
         } else {
-            //Unknown device
-            widthItemCount = 2;
-            heightItemCount = 2;
+            if (iPadProPortrait) {
+                widthItemCount = 2;
+                heightItemCount = 4;
+            } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
+                heightItemCount = 3;
+            } else if (iPadProLandscape || iPadLandscape || iPhone6Landscape ||
+                       iPhone6PlusLandscape || iPhone4InchLandscape || iPhone3_5InchLandscape) {
+                widthItemCount = 2;
+                heightItemCount = 2;
+            } else if (iPadPortrait) {
+                heightItemCount = 2;
+            } else if (iPhone3_5InchPortrait) {
+                heightItemCount = 2;
+            } else {
+                //Unknown device
+                widthItemCount = 2;
+                heightItemCount = 2;
+            }
         }
     } else {
-        if (iPadProPortrait) {
-            widthItemCount = 5;
-            heightItemCount = 7;
-        } else if (iPadProLandscape){
-            widthItemCount = 6;
-            heightItemCount = 5;
-        } else if (iPadPortrait) {
-            widthItemCount = 4;
-            heightItemCount = 5;
-        } else if (iPadLandscape) {
-            widthItemCount = 5;
-            heightItemCount = 4;
-        } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
-            widthItemCount = 2;
-            heightItemCount = 4;
-        } else if (iPhone6Landscape || iPhone6PlusLandscape || iPhone4InchLandscape) {
-            widthItemCount = 4;
-            heightItemCount = 2;
-        } else if (iPhone3_5InchPortrait) {
-            widthItemCount = 2;
-            heightItemCount = 3;
-        } else if (iPhone3_5InchLandscape) {
-            widthItemCount = 3;
-            heightItemCount = 2;
+        if (isMultiTasking) {
+            if (iPadProPortrait || iPadProLandscape) {
+                if (splitScreenWidth == SplitViewScreeniPad_Pro_Slide_Over) {
+                    widthItemCount = 2;
+                    heightItemCount = 7;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Half) {
+                    widthItemCount = 4;
+                    heightItemCount = 6;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Landscape2_3) {
+                    widthItemCount = 5;
+                    heightItemCount = 6;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Pro_Portrait_1_1_2) {
+                    widthItemCount = 3;
+                    heightItemCount = 6;
+                }
+            }
+            if (iPadPortrait || iPadLandscape) {
+                if (splitScreenWidth == SplitViewScreeniPad_Slide_Over) {
+                    widthItemCount = 2;
+                    heightItemCount = 6;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Half) {
+                    widthItemCount = 3;
+                    heightItemCount = 5;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Landscape2_3) {
+                    widthItemCount = 4;
+                    heightItemCount = 5;
+                } else if (splitScreenWidth == SplitViewScreeniPad_Portrait_1_1_2) {
+                    widthItemCount = 2;
+                    heightItemCount = 5;
+                }
+            }
         } else {
-            //Unknown device
-            widthItemCount = 3;
-            heightItemCount = 5;
+            if (iPadProPortrait) {
+                widthItemCount = 5;
+                heightItemCount = 7;
+            } else if (iPadProLandscape){
+                widthItemCount = 6;
+                heightItemCount = 5;
+            } else if (iPadPortrait) {
+                widthItemCount = 4;
+                heightItemCount = 5;
+            } else if (iPadLandscape) {
+                widthItemCount = 5;
+                heightItemCount = 4;
+            } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
+                widthItemCount = 2;
+                heightItemCount = 4;
+            } else if (iPhone6Landscape || iPhone6PlusLandscape || iPhone4InchLandscape) {
+                widthItemCount = 4;
+                heightItemCount = 2;
+            } else if (iPhone3_5InchPortrait) {
+                widthItemCount = 2;
+                heightItemCount = 3;
+            } else if (iPhone3_5InchLandscape) {
+                widthItemCount = 3;
+                heightItemCount = 2;
+            } else {
+                //Unknown device
+                widthItemCount = 3;
+                heightItemCount = 5;
+            }
         }
     }
     //ContentWidth need minus items spacing
@@ -415,6 +492,10 @@ NSString * const TagAll = @"";
             }
         }
     }
+}
+
+- (void)photoBrowserViewDidChangeToSize:(CGSize)size {
+    self.screenSize = size;
 }
 
 #pragma mark - Notification

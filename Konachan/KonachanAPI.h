@@ -71,6 +71,19 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
     KonachanPreviewImageLoadTypeLoadDownloaded
 };
 
+#define SplitViewScreeniPad_Half           507
+#define SplitViewScreeniPad_Slide_Over     320
+#define SplitViewScreeniPad_Landscape2_3   694
+#define SplitViewScreeniPad_Portrait_1_1_2 438
+
+#define SplitViewScreeniPad_Pro_Half           678
+#define SplitViewScreeniPad_Pro_Slide_Over     375
+#define SplitViewScreeniPad_Pro_Landscape2_3   981
+#define SplitViewScreeniPad_Pro_Portrait_1_1_2 639
+
+#define iPad_Width 768
+#define iPad_Pro_Width 1024
+
 #define kFetchAmountDefault    40
 #define kFetchAmountMin        30
 #define kFetchAmountiPadProMin 56

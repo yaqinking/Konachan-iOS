@@ -17,8 +17,10 @@
 
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, strong) NSMutableArray *tags;
+@property (nonatomic, strong) NSArray *tags;
 @property (nonatomic, strong) NSPersistentStore *cachePersistentStore;
+
+@property (nonatomic, strong) UIAlertController *addTagAlertController;
 
 @end
 
@@ -45,8 +47,6 @@
         
     }
     
-    [self setupTagsWithDefaultTag];
-    
     CGFloat red = 33.0;
     CGFloat green = 33.0;
     CGFloat blue = 33.0;
@@ -62,14 +62,7 @@
                             action:@selector(refreshTags:)
                   forControlEvents:UIControlEventValueChanged];
     
-//    NSLog(@"before 5s");
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            NSLog(@"5s reload data");
-            self.tags = nil;
-            [self.tableView reloadData];
-        });
-
-    
+    [self setupTagsWithDefaultTag];
 }
 
 - (void)refreshTags:(id)sender {
@@ -83,9 +76,10 @@
                                 queue:[NSOperationQueue mainQueue]
                            usingBlock:^(NSNotification * _Nonnull note) {
                                [self.managedObjectContext mergeChangesFromContextDidSaveNotification:note];
-                               self.tags = nil;
+                               self.tags = [self getAllTags];
                                [self.tableView reloadData];
                            }];
+    /*
     [defaultCenter addObserverForName:NSPersistentStoreCoordinatorStoresWillChangeNotification
                                object:self.managedObjectContext
                                 queue:[NSOperationQueue mainQueue]
@@ -98,6 +92,7 @@
                            usingBlock:^(NSNotification * _Nonnull note) {
                                NSLog(@"NSPersistentStoreCoordinatorWillRemoveStoreNotification");
                            }];
+     */
 }
 
 
@@ -246,66 +241,20 @@
 
 
 - (IBAction)addTag:(id)sender {
-//    NSLog(@"addTag");
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Add Tag"
-                                                                   message:@""
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^(UIAlertAction * _Nonnull action) {
-              UITextField *tagTextField =  alert.textFields[0];
-              if (![tagTextField.text isEqualToString:@""]) {
-                  NSString *addTagName = tagTextField.text;
-                  if (IS_DEBUG_MODE) {
-                      NSLog(@"%@",addTagName);
-                  }
-                  
-                  Tag *newTag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
-                                                              inManagedObjectContext:self.managedObjectContext];
-                  newTag.name = addTagName;
-                  [self saveContext];
-                  self.tags = nil;
-                  [self setupTagsWithDefaultTag];
-                  
-              }
-          }];
-    
-    addAction.enabled = NO;
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
-                                                           style:UIAlertActionStyleCancel
-                                                         handler:^(UIAlertAction * _Nonnull action) {
+    [self presentViewController:self.addTagAlertController animated:YES completion:nil];
+}
 
-                                                         }];
-    
-    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Input a tag keyword";
-        
-        NSNotificationCenter *notiCen = [NSNotificationCenter defaultCenter];
-        [notiCen addObserverForName:UITextFieldTextDidChangeNotification
-                             object:textField
-                              queue:[NSOperationQueue mainQueue]
-                         usingBlock:^(NSNotification * _Nonnull note) {
-                             addAction.enabled = YES;
-                         }];
-        
-    }];
-    
-    [alert addAction:addAction];
-    [alert addAction:cancelAction];
-    
-    [self presentViewController:alert animated:YES completion:nil];
+- (NSArray *)getAllTags {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createDate" ascending:YES]];
+    return [self.managedObjectContext executeFetchRequest:request error:NULL];
 }
 
 #pragma mark - Lazy Initialization
 
-- (NSMutableArray *)tags {
+- (NSArray *)tags {
     if (!_tags) {
-        _tags = [[NSMutableArray alloc] init];
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-        _tags = [[self.managedObjectContext executeFetchRequest:request
-                                                 error:NULL] mutableCopy];
+        _tags = [self getAllTags];
     }
     return _tags;
 }
@@ -340,6 +289,65 @@
     return _previewImageURLs;
 }
 
+- (UIAlertController *)addTagAlertController {
+    if (!_addTagAlertController) {
+        __weak ViewController *weakSelf = self;
+        _addTagAlertController = [UIAlertController alertControllerWithTitle:@"Add Tag"
+                                                                     message:@""
+                                                              preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *addAction = [UIAlertAction actionWithTitle:@"OK"
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * _Nonnull action) {
+                                                              UITextField *tagTextField =  _addTagAlertController.textFields[0];
+                                                              NSString *addTagName = tagTextField.text;
+                                                              NSArray *tagsArray = [addTagName componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                                              NSString *tagName = [tagsArray componentsJoinedByString:@""];
+                                                              if (![tagName isEqualToString:@""]) {
+                                                                  Tag *newTag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
+                                                                                                              inManagedObjectContext:self.managedObjectContext];
+                                                                  newTag.name = tagName;
+                                                                  newTag.createDate = [NSDate new];
+                                                                  self.tags = [self getAllTags];
+                                                                  [self setupTagsWithDefaultTag];
+                                                                  [self saveContext];
+                                                              }
+                                                              tagTextField.text = nil;
+                                                          }];
+        
+        addAction.enabled = NO;
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                               style:UIAlertActionStyleCancel
+                                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                                 _addTagAlertController.textFields[0].text = nil;
+                                                             }];
+        
+        [_addTagAlertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+            textField.placeholder = @"Input a tag keyword";
+            NSNotificationCenter *notiCen = [NSNotificationCenter defaultCenter];
+            [notiCen addObserverForName:UITextFieldTextDidChangeNotification
+                                 object:textField
+                                  queue:[NSOperationQueue mainQueue]
+                             usingBlock:^(NSNotification * _Nonnull note) {
+                                 if ([weakSelf isWhiteText:textField.text]) {
+                                     addAction.enabled = NO;
+                                 } else {
+                                     addAction.enabled = YES;
+                                 }
+                             }];
+            [notiCen addObserverForName:UITextFieldTextDidEndEditingNotification
+                                 object:textField
+                                  queue:[NSOperationQueue mainQueue]
+                             usingBlock:^(NSNotification * _Nonnull note) {
+                                 addAction.enabled = NO;
+                             }];
+        }];
+        [_addTagAlertController addAction:addAction];
+        [_addTagAlertController addAction:cancelAction];
+    }
+    return _addTagAlertController;
+}
+
 - (void)dealloc {
 //    NSLog(@"dealloc");
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
@@ -359,6 +367,12 @@
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     });
+}
+
+- (BOOL)isWhiteText:(NSString *)text {
+    NSArray *texts = [text componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *joinedtext = [texts componentsJoinedByString:@""];
+    return joinedtext.length == 0 ? YES : NO;
 }
 
 #pragma mark - Memory

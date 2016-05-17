@@ -1552,7 +1552,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
 }
 
-#pragma mark - TapGesture
+#pragma mark - Custom
+
 - (void)tapToShowNextORPrePic:(UIGestureRecognizer *)recongnizer {
     CGPoint tappedPoint = [recongnizer locationInView:self.view];
     CGFloat xCoordinate = tappedPoint.x;
@@ -1569,6 +1570,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     } else {
         [self showControls];
         [self hideControlsAfterDelay];
+    }
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    if ([self.delegate respondsToSelector:@selector(photoBrowserViewDidChangeToSize:)]) {
+        [self.delegate photoBrowserViewDidChangeToSize:size];
     }
 }
 

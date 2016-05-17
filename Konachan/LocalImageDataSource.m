@@ -89,8 +89,8 @@
 
 - (void)insertImagesFromResonseObject:(id)responseObject {
     //由于这里是从 TagPhotosViewController 创建的 data queue 里过来的，而 MOC（ManagedObjectContext） 不能在非创建时的 queue 里使用，有一定几率（数据变化量大的话，绝对）会出现 *** Terminating app due to uncaught exception 'NSGenericException', reason: '*** Collection <__NSCFSet: 0x5e0b930> was mutated while being enumerated... 错误，而我这个 MOC 是 main queue 的，So，返回主线程执行。
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        for (NSDictionary *picDict in responseObject) {
+    if ([responseObject isKindOfClass:[NSArray class]]) {
+        [responseObject enumerateObjectsUsingBlock:^(NSDictionary *picDict, NSUInteger idx, BOOL * _Nonnull stop) {
             NSString *previewURLString = picDict[PreviewURL];
             NSString *sampleURLString  = picDict[SampleURL];
             NSString *jpegURLString = picDict[JPEGURL];
@@ -103,23 +103,29 @@
             
             NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
             request.predicate = [NSPredicate predicateWithFormat:@"image_id == %i",image_id];
-            NSArray *fetchedImages = [[self.managedObjectContext executeFetchRequest:request error:NULL] copy];
-            if (fetchedImages.count == 0) {
-                Image *image = [NSEntityDescription insertNewObjectForEntityForName:@"Image" inManagedObjectContext:self.managedObjectContext];
-                image.image_id = [NSNumber numberWithInteger:image_id];
-                image.create_at = [NSNumber numberWithInteger:create_at];
-                image.md5 = md5;
-                image.tags = picTitle;
-                image.preview_url = previewURLString;
-                image.sample_url = sampleURLString;
-                image.file_url = fileURLString;
-                image.jpeg_url = jpegURLString;
-                image.rating = rating;
-                [self.managedObjectContext assignObject:image toPersistentStore:self.cachePersistentStore];
-            }
-        }
-        [self saveChanges];
-    });
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                NSArray *fetchedImages = [[self.managedObjectContext executeFetchRequest:request error:NULL] copy];
+                if (fetchedImages.count == 0) {
+                    Image *image = [NSEntityDescription insertNewObjectForEntityForName:@"Image" inManagedObjectContext:self.managedObjectContext];
+                    image.image_id = [NSNumber numberWithInteger:image_id];
+                    image.create_at = [NSNumber numberWithInteger:create_at];
+                    image.md5 = md5;
+                    image.tags = picTitle;
+                    image.preview_url = previewURLString;
+                    image.sample_url = sampleURLString;
+                    image.file_url = fileURLString;
+                    image.jpeg_url = jpegURLString;
+                    image.rating = rating;
+                    [self.managedObjectContext assignObject:image toPersistentStore:self.cachePersistentStore];
+                } else {
+                    *stop = YES;
+                }
+            });
+        }];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [self saveChanges];
+        });
+    }
 }
 
 - (void)clearImages {
