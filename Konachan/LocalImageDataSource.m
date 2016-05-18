@@ -87,6 +87,18 @@
     return dataDictionary;
 }
 
+- (NSArray<Image *> *)imagesWithTag:(NSString *)tag {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+    NSString *fliter = [self fliterWithTag:tag];
+    if (fliter.length != 0) {
+        request.predicate = [NSPredicate predicateWithFormat:@"tags CONTAINS %@", fliter];
+    }
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"image_id" ascending:NO];
+    request.sortDescriptors = @[sortDescriptor];
+    NSArray<Image *> *fetchedResults = [self.managedObjectContext executeFetchRequest:request error:nil];
+    return fetchedResults;
+}
+
 - (void)insertImagesFromResonseObject:(id)responseObject {
     //由于这里是从 TagPhotosViewController 创建的 data queue 里过来的，而 MOC（ManagedObjectContext） 不能在非创建时的 queue 里使用，有一定几率（数据变化量大的话，绝对）会出现 *** Terminating app due to uncaught exception 'NSGenericException', reason: '*** Collection <__NSCFSet: 0x5e0b930> was mutated while being enumerated... 错误，而我这个 MOC 是 main queue 的，So，返回主线程执行。
     if ([responseObject isKindOfClass:[NSArray class]]) {

@@ -123,14 +123,17 @@
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 2:
-                    [self changePreviewImageType];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 3:
-                    [self changeDownloadImageType];
+                    [self changePreviewImageType];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 4:
+                    [self changeDownloadImageType];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                case 5:
                     [self changeSourceSite];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;

@@ -16,5 +16,6 @@
 - (NSDictionary *)imageDataDictionaryWithTag:(NSString *)tag;
 - (void)insertImagesFromResonseObject:(id)responseObject;
 - (void)clearImages;
+- (NSArray<Image *> *)imagesWithTag:(NSString *)tag;
 
 @end

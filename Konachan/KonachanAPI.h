@@ -8,7 +8,7 @@
 
 //Debug mode
 //YES = 1 NO = 0
-#define IS_DEBUG_MODE 0
+#define IS_DEBUG_MODE 1
 
 //Get Post
 
