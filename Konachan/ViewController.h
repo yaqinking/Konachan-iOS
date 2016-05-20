@@ -13,9 +13,7 @@
 @property (strong, nonatomic) NSArray *previewImageURLs;
 @property (strong, nonatomic) NSString *sourceSite;
 
-
 - (IBAction)addTag:(id)sender;
-
 
 @end
 

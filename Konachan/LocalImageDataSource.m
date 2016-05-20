@@ -11,6 +11,7 @@
 #import "Image.h"
 #import "AppDelegate.h"
 #import "Picture.h"
+#import "KNCCoreDataStackManager.h"
 
 @interface LocalImageDataSource()
 
@@ -160,16 +161,14 @@
 
 - (NSManagedObjectContext *)managedObjectContext {
     if (!_managedObjectContext) {
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        _managedObjectContext = appDelegate.managedObjectContext;
+        _managedObjectContext = [[KNCCoreDataStackManager sharedManager] managedObjectContext];
     }
     return _managedObjectContext;
 }
 
 - (NSPersistentStore *)cachePersistentStore {
     if (!_cachePersistentStore) {
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        _cachePersistentStore = appDelegate.cachePersistentStore;
+        _cachePersistentStore = [[KNCCoreDataStackManager sharedManager] cachePersistentStore];
     }
     return _cachePersistentStore;
 }

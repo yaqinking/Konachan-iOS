@@ -11,14 +11,13 @@
 #import "KonachanTool.h"
 #import "Tag+CoreDataProperties.h"
 #import "TagTableViewCell.h"
-#import "AppDelegate.h"
+#import "KNCCoreDataStackManager.h"
 
 @interface ViewController ()
 
 @property (nonatomic, strong) NSMutableArray *dataPreviewImageURLs;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSArray *tags;
-@property (nonatomic, strong) NSPersistentStore *cachePersistentStore;
 
 @property (nonatomic, strong) UIAlertController *addTagAlertController;
 
@@ -43,7 +42,7 @@
     
     self.navigationItem.title = @"Konachan";
     if (IS_DEBUG_MODE) {
-        NSLog(@"sourcesite -> %@ CPS %@",self.sourceSite, self.cachePersistentStore.URL);
+        NSLog(@"sourcesite -> %@",self.sourceSite);
         
     }
     
@@ -245,9 +244,7 @@
 }
 
 - (NSArray *)getAllTags {
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createDate" ascending:YES]];
-    return [self.managedObjectContext executeFetchRequest:request error:NULL];
+    return [[KNCCoreDataStackManager sharedManager] savedTags];
 }
 
 #pragma mark - Lazy Initialization
@@ -261,18 +258,9 @@
 
 - (NSManagedObjectContext *)managedObjectContext {
     if (!_managedObjectContext) {
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        _managedObjectContext = appDelegate.managedObjectContext;
+        _managedObjectContext = [[KNCCoreDataStackManager sharedManager] managedObjectContext];
     }
     return _managedObjectContext;
-}
-
-- (NSPersistentStore *)cachePersistentStore {
-    if (!_cachePersistentStore) {
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-        _cachePersistentStore = appDelegate.cachePersistentStore;
-    }
-    return _cachePersistentStore;
 }
 
 - (NSMutableArray *)dataPreviewImageURLs {

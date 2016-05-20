@@ -14,6 +14,7 @@
 		F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F42D2C421C02E38C0049494A /* CloudKit.framework */; };
 		F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */; };
 		F42D2C491C02E9930049494A /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C471C02E9930049494A /* Tag.m */; };
+		F434EFB11CEF21F100201739 /* KNCCoreDataStackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F434EFB01CEF21F100201739 /* KNCCoreDataStackManager.m */; };
 		F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */; };
 		F44997D81CE433D1007ABD4A /* Image+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */; };
 		F44997D91CE433D1007ABD4A /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D71CE433D1007ABD4A /* Image.m */; };
@@ -46,6 +47,8 @@
 		F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Tag+CoreDataProperties.m"; sourceTree = "<group>"; };
 		F42D2C461C02E9930049494A /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
 		F42D2C471C02E9930049494A /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
+		F434EFAF1CEF21F100201739 /* KNCCoreDataStackManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KNCCoreDataStackManager.h; sourceTree = "<group>"; };
+		F434EFB01CEF21F100201739 /* KNCCoreDataStackManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KNCCoreDataStackManager.m; sourceTree = "<group>"; };
 		F43A0CB21CAE7346005BFE74 /* PreloadPhotoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreloadPhotoManager.h; sourceTree = "<group>"; };
 		F43A0CB31CAE7346005BFE74 /* PreloadPhotoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreloadPhotoManager.m; sourceTree = "<group>"; };
 		F44997D11CE420B2007ABD4A /* Konachan v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Konachan v2.xcdatamodel"; sourceTree = "<group>"; };
@@ -185,6 +188,8 @@
 				F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */,
 				F40223B71CEBF65000E3B7FE /* ExportTableViewController.h */,
 				F40223B81CEBF65000E3B7FE /* ExportTableViewController.m */,
+				F434EFAF1CEF21F100201739 /* KNCCoreDataStackManager.h */,
+				F434EFB01CEF21F100201739 /* KNCCoreDataStackManager.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -339,6 +344,7 @@
 				F4C2DB7A1CE5525400F68F0F /* LocalImageDataSource.m in Sources */,
 				F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */,
 				F4F0A3431B71E94000289149 /* AppDelegate.m in Sources */,
+				F434EFB11CEF21F100201739 /* KNCCoreDataStackManager.m in Sources */,
 				F43A0CB41CAE7346005BFE74 /* PreloadPhotoManager.m in Sources */,
 				F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */,
 				F4F0A3401B71E94000289149 /* main.m in Sources */,

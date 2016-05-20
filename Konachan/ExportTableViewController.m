@@ -13,6 +13,7 @@
 #import "Image.h"
 #import "SDImageCache.h"
 #import "MBProgressHUD.h"
+#import "KNCCoreDataStackManager.h"
 
 @interface ExportTableViewController ()
 
@@ -132,7 +133,7 @@
 
 - (NSURL *)documentsURL {
     if (!_documentsURL) {
-        _documentsURL = [(AppDelegate *)[[UIApplication sharedApplication] delegate] applicationDocumentsDirectory];
+        _documentsURL = [[KNCCoreDataStackManager sharedManager] applicationDocumentsDirectory];
     }
     return _documentsURL;
 }
