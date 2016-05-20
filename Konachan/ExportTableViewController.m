@@ -12,11 +12,16 @@
 #import "LocalImageDataSource.h"
 #import "Image.h"
 #import "SDImageCache.h"
+#import "MBProgressHUD.h"
 
 @interface ExportTableViewController ()
 
 @property (nonatomic, strong) NSURL *documentsURL;
 @property (nonatomic, copy) NSArray<Image *> *cachedImages;
+@property (nonatomic, assign) NSNumber *exportProgress;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *exportButton;
+@property (nonatomic, assign) NSUInteger totalCount;
+@property (nonatomic, assign) NSUInteger exportedCount;
 
 @end
 
@@ -24,81 +29,104 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (IBAction)export:(UIBarButtonItem *)sender {
-    NSArray<UITableViewCell *> *cells = self.tableView.visibleCells;
-    NSMutableArray<NSNumber *> *exportIndexs = [NSMutableArray new];
-    [cells enumerateObjectsUsingBlock:^(UITableViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
-        switch (cell.accessoryType) {
-            case UITableViewCellAccessoryCheckmark:
-                // See KonachanAPI 2 -> Sample, 3 -> JPEG, 4 -> File
-                [exportIndexs addObject:[NSNumber numberWithUnsignedInteger:(idx+2)]];
-                break;
-            default:
-                break;
-        }
-    }];
-    [exportIndexs enumerateObjectsUsingBlock:^(NSNumber * _Nonnull imageQualityType, NSUInteger idx, BOOL * _Nonnull stop) {
-        [self exportImages:imageQualityType.unsignedIntegerValue];
-    }];
+    dispatch_async(dispatch_queue_create("export queue", 0), ^{
+        NSArray<UITableViewCell *> *cells = self.tableView.visibleCells;
+        NSMutableArray<NSNumber *> *exportIndexs = [NSMutableArray new];
+        [cells enumerateObjectsUsingBlock:^(UITableViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
+            switch (cell.accessoryType) {
+                case UITableViewCellAccessoryCheckmark:
+                    // See KonachanAPI 2 -> Sample, 3 -> JPEG, 4 -> File
+                    [exportIndexs addObject:[NSNumber numberWithUnsignedInteger:(idx+2)]];
+                    break;
+                default:
+                    break;
+            }
+        }];
+        
+        [exportIndexs enumerateObjectsUsingBlock:^(NSNumber * _Nonnull imageQualityType, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSString *key = [self keyWithImageType:imageQualityType];
+            NSString *folder = [self folderWithKey:key];
+            NSArray *cachedImageKeys = [self cachedImageKeysWithKey:key];
+            self.totalCount += cachedImageKeys.count;
+            [self queryImagesWithKeys:cachedImageKeys toFolder:folder];
+        }];
+        
+    });
 }
 
-- (void)exportImages:(KonachanImageDownloadType) type {
-    __block NSMutableArray<NSString *> *imageKeys = [NSMutableArray new];
-    __block NSString *folder;
-    switch (type) {
+
+- (NSString *)keyWithImageType:(NSNumber *)imageQualityType {
+    switch (imageQualityType.unsignedIntegerValue) {
         case KonachanImageDownloadTypeSample:
-            [self.cachedImages enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [imageKeys addObject:obj.sample_url];
-            }];
-            folder = @"Sample";
+            return @"sample_url";
             break;
         case KonachanImageDownloadTypeJPEG:
-            [self.cachedImages enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [imageKeys addObject:obj.jpeg_url];
-            }];
-            folder = @"JPEG";
-            break;
+            return @"jpeg_url";
         case KonachanImageDownloadTypeFile:
-            [self.cachedImages enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [imageKeys addObject:obj.file_url];
-            }];
-            folder = @"File";
-            break;
+            return @"file_url";
         default:
             break;
     }
-    [self queryImagesWithKeys:imageKeys toFolder:folder];
+    return nil;
+}
+
+- (NSString *)folderWithKey:(NSString *)key {
+    if ([key isEqualToString:@"sample_url"]) {
+        return @"all_sample";
+    } else if ([key isEqualToString:@"jpeg_url"]) {
+        return @"all_jpeg";
+    } else if ([key isEqualToString:@"file_url"]) {
+        return @"all_file";
+    }
+    return nil;
+}
+
+- (NSArray<NSString *> *)cachedImageKeysWithKey:(NSString *)key {
+    NSMutableArray *imageKeys = [NSMutableArray new];
+    [self.cachedImages enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [imageKeys addObject:[obj valueForKey:key]];
+    }];
+    return imageKeys;
 }
 
 - (void)queryImagesWithKeys:(NSArray<NSString *> *)imageKeys toFolder:(NSString *)folder{
+    __block MBProgressHUD *hud;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.navigationController.view.userInteractionEnabled = NO;
+        hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        hud.animationType = MBProgressHUDModeAnnularDeterminate;
+        hud.labelText = [NSString stringWithFormat:@"Export to %@ folder", folder];
+    });
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *folderPath = [self.documentsURL.path stringByAppendingPathComponent:folder];
     if (![fileManager fileExistsAtPath:folderPath]) {
         [fileManager createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:nil];
     }
     [imageKeys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
-        [[SDImageCache sharedImageCache] queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) {
-            if (image) {
-                NSString *fileName = [[NSURL URLWithString:key] lastPathComponent];
-                NSString *path = [folderPath stringByAppendingPathComponent:fileName];
-                if (![fileManager fileExistsAtPath:path]) {
-                    [UIImageJPEGRepresentation(image, 1.0) writeToFile:path atomically:YES];
+        NSString *cachePath = [[SDImageCache sharedImageCache] defaultCachePathForKey:key];
+        if (cachePath) {
+            NSString *fileName = [[NSURL URLWithString:key] lastPathComponent];
+            NSString *path = [folderPath stringByAppendingPathComponent:fileName];
+            if (![fileManager fileExistsAtPath:path]) {
+                NSError *error = nil;
+                if(![fileManager copyItemAtPath:cachePath toPath:path error:&error]) {
+//                        NSLog(@"Copy %@ to %@ Error %@",cachePath, path, [error localizedDescription]);
                 }
             }
-        }];
+        }
+        self.exportedCount += 1;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            hud.detailsLabelText = [NSString stringWithFormat:@"%li/%li\nYou can use iTunes to copy exported images folder to your Mac/PC.",self.exportedCount, self.totalCount];
+            if (idx == (imageKeys.count - 1)) {
+                hud.hidden = YES;
+                self.totalCount -= imageKeys.count;
+                self.exportedCount -= imageKeys.count;
+                self.navigationController.view.userInteractionEnabled = YES;
+            }
+        });
     }];
 }
 
@@ -124,28 +152,5 @@
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
 }
-
-/*
-#pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
-    return 0;
-}
-*/
-/*
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
-    return cell;
-}
-*/
 
 @end

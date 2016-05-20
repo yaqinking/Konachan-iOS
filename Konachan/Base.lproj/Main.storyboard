@@ -496,6 +496,9 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="exportButton" destination="gG6-BK-H0c" id="PT3-de-h1l"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="C69-He-FPY" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
