@@ -140,6 +140,21 @@ NSString *const ApplicationCacheDirectoryName = @"konachan-cache.sqlite";
     return [self.managedObjectContext executeFetchRequest:request error:NULL];
 }
 
+- (NSArray<Image *> *)cachedImagesUsingPredicate:(NSPredicate *)predicate {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+    request.predicate = predicate;
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"image_id" ascending:NO];
+    request.sortDescriptors = @[sortDescriptor];
+    return [self.managedObjectContext executeFetchRequest:request error:nil];
+}
+
+- (NSArray<Image *> *)cachedImages {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Image"];
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"image_id" ascending:NO];
+    request.sortDescriptors = @[sortDescriptor];
+    return [self.managedObjectContext executeFetchRequest:request error:nil];
+}
+
 #pragma mark - Core Data Saving support
 
 - (void)saveContext {

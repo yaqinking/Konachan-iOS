@@ -14,6 +14,7 @@
 #import "SDImageCache.h"
 #import "MBProgressHUD.h"
 #import "KNCCoreDataStackManager.h"
+#import "Tag.h"
 
 @interface ExportTableViewController ()
 
@@ -23,6 +24,11 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *exportButton;
 @property (nonatomic, assign) NSUInteger totalCount;
 @property (nonatomic, assign) NSUInteger exportedCount;
+@property (nonatomic, strong) NSArray *sectionDatas;
+@property (nonatomic, strong) NSArray *sectionFooterDatas;
+@property (nonatomic, strong) NSArray *tags;
+@property (nonatomic, strong) NSArray *imageQulities;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary *> *exportDictionary;
 
 @end
 
@@ -30,64 +36,79 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.sectionDatas = @[@"Image Quality", @"Tag"];
+    self.imageQulities = @[@"Sample", @"JPEG", @"File"];
+    self.tags = [[KNCCoreDataStackManager sharedManager] savedTags];
+    self.exportDictionary = [NSMutableDictionary new];
+    self.sectionFooterDatas = @[@"At least, you need select one image quality and one tag to export. You can select multiple tags and different qualities to export.",@"You can use iTunes to copy exported images to your Mac or PC."];
 }
 
 - (IBAction)export:(UIBarButtonItem *)sender {
     dispatch_async(dispatch_queue_create("export queue", 0), ^{
-        NSArray<UITableViewCell *> *cells = self.tableView.visibleCells;
-        NSMutableArray<NSNumber *> *exportIndexs = [NSMutableArray new];
-        [cells enumerateObjectsUsingBlock:^(UITableViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
-            switch (cell.accessoryType) {
-                case UITableViewCellAccessoryCheckmark:
-                    // See KonachanAPI 2 -> Sample, 3 -> JPEG, 4 -> File
-                    [exportIndexs addObject:[NSNumber numberWithUnsignedInteger:(idx+2)]];
-                    break;
-                default:
-                    break;
+        __block NSMutableArray<NSString *> *exportImageQulities = [NSMutableArray new];
+        __block NSMutableArray<NSString *> *exportTags = [NSMutableArray new];
+        [self.exportDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSDictionary * _Nonnull obj, BOOL * _Nonnull stop) {
+            NSString *exportKey = @"export";
+            NSString *sectionKey = @"section";
+            BOOL isExport = [[obj valueForKey:exportKey] boolValue];
+            NSInteger section = [[obj valueForKey:sectionKey] integerValue];
+            if (section == 0 && isExport) {
+                [exportImageQulities addObject:key];
+            } else if (section == 1 && isExport){
+                [exportTags addObject:key];
             }
         }];
-        
-        [exportIndexs enumerateObjectsUsingBlock:^(NSNumber * _Nonnull imageQualityType, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSString *key = [self keyWithImageType:imageQualityType];
-            NSString *folder = [self folderWithKey:key];
-            NSArray *cachedImageKeys = [self cachedImageKeysWithKey:key];
-            self.totalCount += cachedImageKeys.count;
-            [self queryImagesWithKeys:cachedImageKeys toFolder:folder];
+        if (exportImageQulities.count < 1 && exportTags.count < 1) {
+            return ;
+        }
+        [exportImageQulities enumerateObjectsUsingBlock:^(NSString * _Nonnull imageQuality, NSUInteger idx, BOOL * _Nonnull stop) {
+            [exportTags enumerateObjectsUsingBlock:^(NSString * _Nonnull tag, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSArray<Image *> *cachedImages;
+                if ([tag isEqualToString:@"post"] || [tag isEqualToString:@"all"]) {
+                    cachedImages = [[KNCCoreDataStackManager sharedManager] cachedImages];
+                } else {
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"tags CONTAINS %@", tag];
+                    cachedImages = [[KNCCoreDataStackManager sharedManager] cachedImagesUsingPredicate:predicate];
+                }
+                NSString *folder = [NSString stringWithFormat:@"%@_%@",tag, [self qualityFolderWithImageQuality:imageQuality]];
+                NSString *imageQualityKey = [self keyWithImageQuality:imageQuality];
+                NSArray<NSString *> *cachedImageKeys = [self cachedImageKeysFrom:cachedImages WithKey:imageQualityKey];
+                self.totalCount += cachedImageKeys.count;
+                [self queryImagesWithKeys:cachedImageKeys toFolder:folder];
+            }];
         }];
-        
     });
 }
 
-
-- (NSString *)keyWithImageType:(NSNumber *)imageQualityType {
-    switch (imageQualityType.unsignedIntegerValue) {
-        case KonachanImageDownloadTypeSample:
-            return @"sample_url";
-            break;
-        case KonachanImageDownloadTypeJPEG:
-            return @"jpeg_url";
-        case KonachanImageDownloadTypeFile:
-            return @"file_url";
-        default:
-            break;
+- (NSString *)keyWithImageQuality:(NSString *)imageQuality {
+    if ([imageQuality isEqualToString:@"Sample"]) {
+        return @"sample_url";
+    }
+    if ([imageQuality isEqualToString:@"JPEG"]) {
+        return @"jpeg_url";
+    }
+    if ([imageQuality isEqualToString:@"File"]) {
+        return @"file_url";
     }
     return nil;
 }
 
-- (NSString *)folderWithKey:(NSString *)key {
-    if ([key isEqualToString:@"sample_url"]) {
-        return @"all_sample";
-    } else if ([key isEqualToString:@"jpeg_url"]) {
-        return @"all_jpeg";
-    } else if ([key isEqualToString:@"file_url"]) {
-        return @"all_file";
+- (NSString *)qualityFolderWithImageQuality:(NSString *)imageQuality {
+    if ([imageQuality isEqualToString:@"Sample"]) {
+        return @"sample";
+    }
+    if ([imageQuality isEqualToString:@"JPEG"]) {
+        return @"jpeg";
+    }
+    if ([imageQuality isEqualToString:@"File"]) {
+        return @"file";
     }
     return nil;
 }
 
-- (NSArray<NSString *> *)cachedImageKeysWithKey:(NSString *)key {
+- (NSArray<NSString *> *)cachedImageKeysFrom:(NSArray<Image *> *)images WithKey:(NSString *)key {
     NSMutableArray *imageKeys = [NSMutableArray new];
-    [self.cachedImages enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [images enumerateObjectsUsingBlock:^(Image * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [imageKeys addObject:[obj valueForKey:key]];
     }];
     return imageKeys;
@@ -145,13 +166,54 @@
     return _cachedImages;
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.sectionDatas.count;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return self.sectionDatas[section];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    return self.sectionFooterDatas[section];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return section == 0 ? self.imageQulities.count : self.tags.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Export Cell Identifier" forIndexPath:indexPath];
+    Tag *tag = self.tags[indexPath.row];
+    switch (indexPath.section) {
+        case 0:
+            cell.textLabel.text = self.imageQulities[indexPath.row];
+            break;
+        case 1:
+            cell.textLabel.text = tag.name;
+            break;
+        default:
+            break;
+    }
+    return cell;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    NSString *key = cell.textLabel.text;
+    NSNumber *section = [NSNumber numberWithInteger:indexPath.section];
     if (cell.accessoryType == UITableViewCellAccessoryNone) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        NSDictionary *value = @{ @"section" : section,
+                                 @"export" : @YES};
+        [self.exportDictionary setValue:value forKey:key];
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
+        NSDictionary *value = @{ @"section" : section,
+                                 @"export" : @NO };
+        [self.exportDictionary setValue:value forKey:key];
     }
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 @end

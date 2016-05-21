@@ -11,6 +11,7 @@
 @import CoreData;
 
 @class Tag;
+@class Image;
 
 @interface KNCCoreDataStackManager : NSObject
 
@@ -25,5 +26,8 @@
 
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
+
+- (NSArray<Image *> *)cachedImagesUsingPredicate:(NSPredicate *)predicate;
+- (NSArray<Image *> *)cachedImages;
 
 @end
