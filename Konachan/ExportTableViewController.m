@@ -41,6 +41,7 @@
     self.tags = [[KNCCoreDataStackManager sharedManager] savedTags];
     self.exportDictionary = [NSMutableDictionary new];
     self.sectionFooterDatas = @[@"At least, you need select one image quality and one tag to export. You can select multiple tags and different qualities to export.",@"You can use iTunes to copy exported images to your Mac or PC."];
+    self.exportButton.enabled = self.tags.count == 0 ? NO : YES;
 }
 
 - (IBAction)export:(UIBarButtonItem *)sender {
@@ -171,7 +172,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return self.sectionDatas[section];
+    return section == 1 ? ( self.tags.count == 0 ? [NSString stringWithFormat:@"Tag\nYou have no tags to show.\nYou can't export any images at this moment. :("] : self.sectionDatas[section]) : (self.sectionDatas[section]);
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
@@ -184,12 +185,13 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Export Cell Identifier" forIndexPath:indexPath];
-    Tag *tag = self.tags[indexPath.row];
+    Tag *tag;
     switch (indexPath.section) {
         case 0:
             cell.textLabel.text = self.imageQulities[indexPath.row];
             break;
         case 1:
+            tag = self.tags[indexPath.row];
             cell.textLabel.text = tag.name;
             break;
         default:
