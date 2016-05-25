@@ -100,6 +100,7 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL savedValue = [defaults boolForKey:kSwitchSite];
     [defaults setBool:!savedValue forKey:kSwitchSite];
+    [defaults setBool:NO forKey:kOpenBlacklist]; // For cancel blacklist;
     if ([defaults synchronize]) {
         [self showHUDWithTitle:@"Switch Site" content:(!savedValue ? @"ON" : @"OFF")];
     }
@@ -117,21 +118,16 @@
             switch (row) {
                 case 0:
                     [self clearCache:self];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 1:
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 2:
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 3:
                     [self changePreviewImageType];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 4:
                     [self changeDownloadImageType];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 case 5:
                     [self changeSourceSite];
@@ -141,18 +137,10 @@
                     break;
             }
             break;
-        case 1:
-            switch (row) {
-                case 0:
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                    break;
-                default:
-                    break;
-            }
         default:
             break;
     }
-    
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (void)changePreviewImageType {
@@ -337,6 +325,7 @@
 - (void) writeConfigWith:(NSInteger) value andKey:(NSString *)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setInteger:value forKey:key];
+    [defaults setBool:NO forKey:kOpenBlacklist];//For Cancel blacklist fliter.
     [defaults synchronize];
     if ([key isEqualToString:kDownloadImageType]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:KonachanDownloadImageTypeDidChangedNotification object:nil];

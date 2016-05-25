@@ -50,6 +50,10 @@ static NSString * const KonachanShortcutItemViewSecond = @"moe.yaqinking.Konacha
 static NSString * const KonachanSegueIdentifierShowTagPhotos = @"Show Tag Photos";
 static NSString * const KonachanDownloadImageTypeDidChangedNotification = @"DownloadImageTypeDidChangedNotification";
 
+//Base URL
+static NSString * const Konachan_com = @"https://konachan.com";
+static NSString * const Yande_re = @"https://yande.re";
+
 typedef NS_ENUM(NSInteger, KonachanImageDownloadType) {
     KonachanImageDownloadTypeUnseted,
     KonachanImageDownloadTypePreview,
@@ -95,6 +99,7 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define kPreloadNextPage @"preload_next_page"
 #define kSwitchSite @"switch_site"
 #define kOfflineMode @"offline_mode"
+#define kOpenBlacklist @"open_blacklist"
 
 //Ratings
 #define kRatingSafe         @"s"

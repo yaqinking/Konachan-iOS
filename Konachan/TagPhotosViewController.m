@@ -26,6 +26,7 @@ NSString * const TagAll = @"";
 @property (strong, nonatomic) NSMutableArray *photos;
 @property (strong, nonatomic) NSMutableArray *previewPhotosURL;
 @property (strong, nonatomic) MWPhotoBrowser *browser;
+@property (strong, nonatomic) NSArray<NSString *> *blacklisted;
 
 @property (nonatomic, assign, getter=isEnterBrowser) BOOL enterBrowser;
 @property (nonatomic, assign, getter=isLoadNextPage) BOOL loadNextPage;
@@ -152,7 +153,6 @@ NSString * const TagAll = @"";
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    NSLog(@"S W %f H %f",size.width,size.height);
     self.screenSize = size;
     [self.collectionView.collectionViewLayout invalidateLayout];
     
@@ -340,10 +340,11 @@ NSString * const TagAll = @"";
     
     NSString *url;
     if ([self isCurrentLoadAllWithTag:tag]) {
-        url = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset, TagAll];
+        url = [NSString stringWithFormat:self.sourceSite, self.fetchAmount, pageOffset,TagAll];
     } else {
         url = [NSString stringWithFormat:self.sourceSite,self.fetchAmount,pageOffset,tag];
     }
+
     self.pageOffset ++;
     self.loadNextPage = NO;
     NSUInteger beforeReqPhotosCount = self.previewPhotosURL.count;
@@ -359,22 +360,33 @@ NSString * const TagAll = @"";
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
                      NSString *picTitle         = picDict[PictureTags];
-                     NSString *downloadImageURLString = picDict[self.downloadImageTypeKey];
-                     NSURL *downloadImageURL = [NSURL URLWithString:downloadImageURLString];
-                     Picture *photoPic = [[Picture alloc] initWithURL:downloadImageURL];
-                     photoPic.caption = picTitle;
-                     [self.photos addObject:photoPic];
-                     
-                     NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
-                     switch (thumbLoadWay) {
-                         case KonachanPreviewImageLoadTypeLoadPreview:
-                             [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
-                             break;
-                         case KonachanPreviewImageLoadTypeLoadDownloaded:
-                             [self.previewPhotosURL addObject:downloadImageURL];
-                             break;
-                         default:
-                             break;
+                     __block NSMutableString *flag = [NSMutableString new];
+                     if (self.blacklisted.count) {
+                         [self.blacklisted enumerateObjectsUsingBlock:^(NSString * _Nonnull blacklistTag, NSUInteger idx, BOOL * _Nonnull stop) {
+                             if ([picTitle containsString:blacklistTag]) {
+                                 [flag appendString:@"1"];
+                                 *stop = YES;
+                             }
+                         }];
+                     }
+                     if (![flag containsString:@"1"]) {
+                         NSString *downloadImageURLString = picDict[self.downloadImageTypeKey];
+                         NSURL *downloadImageURL = [NSURL URLWithString:downloadImageURLString];
+                         Picture *photoPic = [[Picture alloc] initWithURL:downloadImageURL];
+                         photoPic.caption = picTitle;
+                         [self.photos addObject:photoPic];
+                         
+                         NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
+                         switch (thumbLoadWay) {
+                             case KonachanPreviewImageLoadTypeLoadPreview:
+                                 [self.previewPhotosURL addObject:[NSURL URLWithString:previewURLString]];
+                                 break;
+                             case KonachanPreviewImageLoadTypeLoadDownloaded:
+                                 [self.previewPhotosURL addObject:downloadImageURL];
+                                 break;
+                             default:
+                                 break;
+                         }
                      }
                  }
                  NSUInteger afterReqPhotosCount = self.previewPhotosURL.count;
@@ -557,12 +569,21 @@ NSString * const TagAll = @"";
     return _previewPhotosURL;
 }
 
+- (NSArray<NSString *> *)blacklisted {
+    if (!_blacklisted) {
+        BOOL isOpenBlacklist = [[NSUserDefaults standardUserDefaults] boolForKey:kOpenBlacklist];
+        if (isOpenBlacklist) {
+            _blacklisted = [NSArray arrayWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"blacklisted" withExtension:@"plist"]];
+        }
+    }
+    return _blacklisted;
+}
+
 - (NSInteger)fetchAmount {
     return [[NSUserDefaults standardUserDefaults] integerForKey:kFetchAmount];
 }
 
 - (void)didReceiveMemoryWarning {
-    NSLog(@"didReceiveMemoryWarning");
     [[SDImageCache sharedImageCache] clearMemory];
     [super didReceiveMemoryWarning];
 }

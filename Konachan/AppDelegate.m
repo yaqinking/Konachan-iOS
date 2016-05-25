@@ -115,7 +115,8 @@
     
     [userDefaults registerDefaults:@{ kPreloadNextPage : @YES,
                                       kSwitchSite : @NO,
-                                      kOfflineMode : @NO }];
+                                      kOfflineMode : @NO,
+                                      kOpenBlacklist : @YES}];
     NSInteger fetchAmount = [userDefaults integerForKey:kFetchAmount];
     if ((fetchAmount == 0 && iPadProPortrait) || (fetchAmount == 0 && iPadProLandscape)) {
 //        NSLog(@"iPad Pro");
