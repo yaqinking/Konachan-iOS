@@ -12,6 +12,7 @@
 #import "Tag+CoreDataProperties.h"
 #import "TagTableViewCell.h"
 #import "KNCCoreDataStackManager.h"
+#import "NSString+URL.h"
 
 @interface ViewController ()
 
@@ -153,7 +154,8 @@
     //    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d pictures",tag.cachedPicsCount];
     
     if (self.previewImageURLs.count > 0 ) {
-        [cell.tagImageView sd_setImageWithURL:[self.previewImageURLs objectAtIndex:indexPath.row] placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
+        NSString *url = [self.previewImageURLs objectAtIndex:indexPath.row];
+        [cell.tagImageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"placeholder.jpg"]];
     }
     return cell;
 }
@@ -224,6 +226,7 @@
          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
              for (NSDictionary *picDict in responseObject) {
                  NSString *previewURLString = picDict[PreviewURL];
+                 previewURLString = [NSString_URL appendHttpsIfNeeded:previewURLString];
                  [self.dataPreviewImageURLs addObject:previewURLString];
              }
              

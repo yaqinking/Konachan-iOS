@@ -10,6 +10,7 @@
 #import "SDWebImagePrefetcher.h"
 #import "AFNetworking.h"
 #import "KonachanAPI.h"
+#import "NSString+URL.h"
 
 NSString * const PreloadPhotoProgressDidChangeNotification = @"PreloadPhotoProgressDidChangeNotification";
 NSString * const PreloadPhotoProgressFinishedKey           = @"finished";
@@ -53,7 +54,9 @@ NSString * const PreloadPhotoPrograssCompletedKey          = @"completed";
              dispatch_async(dispatch_queue_create("cache_queue", nil), ^{
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
+                     previewURLString = [NSString_URL appendHttpsIfNeeded:previewURLString];
                      NSString *downloadImageURLString = picDict[self.downloadImageTypeKey];
+                     downloadImageURLString = [NSString_URL appendHttpsIfNeeded:downloadImageURLString];
                      NSURL *downloadImageURL = [NSURL URLWithString:downloadImageURLString];
                      NSInteger thumbLoadWay = [[NSUserDefaults standardUserDefaults] integerForKey:kThumbLoadWay];
                      switch (thumbLoadWay) {

@@ -16,6 +16,7 @@
 #import "PreloadPhotoManager.h"
 #import "LocalImageDataSource.h"
 #import "AppDelegate.h"
+#import "NSString+URL.h"
 
 static NSString * const CellIdentifier = @"PhotoCell";
 
@@ -210,6 +211,9 @@ NSString * const TagAll = @"";
             if (iPadProPortrait) {
                 widthItemCount = 2;
                 heightItemCount = 4;
+            } else if (iPadPro_10_5_Landscape) {
+                widthItemCount = 3;
+                heightItemCount = 2;
             } else if (iPhone6Portrait || iPhone6PlusPortrait || iPhone4InchPortrait) {
                 heightItemCount = 3;
             } else if (iPadProLandscape || iPadLandscape || iPhone6Landscape ||
@@ -259,10 +263,10 @@ NSString * const TagAll = @"";
                 }
             }
         } else {
-            if (iPadProPortrait) {
+            if (iPadProPortrait || iPadPro_10_5_Portrait) {
                 widthItemCount = 5;
                 heightItemCount = 7;
-            } else if (iPadProLandscape){
+            } else if (iPadProLandscape || iPadPro_10_5_Landscape){
                 widthItemCount = 6;
                 heightItemCount = 5;
             } else if (iPadPortrait) {
@@ -359,6 +363,7 @@ NSString * const TagAll = @"";
                  [dataSource insertImagesFromResonseObject:responseObject];
                  for (NSDictionary *picDict in responseObject) {
                      NSString *previewURLString = picDict[PreviewURL];
+                     previewURLString = [NSString_URL appendHttpsIfNeeded:previewURLString];
                      NSString *picTitle         = picDict[PictureTags];
                      __block NSMutableString *flag = [NSMutableString new];
                      if (self.blacklisted.count) {
@@ -371,6 +376,7 @@ NSString * const TagAll = @"";
                      }
                      if (![flag containsString:@"1"]) {
                          NSString *downloadImageURLString = picDict[self.downloadImageTypeKey];
+                         downloadImageURLString = [NSString_URL appendHttpsIfNeeded:downloadImageURLString];
                          NSURL *downloadImageURL = [NSURL URLWithString:downloadImageURLString];
                          Picture *photoPic = [[Picture alloc] initWithURL:downloadImageURL];
                          photoPic.caption = picTitle;

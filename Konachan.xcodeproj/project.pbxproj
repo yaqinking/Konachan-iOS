@@ -11,7 +11,6 @@
 		F40223B91CEBF65000E3B7FE /* ExportTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F40223B81CEBF65000E3B7FE /* ExportTableViewController.m */; };
 		F42BB1A41C96DD6D0044E307 /* UIImageView+ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */; };
 		F42D2C3E1C02DFFB0049494A /* Konachan.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C3C1C02DFFB0049494A /* Konachan.xcdatamodeld */; };
-		F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F42D2C421C02E38C0049494A /* CloudKit.framework */; };
 		F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */; };
 		F42D2C491C02E9930049494A /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = F42D2C471C02E9930049494A /* Tag.m */; };
 		F434EFB11CEF21F100201739 /* KNCCoreDataStackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F434EFB01CEF21F100201739 /* KNCCoreDataStackManager.m */; };
@@ -19,6 +18,7 @@
 		F445B9831CF5549600C36A9B /* blacklisted.plist in Resources */ = {isa = PBXBuildFile; fileRef = F445B9821CF5549600C36A9B /* blacklisted.plist */; };
 		F44997D81CE433D1007ABD4A /* Image+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */; };
 		F44997D91CE433D1007ABD4A /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = F44997D71CE433D1007ABD4A /* Image.m */; };
+		F4690C091F87761600B8007F /* NSString+URL.m in Sources */ = {isa = PBXBuildFile; fileRef = F4690C081F87761600B8007F /* NSString+URL.m */; };
 		F4C2DB7A1CE5525400F68F0F /* LocalImageDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */; };
 		F4C6B0601B76FEEE00A0198A /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C6B05F1B76FEEE00A0198A /* SettingsTableViewController.m */; };
 		F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E5F0E51B71F92C00AA21D6 /* TagTableViewCell.m */; };
@@ -43,7 +43,6 @@
 		F42BB1A31C96DD6D0044E307 /* UIImageView+ProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+ProgressView.m"; sourceTree = "<group>"; };
 		F42D2C3D1C02DFFB0049494A /* Konachan.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Konachan.xcdatamodel; sourceTree = "<group>"; };
 		F42D2C3F1C02E0950049494A /* Konachan.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Konachan.entitlements; sourceTree = "<group>"; };
-		F42D2C421C02E38C0049494A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F42D2C441C02E9930049494A /* Tag+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Tag+CoreDataProperties.h"; sourceTree = "<group>"; };
 		F42D2C451C02E9930049494A /* Tag+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Tag+CoreDataProperties.m"; sourceTree = "<group>"; };
 		F42D2C461C02E9930049494A /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
@@ -58,6 +57,8 @@
 		F44997D51CE433D1007ABD4A /* Image+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Image+CoreDataProperties.m"; sourceTree = "<group>"; };
 		F44997D61CE433D1007ABD4A /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
 		F44997D71CE433D1007ABD4A /* Image.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Image.m; sourceTree = "<group>"; };
+		F4690C071F87761600B8007F /* NSString+URL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+URL.h"; sourceTree = "<group>"; };
+		F4690C081F87761600B8007F /* NSString+URL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+URL.m"; sourceTree = "<group>"; };
 		F47800C01C12C0DD00428F2C /* KonachanTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KonachanTool.h; sourceTree = "<group>"; };
 		F4C2DB781CE5525400F68F0F /* LocalImageDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalImageDataSource.h; sourceTree = "<group>"; };
 		F4C2DB791CE5525400F68F0F /* LocalImageDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalImageDataSource.m; sourceTree = "<group>"; };
@@ -89,7 +90,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F42D2C431C02E38C0049494A /* CloudKit.framework in Frameworks */,
 				E78BA1616C91627C21B33B51 /* libPods-Konachan.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,7 +100,6 @@
 		A353000DCD6FDBFC8A4459AE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F42D2C421C02E38C0049494A /* CloudKit.framework */,
 				4150F714913419619E016DD4 /* libPods-Konachan.a */,
 			);
 			name = Frameworks;
@@ -193,6 +192,8 @@
 				F434EFAF1CEF21F100201739 /* KNCCoreDataStackManager.h */,
 				F434EFB01CEF21F100201739 /* KNCCoreDataStackManager.m */,
 				F445B9821CF5549600C36A9B /* blacklisted.plist */,
+				F4690C071F87761600B8007F /* NSString+URL.h */,
+				F4690C081F87761600B8007F /* NSString+URL.m */,
 			);
 			path = Konachan;
 			sourceTree = "<group>";
@@ -240,10 +241,10 @@
 				TargetAttributes = {
 					F4F0A33A1B71E94000289149 = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 2RX98WKS48;
+						DevelopmentTeam = 9KCA2Z4D9U;
 						SystemCapabilities = {
 							com.apple.iCloud = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
@@ -341,6 +342,7 @@
 				F4E5F0E61B71F92C00AA21D6 /* TagTableViewCell.m in Sources */,
 				F4E5F0EF1B71FF4E00AA21D6 /* Picture.m in Sources */,
 				F4F0A3461B71E94000289149 /* ViewController.m in Sources */,
+				F4690C091F87761600B8007F /* NSString+URL.m in Sources */,
 				F44997D81CE433D1007ABD4A /* Image+CoreDataProperties.m in Sources */,
 				F42D2C481C02E9930049494A /* Tag+CoreDataProperties.m in Sources */,
 				F44997D91CE433D1007ABD4A /* Image.m in Sources */,
@@ -464,12 +466,12 @@
 			baseConfigurationReference = 987AD3BEF79561765A45C17A /* Pods-Konachan.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Konachan/Konachan.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 9KCA2Z4D9U;
 				INFOPLIST_FILE = Konachan/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = moe.yaqinking.Konachan;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yaqinking.Konachan;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
@@ -480,12 +482,12 @@
 			baseConfigurationReference = 2DB3BBB9E18B37BD0F2999AA /* Pods-Konachan.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Konachan/Konachan.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 9KCA2Z4D9U;
 				INFOPLIST_FILE = Konachan/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = moe.yaqinking.Konachan;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yaqinking.Konachan;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};

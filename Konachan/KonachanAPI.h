@@ -8,7 +8,7 @@
 
 //Debug mode
 //YES = 1 NO = 0
-#define IS_DEBUG_MODE 1
+#define IS_DEBUG_MODE 0
 
 //Get Post
 
@@ -88,9 +88,9 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 #define iPad_Width 768
 #define iPad_Pro_Width 1024
 
-#define kFetchAmountDefault    40
-#define kFetchAmountMin        30
-#define kFetchAmountiPadProMin 56
+#define kFetchAmountDefault    60
+#define kFetchAmountMin        40
+#define kFetchAmountiPadProMin 75
 
 #define kSourceSite   @"source_site"
 #define kFetchAmount  @"fetch_amount"
@@ -109,6 +109,8 @@ typedef NS_ENUM(NSInteger, KonachanPreviewImageLoadType) {
 //For device adaption
 #define iPadProPortrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.height == 1366)
 #define iPadProLandscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.width == 1366)
+#define iPadPro_10_5_Portrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.height == 1112)
+#define iPadPro_10_5_Landscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.width == 1112)
 #define iPad ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 #define iPadPortrait ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.height == 1024)
 #define iPadLandscape ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && [UIScreen mainScreen].bounds.size.width == 1024)
